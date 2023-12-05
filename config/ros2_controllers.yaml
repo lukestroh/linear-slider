@@ -1,0 +1,23 @@
+# This config file is used by ros2_control
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz
+
+    linear_slider_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+linear_slider_controller:
+  ros__parameters:
+    joint: ls_base_link_ls_moving_base_joint
+    command_interfaces:
+      - position
+      - velocity
+      - effort
+    state_interfaces:
+      - position
+      - velocity
+      - effort

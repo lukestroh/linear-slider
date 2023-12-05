@@ -1,0 +1,4 @@
+# Default initial positions for linear_slider's ros2_control fake system
+
+initial_positions:
+  ls_base_link_ls_moving_base_joint: 0
