@@ -24,7 +24,8 @@
       <material name="alpha_black"/>
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
       <geometry>
-        <mesh filename="package://linear-slider/meshes/7thlink_fixed.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://linear-slider/linear_slider_description/meshes/7thlink_fixed.STL"
+          scale="0.001 0.001 0.001" />
       </geometry>
     </visual>
   </link>
@@ -33,12 +34,14 @@
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
       <material name="red_v"/>
       <geometry>
-        <mesh filename="package://linear-slider/meshes/7thlink_move.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://linear-slider/linear_slider_description/meshes/7thlink_move.STL"
+          scale="0.001 0.001 0.001" />
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://linear-slider/meshes/7thlink_move.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://linear-slider/linear_slider_description/meshes/7thlink_move.STL"
+          scale="0.001 0.001 0.001" />
       </geometry>
     </collision>
     <inertial>

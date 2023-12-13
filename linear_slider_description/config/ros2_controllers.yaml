@@ -14,10 +14,10 @@ linear_slider_controller:
   ros__parameters:
     joint: ls_base_link_ls_moving_base_joint
     command_interfaces:
-      - position
+      # - position
       - velocity
-      - effort
+      # - effort
     state_interfaces:
-      - position
+      # - position
       - velocity
-      - effort
+      # - effort

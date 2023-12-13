@@ -10,22 +10,22 @@ moveit_setup_assistant_config:
     generated_timestamp: 1701754735
   control_xacro:
     command:
-      - position
+      # - position
       - velocity
-      - effort
+      # - effort
     state:
-      - position
+      # - position
       - velocity
-      - effort
+      # - effort
   modified_urdf:
     xacros:
       - control_xacro
   control_xacro:
     command:
-      - position
+      # - position
       - velocity
-      - effort
+      # - effort
     state:
-      - position
+      # - position
       - velocity
-      - effort
+      # - effort
