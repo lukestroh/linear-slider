@@ -6,8 +6,10 @@
 #include <rclcpp_lifecycle/state.hpp>
 #include <realtime_tools/realtime_buffer.h>
 
+#include "visibility_control.h"
 
-namespace linear_slider
+
+namespace linear_slider_controller_interface
 {
     class LinearSliderController: public controller_interface::ControllerInterface
     {

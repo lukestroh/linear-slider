@@ -17,7 +17,7 @@ find_package(pluginlib REQUIRED)
 add_library(
   ${PROJECT_NAME}
   SHARED
-  src/linear_slider_controller.cpp
+  src/linear_slider_system_interface.cpp
 )
 target_include_directories(
   ${PROJECT_NAME}
