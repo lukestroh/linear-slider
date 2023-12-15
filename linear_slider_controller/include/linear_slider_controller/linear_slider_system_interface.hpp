@@ -20,12 +20,14 @@
 
 #include "linear_slider_controller/visibility_control.h"
 
+#include "linear_slider_controller/clearcore_comms.hpp"
+
 namespace linear_slider_system_interface
 {
     class LinearSliderSystemInterface : public hardware_interface::SystemInterface
     {
         public:
-            RCLCPP_SHARED_PTR_DEFINITIONS(LinearSliderSystemInterface);
+            RCLCPP_SHARED_PTR_DEFINITIONS(LinearSliderSystemInterface)
 
             LINEAR_SLIDER_CONTROLLER_PUBLIC
             hardware_interface::CallbackReturn on_init(const hardware_interface::HardwareInfo& info) override;
@@ -36,11 +38,17 @@ namespace linear_slider_system_interface
             LINEAR_SLIDER_CONTROLLER_PUBLIC
             std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
 
+            // LINEAR_SLIDER_CONTROLLER_PUBLIC
+            // hardware_interface::return_type prepare_command_mode_switch(
+            //     const std::vector<std::string>& start_interfaces,
+            //     const std::vector<std::string>& stop_interfaces
+            // ) override;
+
             LINEAR_SLIDER_CONTROLLER_PUBLIC
-            hardware_interface::return_type prepare_command_mode_switch(
-                const std::vector<std::string>& start_interfaces,
-                const std::vector<std::string>& stop_interfaces
-            ) override;
+            hardware_interface::CallbackReturn on_configure(const rclcpp_lifecycle::State& previous_state) override;
+
+            LINEAR_SLIDER_CONTROLLER_PUBLIC
+            hardware_interface::CallbackReturn on_cleanup(const rclcpp_lifecycle::State& previous_state) override;
 
             LINEAR_SLIDER_CONTROLLER_PUBLIC
             hardware_interface::CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
@@ -53,6 +61,15 @@ namespace linear_slider_system_interface
 
             LINEAR_SLIDER_CONTROLLER_PUBLIC
             hardware_interface::return_type write(const rclcpp::Time& time, rclcpp::Duration& period) override;
+
+
+        private:
+            // data structure for holding velocity data
+            std::vector<double> hw_states_velocities_;
+            std::vector<double> hw_commands_velocities_;
+
+            // Comms
+            ClearCoreComms comms_;
     };
 } // namespace linear_slider_system_interface
 
