@@ -3,6 +3,14 @@
         "*.tcc": "cpp",
         "sstream": "cpp",
         "socket": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "buffer": "cpp",
+        "io_context": "cpp",
+        "memory_resource": "cpp",
+        "fstream": "cpp",
+        "ostream": "cpp",
+        "shared_mutex": "cpp",
+        "stop_token": "cpp",
+        "streambuf": "cpp"
     }
 }

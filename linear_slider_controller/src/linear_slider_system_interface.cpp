@@ -23,6 +23,9 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
     hw_states_velocities_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
     hw_commands_velocities_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
 
+    // Set hardware configs from the linear_slider.ros2_control.xacro file
+    config_.device_name = info_.hardware_parameters["device_name"];
+
     for (const hardware_interface::ComponentInfo& joint : info_.joints) {
         // The linear slider has one state and one command interface on the single prismatic joint, make sure they exist
         // Command interface check
@@ -93,8 +96,6 @@ std::vector<hardware_interface::StateInterface> LinearSliderSystemInterface::exp
     }
 }
 
-// hardware_interface::return_type LinearSliderSystemInterface::perform_command_mode_switch()
-
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_configure(const rclcpp_lifecycle::State& previous_state) {
     /* Set up the comms */
     RCLCPP_INFO(rclcpp::get_logger("LinearSliderSystemHardware"), "Configuring system, please wait...");
@@ -123,13 +124,18 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_deactivate(co
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::Time& time, rclcpp::Duration& period) {
+hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::Time & time, rclcpp::Duration & period) {
+    /* Read data from the linear slider */
+    char* msg = comms_.read_data();
+    if (msg[0] != '\0'){
 
+    }
     return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp::Time& time, rclcpp::Duration& period) {
-
+hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp::Time & time, rclcpp::Duration & period) {
+    /* Write data to the linear slider */
+    comms_.send_data("data");
     return hardware_interface::return_type::OK;
 }
 

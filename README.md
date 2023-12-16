@@ -25,3 +25,9 @@ A basic tutorial of the interfaces is as follows:
 `on_shutdown()`: Shuts down the whole thing (gracefully).
 
 ### Linear Slider Description: Defines the physical robot. This includes STL meshes, URDF and SRDF files, MoveIt configurations, etc.
+
+Things to look at:
+
+```
+https://control.ros.org/master/doc/gazebo_ros2_control/doc/index.html
+```

@@ -44,11 +44,11 @@ bool ClearCoreComms::begin() {
     return true;
 }
 
-void ClearCoreComms::read_data() {
+char* ClearCoreComms::read_data() {
     int msg_size;
     msg_size = recvfrom(sock, (char*)read_buffer, BUF_LEN_MAX, MSG_WAITALL, (struct sockaddr*)&client_addr, &client_addr_len);
     read_buffer[msg_size] = '\0';
-    return;
+    return read_buffer;
 }
 
 void ClearCoreComms::construct_send_msg(char* data) {
