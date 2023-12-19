@@ -10,7 +10,7 @@ install(
     meshes
     urdf
     config
-    rviz
+    # rviz
   DESTINATION share/${PROJECT_NAME}
 )
 

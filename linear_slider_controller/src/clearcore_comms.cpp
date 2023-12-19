@@ -51,7 +51,7 @@ char* ClearCoreComms::read_data() {
     return read_buffer;
 }
 
-void ClearCoreComms::construct_send_msg(char* data) {
+void ClearCoreComms::construct_send_msg(const char* data) {
     /* Fill the send_buffer with data */
     // Empty the send_buffer
     memset(&send_buffer[0], 0, sizeof(send_buffer));
@@ -59,7 +59,7 @@ void ClearCoreComms::construct_send_msg(char* data) {
     return;
 }
 
-void ClearCoreComms::send_data(char* data) {
+void ClearCoreComms::send_data(const char* data) {
     construct_send_msg(data);
     sendto(sock, (const char*)send_buffer, strlen(send_buffer), MSG_CONFIRM, (const struct sockaddr*) &client_addr, client_addr_len);
     return;

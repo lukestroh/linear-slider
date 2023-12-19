@@ -19,9 +19,13 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
         return hardware_interface::CallbackReturn::ERROR;
     }
 
-    // Allocate enough memory for our velocities
-    hw_states_velocities_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
-    hw_commands_velocities_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
+    // Set up motor
+    teknic_motor_.begin("teknic_clearpath_mc");
+
+    // TODO: Can probably delete these, since we have a custom object representing our motor
+    // // Allocate enough memory for our velocities
+    // hw_states_velocities_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
+    // hw_commands_velocities_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
 
     // Set hardware configs from the linear_slider.ros2_control.xacro file
     config_.device_name = info_.hardware_parameters["device_name"];
@@ -78,22 +82,28 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
 std::vector<hardware_interface::CommandInterface> LinearSliderSystemInterface::export_command_interfaces() {
     /* Tells the rest of ros2_control which control interfaces are accessible */
     std::vector<hardware_interface::CommandInterface> command_interfaces;
-    for (std::size_t i = 0; i < info_.joints.size(); ++i) {
-        command_interfaces.emplace_back(hardware_interface::CommandInterface(
-            info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_velocities_[i] 
-        ));
-    }
+    // for (std::size_t i = 0; i < info_.joints.size(); ++i) {
+    //     command_interfaces.emplace_back(hardware_interface::CommandInterface(
+    //         info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_velocities_[i] 
+    //     ));
+    // }
+    command_interfaces.emplace_back(hardware_interface::CommandInterface(
+        teknic_motor_.name, hardware_interface::HW_IF_VELOCITY, &teknic_motor_.vel_cmd
+    ));
     return command_interfaces;
 }
 
 std::vector<hardware_interface::StateInterface> LinearSliderSystemInterface::export_state_interfaces() {
     /* Tells the rest of ros2_control which state interfaces are accessible */
     std::vector<hardware_interface::StateInterface> state_interfaces;
-    for (std::size_t i = 0; i<info_.joints.size(); ++i) {
-        state_interfaces.emplace_back(hardware_interface::StateInterface(
-            info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_states_velocities_[i]
-        ));
-    }
+    // for (std::size_t i = 0; i<info_.joints.size(); ++i) {
+    //     state_interfaces.emplace_back(hardware_interface::StateInterface(
+    //         info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_states_velocities_[i]
+    //     ));
+    // }
+    state_interfaces.emplace_back(hardware_interface::StateInterface(
+        teknic_motor_.name, hardware_interface::HW_IF_VELOCITY, &teknic_motor_.vel_state
+    ));
 }
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_configure(const rclcpp_lifecycle::State& previous_state) {
@@ -125,17 +135,21 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_deactivate(co
 }
 
 hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::Time & time, rclcpp::Duration & period) {
-    /* Read data from the linear slider */
+    /* Read data from the linear slider. Converts RPM speeds to linear velocities */
     char* msg = comms_.read_data();
     if (msg[0] != '\0'){
-
+        // convert rpm message to float velocity, store in teknic_motor_.rpm_state. Additionally, update teknic_motor_.vel_state
     }
     return hardware_interface::return_type::OK;
 }
 
 hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp::Time & time, rclcpp::Duration & period) {
-    /* Write data to the linear slider */
-    comms_.send_data("data");
+    /* Write data to the linear slider. Converts linear velocities to RPM speeds */
+
+    // convert teknic_motor_.vel_cmd to teknic_motor_.rpm_cmd. Convert this value to str, send via comms_
+    teknic_motor_.rpm_cmd = teknic_motor_.vel_to_rpm(teknic_motor_.vel_cmd); // TODO: this should probably either be completely internal, or completely external, but not both.
+    std::string cmd = std::to_string(teknic_motor_.rpm_cmd);
+    comms_.send_data(cmd.c_str());
     return hardware_interface::return_type::OK;
 }
 

@@ -12,7 +12,7 @@ class ClearCoreComms {
     public:
         bool begin();
         char* read_data();
-        void send_data(char* data);
+        void send_data(const char* data);
 
         ClearCoreComms();
         ~ClearCoreComms();
@@ -27,7 +27,7 @@ class ClearCoreComms {
         char send_buffer[BUF_LEN_MAX];
         socklen_t client_addr_len = sizeof(client_addr);
 
-        void construct_send_msg(char* data);
+        void construct_send_msg(const char* data);
         
 };
 

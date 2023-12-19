@@ -45,7 +45,7 @@
             <material name="alpha_black"/>
             <origin rpy="${base_link_start_orientation}" xyz="${start_offset}"/>
             <geometry>
-                <mesh filename="package://linear-slider/linear_slider_description/meshes/7thlink_fixed.STL" scale="${model_scale}" />
+                <mesh filename="package://linear_slider_description/meshes/7thlink_fixed.STL" scale="${model_scale}" />
             </geometry>
         </visual>
     </link>
@@ -56,14 +56,14 @@
             <material name="red_v" />
             <geometry>
                 <mesh
-                    filename="package://linear-slider/linear_slider_description/meshes/7thlink_move.STL"
+                    filename="package://linear_slider_description/meshes/7thlink_move.STL"
                     scale="${model_scale}" />
             </geometry>
         </visual>
         <collision>
             <geometry>
                 <mesh
-                    filename="package://linear-slider/linear_slider_description/meshes/7thlink_move.STL"
+                    filename="package://linear_slider_description/meshes/7thlink_move.STL"
                     scale="${model_scale}" />
             </geometry>
         </collision>

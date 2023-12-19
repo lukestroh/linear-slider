@@ -1,8 +1,8 @@
 <library path="linear_slider_controller">
     <class
-        name="linear_slider_controller/LinearSliderController"
-        type="linear_slider::controller::LinearSliderController"
-        base_class_type="controller_interface::ControllerInterface"
+        name="linear_slider_controller/LinearSliderSystemInterface"
+        type="linear_slider_system_interface::LinearSliderSystemInterface"
+        base_class_type="hardware_interface::SystemInterface"
     >
         <description>
             Prismatic joint controller for linear_slider

@@ -1,6 +1,6 @@
 moveit_setup_assistant_config:
   urdf:
-    package: linear-slider
+    package: linear_slider_description
     relative_path: urdf/linear_slider.urdf
   srdf:
     relative_path: config/linear_slider.srdf
