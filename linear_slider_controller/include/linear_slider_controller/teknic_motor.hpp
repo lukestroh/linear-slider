@@ -17,7 +17,7 @@ class TeknicMotor {
         ~TeknicMotor();
 
         void begin(const std::string& motor_name);
-        double rpm_to_vel(int& rpm);
+        double rpm_to_vel(int rpm);
         int vel_to_rpm(double& vel);
 
 };

@@ -8,6 +8,7 @@
 
 #include "visibility_control.h"
 
+// https://articulatedrobotics.xyz/mobile-robot-13-ros2-control-real/
 
 namespace linear_slider_controller_interface
 {

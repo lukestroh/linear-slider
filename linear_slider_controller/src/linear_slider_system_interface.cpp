@@ -104,6 +104,7 @@ std::vector<hardware_interface::StateInterface> LinearSliderSystemInterface::exp
     state_interfaces.emplace_back(hardware_interface::StateInterface(
         teknic_motor_.name, hardware_interface::HW_IF_VELOCITY, &teknic_motor_.vel_state
     ));
+    return state_interfaces;
 }
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_configure(const rclcpp_lifecycle::State& previous_state) {
@@ -134,16 +135,18 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_deactivate(co
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::Time & time, rclcpp::Duration & period) {
+hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::Time& time, const rclcpp::Duration& period) {
     /* Read data from the linear slider. Converts RPM speeds to linear velocities */
     char* msg = comms_.read_data();
     if (msg[0] != '\0'){
         // convert rpm message to float velocity, store in teknic_motor_.rpm_state. Additionally, update teknic_motor_.vel_state
+        teknic_motor_.rpm_state = std::stoi(msg);
+        teknic_motor_.vel_state = teknic_motor_.rpm_to_vel(teknic_motor_.rpm_state); // TODO: this should probably either be completely internal, or completely external, but not both.
     }
     return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp::Time & time, rclcpp::Duration & period) {
+hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp::Time& time, const rclcpp::Duration& period) {
     /* Write data to the linear slider. Converts linear velocities to RPM speeds */
 
     // convert teknic_motor_.vel_cmd to teknic_motor_.rpm_cmd. Convert this value to str, send via comms_

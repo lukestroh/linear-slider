@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
     std::vector<std::string> start_controllers;
     std::vector<std::string> stop_controllers;
     controller_manager_node->load_controller("joint_state_controller", "joint_state_controller/JointStateController");
-    controlelr_manager_node->load_controller("joint_command_controller", "joint_command_controller/JointCommandController"); // could be linear_slider controller?
+    controller_manager_node->load_controller("joint_command_controller", "joint_command_controller/JointCommandController"); // could be linear_slider controller?
 
     // Configure controllers
     controller_manager_node->configure_controller("joint_state_controller");

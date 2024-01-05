@@ -57,10 +57,10 @@ namespace linear_slider_system_interface
             hardware_interface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
 
             LINEAR_SLIDER_CONTROLLER_PUBLIC
-            hardware_interface::return_type read(const rclcpp::Time& time, rclcpp::Duration& period) override;
+            hardware_interface::return_type read(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
             LINEAR_SLIDER_CONTROLLER_PUBLIC
-            hardware_interface::return_type write(const rclcpp::Time& time, rclcpp::Duration& period) override;
+            hardware_interface::return_type write(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
 
         private:
