@@ -6,6 +6,8 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <jsoncpp/json/json.h>
+
 
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -136,11 +138,26 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_deactivate(co
 }
 
 hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::Time& time, const rclcpp::Duration& period) {
-    /* Read data from the linear slider. Converts RPM speeds to linear velocities */
+    /* Read data from the linear slider. Message formatted as JSON string. Converts RPM speeds to linear velocities */
     char* msg = comms_.read_data();
     if (msg[0] != '\0'){
-        // convert rpm message to float velocity, store in teknic_motor_.rpm_state. Additionally, update teknic_motor_.vel_state
-        teknic_motor_.rpm_state = std::stoi(msg);
+        // parse message
+        Json::CharReaderBuilder builder;
+        Json::CharReader* reader = builder.newCharReader();
+        Json::Value msg_json;
+        std::string errors;
+        bool parsingSuccessful = reader->parse(msg, msg + strlen(msg), &msg_json, &errors);
+        delete reader;
+
+        if (!parsingSuccessful) {
+            RCLCPP_ERROR(rclcpp::get_logger("LinearSliderSystemHardware"), "Failed to parse JSON message: %s", errors.c_str());
+            return hardware_interface::return_type::ERROR;
+        }
+
+        // Get system status and store in teknic_motor_.system_status
+        teknic_motor_.system_status = msg_json["status"].asInt();
+        // Get motor RPM, convert to float velocity, store in teknic_motor_.rpm_state. Additionally, update teknic_motor_.vel_state
+        teknic_motor_.rpm_state = msg_json["servo_rpm"].asInt();
         teknic_motor_.vel_state = teknic_motor_.rpm_to_vel(teknic_motor_.rpm_state); // TODO: this should probably either be completely internal, or completely external, but not both.
     }
     return hardware_interface::return_type::OK;

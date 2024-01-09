@@ -7,9 +7,10 @@
 class TeknicMotor {
     public:
         std::string name;
+        int system_status = 0;
+        int rpm_cmd = 0;
+        int rpm_state = 0;
         double vel_cmd = 0;
-        double rpm_cmd = 0;
-        double rpm_state = 0;
         double vel_state = 0;
 
         TeknicMotor();
