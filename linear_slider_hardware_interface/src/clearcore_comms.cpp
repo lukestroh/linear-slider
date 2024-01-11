@@ -1,4 +1,4 @@
-#include "linear_slider_controller/clearcore_comms.hpp"
+#include "linear_slider_hardware_interface/clearcore_comms.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 ClearCoreComms::ClearCoreComms() {

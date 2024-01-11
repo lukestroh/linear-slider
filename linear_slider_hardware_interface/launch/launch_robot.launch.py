@@ -19,9 +19,9 @@ def generate_launch_description():
     robot_ip = LaunchConfiguration("robot_ip")
     use_sim = LaunchConfiguration("use_sim")
 
-    package_dir = get_package_share_directory("linear_slider_controller")
+    package_dir = get_package_share_directory("linear_slider_hardware_interface")
     controller_params = os.path.join(
-        get_package_share_directory("linear_slider_controller"),
+        get_package_share_directory("linear_slider_hardware_interface"),
         'config',
         'controller_params.yaml'
     )
@@ -33,7 +33,7 @@ def generate_launch_description():
     )
 
     controller_manager_node = Node(
-        package="linear_slider_controller",
+        package="linear_slider_hardware_interface",
         executable="ros2_control_node",
         parameters=[
             {'robot_description': ...},

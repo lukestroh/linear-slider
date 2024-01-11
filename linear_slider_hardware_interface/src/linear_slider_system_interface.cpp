@@ -1,4 +1,4 @@
-#include "linear_slider_controller/linear_slider_system_interface.hpp"
+#include "linear_slider_hardware_interface/linear_slider_system_interface.hpp"
 
 #include <chrono>
 #include <memory>

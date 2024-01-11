@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(linear_slider_controller)
+project(linear_slider_hardware_interface)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -36,7 +36,7 @@ ament_target_dependencies(
 
 pluginlib_export_plugin_description_file(
   controller_interface
-  linear_slider_controller.xml
+  linear_slider_hardware_interface.xml
 )
 
 install(

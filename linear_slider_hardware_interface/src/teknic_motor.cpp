@@ -1,4 +1,4 @@
-#include "linear_slider_controller/teknic_motor.hpp"
+#include "linear_slider_hardware_interface/teknic_motor.hpp"
 
 TeknicMotor::TeknicMotor(){
     name = "default";

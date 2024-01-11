@@ -1,5 +1,5 @@
-#ifndef __LINEAR_SLIDER_CONTROLLER__HARDWARE_INTERFACE_H__
-#define __LINEAR_SLIDER_CONTROLLER__HARDWARE_INTERFACE_H__
+#ifndef __LINEAR_SLIDER__HARDWARE_INTERFACE_H__
+#define __LINEAR_SLIDER__HARDWARE_INTERFACE_H__
 
 #include <chrono>
 #include <cstdint>
@@ -18,10 +18,10 @@
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 
-#include "linear_slider_controller/visibility_control.h"
+#include "linear_slider_hardware_interface/visibility_control.h"
 
-#include "linear_slider_controller/clearcore_comms.hpp"
-#include "linear_slider_controller/teknic_motor.hpp"
+#include "linear_slider_hardware_interface/clearcore_comms.hpp"
+#include "linear_slider_hardware_interface/teknic_motor.hpp"
 
 namespace linear_slider_system_interface
 {
@@ -35,31 +35,31 @@ namespace linear_slider_system_interface
         public:
             RCLCPP_SHARED_PTR_DEFINITIONS(LinearSliderSystemInterface)
 
-            LINEAR_SLIDER_CONTROLLER_PUBLIC
+            LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
             hardware_interface::CallbackReturn on_init(const hardware_interface::HardwareInfo& info) override;
 
-            LINEAR_SLIDER_CONTROLLER_PUBLIC
+            LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
             std::vector<hardware_interface::StateInterface> export_state_interfaces() override; // publishes to the rest of ros2_control so that we know what we can read/write to
 
-            LINEAR_SLIDER_CONTROLLER_PUBLIC
+            LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
             std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
 
-            LINEAR_SLIDER_CONTROLLER_PUBLIC
+            LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
             hardware_interface::CallbackReturn on_configure(const rclcpp_lifecycle::State& previous_state) override;
 
-            LINEAR_SLIDER_CONTROLLER_PUBLIC
+            LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
             hardware_interface::CallbackReturn on_cleanup(const rclcpp_lifecycle::State& previous_state) override;
 
-            LINEAR_SLIDER_CONTROLLER_PUBLIC
+            LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
             hardware_interface::CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
 
-            LINEAR_SLIDER_CONTROLLER_PUBLIC
+            LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
             hardware_interface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
 
-            LINEAR_SLIDER_CONTROLLER_PUBLIC
+            LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
             hardware_interface::return_type read(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
-            LINEAR_SLIDER_CONTROLLER_PUBLIC
+            LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
             hardware_interface::return_type write(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
 
@@ -79,4 +79,4 @@ namespace linear_slider_system_interface
     };
 } // namespace linear_slider_system_interface
 
-#endif // __LINEAR_SLIDER_CONTROLLER__HARDWARE_INTERFACE_H__
+#endif // __LINEAR_SLIDER__HARDWARE_INTERFACE_H__
