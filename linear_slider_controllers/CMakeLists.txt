@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(linear_slider_control)
+project(linear_slider_controllers)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -20,19 +20,25 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
+# find_package(rclcpp REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
 find_package(controller_manager REQUIRED)
+find_package(joint_trajectory_controller REQUIRED)
+find_package(lifecycle_msgs REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
+find_package(pluginlib REQUIRED)
 
-add_executable(linear_slider_control_node src/linear_slider_control_node.cpp)
+# add_executable(linear_slider_control_node src/linear_slider_control_node.cpp)
 
-ament_target_dependencies(
-  linear_slider_control_node
-  rclcpp
-  controller_manager
-)
+# ament_target_dependencies(
+#   # linear_slider_control_node
+#   # rclcpp
+#   # controller_manager
+
+# )
 
 install(TARGETS
-  linear_slider_control_node
+  # linear_slider_control_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

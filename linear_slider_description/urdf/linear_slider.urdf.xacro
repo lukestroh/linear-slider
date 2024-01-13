@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="linear_slider">
+
+    <!-- Use this if parameters are set from the launch file, otherwise delete -->
+    <xacro:arg name="use_mock_hardware" default="false" />
+    <xacro:arg name="mock_sensor_commands" default="false" />
+    <xacro:arg name="prefix" default="" />
+
+    <!-- Robot description -->
+    <xacro:include filename="$(find linear_slider_description)/urdf/linear_slider/linear_slider_macro.xacro"/>
+    <xacro:include filename="$(find linear_slider_description)/urdf/linear_slider/linear_slider.ros2_control.xacro"/>
+
+    <!-- ros2_control -->
+    <xacro:linear_slider_ros2_control
+        name="linear_slider"
+        prefix="$(arg prefix)"
+        initial_positions_file="$(find linear_slider_description)/config/initial_positions.yaml"
+        use_mock_hardware="$(arg use_mock_hardware)"
+        mock_sensor_commands="$(arg mock_sensor_commands)"
+    />
+</robot>

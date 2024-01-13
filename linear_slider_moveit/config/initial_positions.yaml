@@ -1,3 +1,4 @@
 # Default initial positions for linear_slider's ros2_control fake system
+
 initial_positions:
   base_platform_prismatic_joint: 0

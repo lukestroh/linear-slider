@@ -64,7 +64,12 @@ int main(int argc, char* argv[])
     // Start controllers
     start_controllers.push_back("joint_state_controller");
     start_controllers.push_back("joint_command_controller");
-    controller_manager_node->switch_controller(start_controllers, stop_controllers, 1, controller_manager_msgs::srv::SwitchController::Request::BEST_EFFORT);
+    controller_manager_node->switch_controller(
+        start_controllers,
+        stop_controllers,
+        1,
+        controller_manager_msgs::srv::SwitchController::Request::BEST_EFFORT
+    );
 
     // Run the node
     executor->add_node(controller_manager_node);

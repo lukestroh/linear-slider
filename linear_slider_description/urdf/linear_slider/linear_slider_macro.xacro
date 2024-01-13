@@ -48,6 +48,15 @@
                 <mesh filename="package://linear_slider_description/meshes/7thlink_fixed.STL" scale="${model_scale}" />
             </geometry>
         </visual>
+        <collision>
+            <geometry>
+                <!-- <box size="0.22 0.202 0.118"/> -->
+                <mesh
+                    filename="package://linear_slider_description/meshes/7thlink_fixed.STL"
+                    scale="${model_scale}"
+                />
+            </geometry>
+        </collision>
     </link>
 
     <link name="ls_moving_base">
@@ -57,7 +66,8 @@
             <geometry>
                 <mesh
                     filename="package://linear_slider_description/meshes/7thlink_move.STL"
-                    scale="${model_scale}" />
+                    scale="${model_scale}"
+                />
             </geometry>
         </visual>
         <collision>
@@ -81,7 +91,7 @@
         </inertial>
         
     </link>
-        <joint name="ls_base_link_ls_moving_base_joint" type="prismatic">
+        <joint name="base_platform_prismatic_joint" type="prismatic">
             <parent link="base_link"/>
             <child link="ls_moving_base"/>
             <axis xyz="1 0 0"/>
