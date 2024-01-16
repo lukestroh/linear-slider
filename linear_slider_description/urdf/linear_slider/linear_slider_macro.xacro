@@ -1,106 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<robot name="linear_slider" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="linear_slider">
 
-    <!-- ================== -->
-    <!--     Properties     -->
-    <!-- ================== -->
+    <xacro:macro name="linear_slider" params="prefix">
 
-    <!-- Model properties -->
-    <xacro:property name="ls_frame_mass" value="10.0"/>
-    <xacro:property name="ls_frame_length" value="1.25"/>
-    <xacro:property name="ls_frame_width" value="0.3"/>
-    <xacro:property name="ls_frame_height" value="0.25"/>
+        <!-- ================== -->
+        <!--     Properties     -->
+        <!-- ================== -->
 
-    <xacro:property name="ls_moving_base_mass" value="10.0" />
+        <!-- Model properties -->
+        <xacro:property name="ls_frame_mass" value="10.0"/>
+        <xacro:property name="ls_frame_length" value="1.25"/>
+        <xacro:property name="ls_frame_width" value="0.3"/>
+        <xacro:property name="ls_frame_height" value="0.25"/>
 
-    <!-- Model default position/orientation -->
-    <xacro:property name="model_scale" value="0.001 0.001 0.001"/>
-    <xacro:property name="base_link_start_orientation" value="0 0 0"/>
-    <xacro:property name="ls_moving_base_start_orientation" value="0 0 0"/>
-    <xacro:property name="start_offset" value="0.0 0.0 0.0"/>
+        <xacro:property name="ls_moving_base_mass" value="10.0" />
 
-    <!-- Prismatic joint properties -->
-    <xacro:property name="slider_limit_min" value="-0.4"/>
-    <xacro:property name="slider_limit_max" value="0.4"/>
-    <xacro:property name="slider_velocity_limit" value="0.25"/>
-    <xacro:property name="slider_effort_limit" value="10"/>
+        <!-- Model default position/orientation -->
+        <xacro:property name="model_scale" value="0.001 0.001 0.001"/>
+        <xacro:property name="base_link_start_orientation" value="0 0 0"/>
+        <xacro:property name="ls_moving_base_start_orientation" value="0 0 0"/>
+        <xacro:property name="start_offset" value="0.0 0.0 0.0"/>
 
-    <!-- ================== -->
-    <!--     Materials      -->
-    <!-- ================== -->
+        <!-- Prismatic joint properties -->
+        <xacro:property name="slider_limit_min" value="-0.4"/>
+        <xacro:property name="slider_limit_max" value="0.4"/>
+        <xacro:property name="slider_velocity_limit" value="0.25"/>
+        <xacro:property name="slider_effort_limit" value="10"/>
 
-    <material name="alpha_black">
-        <color rgba="0.6 0.6 0.6 1"/>
-    </material>
-    <material name="red_v">
-        <color rgba="1 0 0 1"/>
-    </material>
+        <!-- ================== -->
+        <!--     Materials      -->
+        <!-- ================== -->
 
-    <!-- ================== -->
-    <!--       Links        -->
-    <!-- ================== -->
+        <material name="alpha_black">
+            <color rgba="0.6 0.6 0.6 1"/>
+        </material>
+        <material name="red_v">
+            <color rgba="1 0 0 1"/>
+        </material>
 
-    <link name="base_link">
-        <visual>
-            <material name="alpha_black"/>
-            <origin rpy="${base_link_start_orientation}" xyz="${start_offset}"/>
-            <geometry>
-                <mesh filename="package://linear_slider_description/meshes/7thlink_fixed.STL" scale="${model_scale}" />
-            </geometry>
-        </visual>
-        <collision>
-            <geometry>
-                <!-- <box size="0.22 0.202 0.118"/> -->
-                <mesh
-                    filename="package://linear_slider_description/meshes/7thlink_fixed.STL"
-                    scale="${model_scale}"
+        <!-- ================== -->
+        <!--       Links        -->
+        <!-- ================== -->
+
+        <link name="${prefix}base_link">
+            <visual>
+                <material name="alpha_black"/>
+                <origin rpy="${base_link_start_orientation}" xyz="${start_offset}"/>
+                <geometry>
+                    <mesh filename="package://linear_slider_description/meshes/7thlink_fixed.STL" scale="${model_scale}" />
+                </geometry>
+            </visual>
+            <collision>
+                <geometry>
+                    <!-- <box size="0.22 0.202 0.118"/> -->
+                    <mesh
+                        filename="package://linear_slider_description/meshes/7thlink_fixed.STL"
+                        scale="${model_scale}"
+                    />
+                </geometry>
+            </collision>
+        </link>
+
+        <link name="${prefix}ls_moving_base">
+            <visual>
+                <origin rpy="${ls_moving_base_start_orientation}" xyz="${start_offset}" />
+                <material name="red_v" />
+                <geometry>
+                    <mesh
+                        filename="package://linear_slider_description/meshes/7thlink_move.STL"
+                        scale="${model_scale}"
+                    />
+                </geometry>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh
+                        filename="package://linear_slider_description/meshes/7thlink_move.STL"
+                        scale="${model_scale}" />
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="${ls_moving_base_mass}" />
+                <origin xyz="0.0 0.0 0.0" />
+                <inertia
+                    ixx="${1*12/(ls_frame_mass + ls_moving_base_mass) * (ls_frame_width**2 + ls_frame_height**2)}"
+                    ixy="0.0"
+                    ixz="0.0"
+                    iyy="${1*12/(ls_frame_mass + ls_moving_base_mass) * (ls_frame_length**2 + ls_frame_height**2)}"
+                    iyz="0.0"
+                    izz="${1*12/(ls_frame_mass + ls_moving_base_mass) * (ls_frame_width**2 + ls_frame_length**2)}"
                 />
-            </geometry>
-        </collision>
-    </link>
-
-    <link name="ls_moving_base">
-        <visual>
-            <origin rpy="${ls_moving_base_start_orientation}" xyz="${start_offset}" />
-            <material name="red_v" />
-            <geometry>
-                <mesh
-                    filename="package://linear_slider_description/meshes/7thlink_move.STL"
-                    scale="${model_scale}"
-                />
-            </geometry>
-        </visual>
-        <collision>
-            <geometry>
-                <mesh
-                    filename="package://linear_slider_description/meshes/7thlink_move.STL"
-                    scale="${model_scale}" />
-            </geometry>
-        </collision>
-        <inertial>
-            <mass value="${ls_moving_base_mass}" />
-            <origin xyz="0.0 0.0 0.0" />
-            <inertia
-                ixx="${1*12/(ls_frame_mass + ls_moving_base_mass) * (ls_frame_width**2 + ls_frame_height**2)}"
-                ixy="0.0"
-                ixz="0.0"
-                iyy="${1*12/(ls_frame_mass + ls_moving_base_mass) * (ls_frame_length**2 + ls_frame_height**2)}"
-                iyz="0.0"
-                izz="${1*12/(ls_frame_mass + ls_moving_base_mass) * (ls_frame_width**2 + ls_frame_length**2)}"
-            />
-        </inertial>
-        
-    </link>
-        <joint name="base_platform_prismatic_joint" type="prismatic">
-            <parent link="base_link"/>
-            <child link="ls_moving_base"/>
-            <axis xyz="1 0 0"/>
-            <limit 
-                effort="${slider_effort_limit}"
-                lower="${slider_limit_min}"
-                upper="${slider_limit_max}"
-                velocity="${slider_velocity_limit}"
-            /> <!-- effort is attribute for enforcing maximum joint effort, between 0 and 100% -->
-            <origin xyz="0.0 0.0 0.0" /> <!-- Define where the joint will be located, defined in terms of parent's reference frame -->
-        </joint>
+            </inertial>
+            
+        </link>
+            <joint name="${prefix}base_platform_prismatic_joint" type="prismatic">
+                <parent link="base_link"/>
+                <child link="ls_moving_base"/>
+                <axis xyz="1 0 0"/>
+                <limit 
+                    effort="${slider_effort_limit}"
+                    lower="${slider_limit_min}"
+                    upper="${slider_limit_max}"
+                    velocity="${slider_velocity_limit}"
+                /> <!-- effort is attribute for enforcing maximum joint effort, between 0 and 100% -->
+                <origin xyz="0.0 0.0 0.0" /> <!-- Define where the joint will be located, defined in terms of parent's reference frame -->
+            </joint>
+    </xacro:macro>
 </robot>

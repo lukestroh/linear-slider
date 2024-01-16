@@ -5,7 +5,9 @@
   <version>0.0.0</version>
   <description>Linear slider hardware interface</description>
   <maintainer email="strohbel@oregonstate.edu">Luke Strohbehn</maintainer>
-  <license>MIT</license>
+  <url type="repository">https://github.com/lukestroh/linear-slider</url>
+  <url type="bugtracker">https://github.com/lukestroh/linear-slider/issues</url>
+  <license>BSD-3-Clause</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

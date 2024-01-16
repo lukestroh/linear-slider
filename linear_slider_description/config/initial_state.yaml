@@ -1,0 +1,6 @@
+# Default initial positions for linear_slider's ros2_control fake system
+initial_state:
+  base_platform_prismatic_joint_position: 0
+  base_platform_prismatic_joint_velocity: 0
+  lim_switch_neg: false
+  lim_switch_pos: false

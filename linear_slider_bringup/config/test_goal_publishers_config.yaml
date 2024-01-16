@@ -1,0 +1,27 @@
+publisher_joint_trajectory_controller:
+  ros__parameters:
+    controller_name: "joint_trajectory_controller"
+    wait_sec_between_publish: 6
+    repeat_the_same_goal: 1 # useful to simulate continuous inputs
+
+    goal_time_from_start: 3.0
+
+    goal_names: ["pos1", "pos2", "pos3", "vel1", "vel2", "vel3"]
+    # Positions
+    pos1:
+      positions: [0.0] # center
+    pos2:
+      positions: [0.3] # to the right (away from motor)
+    pos3:
+      positions: [-0.3] # to the left (toward motor)
+
+    # Velocities
+    vel1:
+      velocities: [0.0] # don't move
+    vel2:
+      velocities: [0.1] # move to the right (away from motor)
+    vel3:
+      velocities: [-0.1] # move to the left (toward motor)
+
+    joints:
+      - base_platform_prismatic_joint

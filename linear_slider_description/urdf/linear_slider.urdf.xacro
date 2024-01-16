@@ -10,11 +10,12 @@
     <xacro:include filename="$(find linear_slider_description)/urdf/linear_slider/linear_slider_macro.xacro"/>
     <xacro:include filename="$(find linear_slider_description)/urdf/linear_slider/linear_slider.ros2_control.xacro"/>
 
+    <create />
     <!-- ros2_control -->
     <xacro:linear_slider_ros2_control
         name="linear_slider"
         prefix="$(arg prefix)"
-        initial_positions_file="$(find linear_slider_description)/config/initial_positions.yaml"
+        initial_state_file="$(find linear_slider_description)/config/initial_state.yaml"
         use_mock_hardware="$(arg use_mock_hardware)"
         mock_sensor_commands="$(arg mock_sensor_commands)"
     />

@@ -46,3 +46,43 @@ def generate_launch_description():
         [FindPackageShare(package=package_description), "rviz", "linear_slider.rviz"]
     )
 
+    joint_state_publisher_node = Node(
+        package = "joint_state_publisher_gui",
+        executable = "joint_state_publisher_gui"
+    )
+
+    robot_state_publisher_node = Node(
+        package = "robot_state_publisher",
+        executable = "robot_state_publisher",
+        output = "both",
+        parameters = [robot_description]
+    )
+
+    rviz_node = Node(
+        package = "rviz2",
+        executable = "rviz2",
+        name = "rviz2",
+        output = "log",
+        arguments = ["-d", rviz_config_file]
+    )
+
+    delay_rviz_after_joint_state_publisher_node = RegisterEventHandler(
+        event_handler = OnProcessStart(
+            target_action = joint_state_publisher_node,
+            on_start = [
+                TimerAction(
+                    period = 2.0,
+                    actions = [rviz_node]
+                )
+            ]
+        )
+    )
+
+    return LaunchDescription(
+        declared_args
+        + [
+            joint_state_publisher_node,
+            robot_state_publisher_node,
+            delay_rviz_after_joint_state_publisher_node
+        ]
+    )

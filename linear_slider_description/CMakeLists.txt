@@ -4,6 +4,7 @@ project(linear_slider_description)
 find_package(ament_cmake REQUIRED)
 find_package(xacro REQUIRED)
 find_package(urdf REQUIRED)
+# find_package(rviz REQUIRED)
 
 install(
   DIRECTORY
