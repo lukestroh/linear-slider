@@ -19,9 +19,9 @@ publisher_joint_trajectory_controller:
     vel1:
       velocities: [0.0] # don't move
     vel2:
-      velocities: [0.1] # move to the right (away from motor)
+      velocities: [0.05] # move to the right (away from motor)
     vel3:
-      velocities: [-0.1] # move to the left (toward motor)
+      velocities: [-0.05] # move to the left (toward motor)
 
     joints:
       - base_platform_prismatic_joint
