@@ -4,13 +4,14 @@
     <!-- Use this if parameters are set from the launch file, otherwise delete -->
     <xacro:arg name="use_mock_hardware" default="false" />
     <xacro:arg name="mock_sensor_commands" default="false" />
-    <xacro:arg name="prefix" default="" />
+    <xacro:arg name="prefix" default="''" />
 
     <!-- Robot description -->
     <xacro:include filename="$(find linear_slider_description)/urdf/linear_slider/linear_slider_macro.xacro"/>
     <xacro:include filename="$(find linear_slider_description)/urdf/linear_slider/linear_slider.ros2_control.xacro"/>
 
-    <create />
+    <xacro:linear_slider_macro prefix="$(arg prefix)" />
+
     <!-- ros2_control -->
     <xacro:linear_slider_ros2_control
         name="linear_slider"

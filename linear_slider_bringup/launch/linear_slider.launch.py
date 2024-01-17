@@ -2,17 +2,19 @@ from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
     RegisterEventHandler,
-    TimerAction
+    TimerAction,
+    LogInfo
 )
 from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.substitutions import (
-    Command,
-    FindExecutable,
     LaunchConfiguration,
-    PathJoinSubstitution
+    PathJoinSubstitution,
 )
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+
+import xacro
+import os
 
 
 def generate_launch_description():
@@ -87,23 +89,18 @@ def generate_launch_description():
     robot_controller = LaunchConfiguration("robot_controller")
 
     # Get URDF from xacro
-    robot_description_content = Command(
-        [
-            PathJoinSubstitution([FindExecutable(name="xacro")]),
-            " ", 
-            PathJoinSubstitution([FindPackageShare(description_package), "urdf", description_file]),
-            " ",
-            "prefix:=",
-            prefix,
-            " ",
-            "use_mock_hardware:=",
-            use_mock_hardware,
-            " ",
-            "mock_sensor_commands:=",
-            mock_sensor_commands,
-            " ",
-        ]
+    urdf_file = os.path.join(
+        FindPackageShare('linear_slider_description').find('linear_slider_description'),
+        "urdf",
+        "linear_slider.urdf.xacro"
     )
+    xacro_file = xacro.process_file(
+        urdf_file,
+        prefix=prefix,
+        use_mock_hardware=use_mock_hardware,
+        mock_sensor_commands=mock_sensor_commands
+    )
+    robot_description_content = xacro_file.toprettyxml()
 
     robot_description = {"robot_description": robot_description_content}
 
@@ -123,7 +120,10 @@ def generate_launch_description():
         package = "controller_manager",
         executable = "ros2_control_node",
         output = "both",
-        parameters = [robot_description, robot_controllers]
+        parameters = [
+            # robot_description, # Depreciated: Automatically subscribes to "/robot_description" topic from the /controller_manager node
+            robot_controllers
+        ]
     )
 
     robot_state_pub_node = Node(
@@ -146,7 +146,7 @@ def generate_launch_description():
         executable = "spawner",
         arguments = [
             "joint_state_broadcaster",
-            "--controller_manager",
+            "--controller-manager",
             "/controller_manager",
         ]
     )
@@ -211,6 +211,9 @@ def generate_launch_description():
             robot_state_pub_node,
             delay_rviz_after_joint_state_broadcaster_spawner,
             delay_joint_state_broadcaster_after_ros2_control_node
-        ]
+          ]
         + delay_robot_controller_spawners_after_joint_state_broadcaster_spawner
     )
+
+if __name__ == "__main__":
+    generate_launch_description()
