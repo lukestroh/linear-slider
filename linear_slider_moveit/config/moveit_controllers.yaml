@@ -11,4 +11,4 @@ moveit_simple_controller_manager:
     action_ns: follow_joint_trajectory
     default: true
     joints:
-      - base_platform_prismatic_joint
+      - joint1

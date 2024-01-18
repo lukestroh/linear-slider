@@ -12,7 +12,7 @@ Panels:
         - /RobotModel1/Description Topic1
         - /RobotModel1/Links1
         - /RobotModel1/Links1/base_link1
-        - /RobotModel1/Links1/ls_moving_base1
+        - /RobotModel1/Links1/moving_base1
       Splitter Ratio: 0.5
     Tree Height: 816
   - Class: rviz_common/Selection
@@ -77,7 +77,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        ls_moving_base:
+        moving_base:
           Alpha: 1
           Show Axes: false
           Show Trail: false

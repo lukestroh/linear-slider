@@ -12,7 +12,7 @@ controller_manager:
 
 linear_slider_planning_group_controller:
   ros__parameters:
-    joint: base_platform_prismatic_joint
+    joint: joint1
     command_interfaces:
       - position
       - velocity

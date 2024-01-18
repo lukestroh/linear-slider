@@ -24,4 +24,4 @@ publisher_joint_trajectory_controller:
       velocities: [-0.05] # move to the left (toward motor)
 
     joints:
-      - base_platform_prismatic_joint
+      - joint1

@@ -102,6 +102,14 @@ def generate_launch_description():
     )
     robot_description_content = xacro_file.toprettyxml()
 
+    # robot_description = ParameterValue(Command([
+    #     'xacro ',
+    #     os.path.join(get_package_share_directory("robot_description"),
+    #     "urdf",
+    #     "robot_des.urdf.xacro"
+    #     )]),
+    #     value_type=str
+    # )
     robot_description = {"robot_description": robot_description_content}
 
     robot_controllers = PathJoinSubstitution([
@@ -121,7 +129,7 @@ def generate_launch_description():
         executable = "ros2_control_node",
         output = "both",
         parameters = [
-            # robot_description, # Depreciated: Automatically subscribes to "/robot_description" topic from the /controller_manager node
+            # robot_description, # Deprecated: Automatically subscribes to "/robot_description" topic from the /controller_manager node
             robot_controllers
         ]
     )

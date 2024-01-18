@@ -34,7 +34,7 @@
       </geometry>
     </collision>
   </link>
-  <link name="ls_moving_base">
+  <link name="moving_base">
     <visual>
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
       <material name="red_v"/>
@@ -53,9 +53,9 @@
       <inertia ixx="0.0915" ixy="0.0" ixz="0.0" iyy="0.975" iyz="0.0" izz="0.9915"/>
     </inertial>
   </link>
-  <joint name="base_platform_prismatic_joint" type="prismatic">
+  <joint name="joint1" type="prismatic">
     <parent link="base_link"/>
-    <child link="ls_moving_base"/>
+    <child link="moving_base"/>
     <axis xyz="1 0 0"/>
     <limit effort="10" lower="-0.4" upper="0.4" velocity="0.25"/>
     <!-- effort is attribute for enforcing maximum joint effort, between 0 and 100% -->
@@ -73,7 +73,7 @@
       <!-- <plugin>mock_components/GenericSystem</plugin> -->
     </hardware>
     <!-- Joints -->
-    <joint name="base_platform_prismatic_joint">
+    <joint name="joint1">
       <!-- Command interface -->
       <command_interface name="position">
         <param name="min">-0.40</param>

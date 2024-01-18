@@ -6,13 +6,12 @@ controller_manager:
     linear_slider_hardware_interface:
       type: joint_trajectory_controller/JointTrajectoryController
 
-
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
 linear_slider_hardware_interface:
   ros__parameters:
-    joint: base_platform_prismatic_joint
+    joint: joint1
     command_interfaces:
       - position
       - velocity
