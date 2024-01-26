@@ -19,10 +19,10 @@
             <!-- Joints -->
             <joint name="${prefix}joint1">
                 <!-- Command interface -->
-                <command_interface name="position">
+                <!-- <command_interface name="position">
                     <param name="min">-0.40</param>
                     <param name="max">0.04</param>
-                </command_interface>
+                </command_interface> -->
                 <command_interface name="velocity">
                     <param name="min">-0.1</param>
                     <param name="max">0.1</param>

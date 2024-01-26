@@ -72,8 +72,8 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "robot_controller",
-            default_value = "joint_trajectory_controller",
-            choices = ["joint_trajectory_controller"], # add another here if we want to switch between different controllers
+            default_value = "velocity_controllers",
+            choices = ["velocity_controllers", "joint_trajectory_controller"], # add another here if we want to switch between different controllers
             description = "Robot controller"
         )
     )
@@ -102,14 +102,6 @@ def generate_launch_description():
     )
     robot_description_content = xacro_file.toprettyxml()
 
-    # robot_description = ParameterValue(Command([
-    #     'xacro ',
-    #     os.path.join(get_package_share_directory("robot_description"),
-    #     "urdf",
-    #     "robot_des.urdf.xacro"
-    #     )]),
-    #     value_type=str
-    # )
     robot_description = {"robot_description": robot_description_content}
 
     robot_controllers = PathJoinSubstitution([
