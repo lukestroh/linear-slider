@@ -21,7 +21,7 @@
 #include "linear_slider_hardware_interface/visibility_control.h"
 
 #include "linear_slider_hardware_interface/clearcore_comms.hpp"
-#include "linear_slider_hardware_interface/teknic_motor.hpp"
+#include "linear_slider_hardware_interface/linear_slider_hardware.hpp"
 
 namespace linear_slider_system_interface
 {
@@ -71,8 +71,8 @@ namespace linear_slider_system_interface
             // Comms
             ClearCoreComms comms_;
 
-            // Teknic Motor
-            TeknicMotor teknic_motor_;
+            // LinearSlider hardware (Motor, Limit switches)
+            LinearSliderHardware linear_slider_;
 
             // Config
             Config config_;

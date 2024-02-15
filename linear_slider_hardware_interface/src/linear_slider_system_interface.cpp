@@ -22,7 +22,7 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
     }
 
     // Set up motor
-    teknic_motor_.begin("teknic_clearpath_mc");
+    linear_slider_.begin("linear_slider_hardware");
 
     // TODO: Can probably delete these, since we have a custom object representing our motor
     // // Allocate enough memory for our velocities
@@ -90,7 +90,7 @@ std::vector<hardware_interface::CommandInterface> LinearSliderSystemInterface::e
     //     ));
     // }
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
-        teknic_motor_.name, hardware_interface::HW_IF_VELOCITY, &teknic_motor_.vel_cmd
+        linear_slider_.name, hardware_interface::HW_IF_VELOCITY, &linear_slider_.vel_cmd
     ));
     return command_interfaces;
 }
@@ -104,7 +104,7 @@ std::vector<hardware_interface::StateInterface> LinearSliderSystemInterface::exp
     //     ));
     // }
     state_interfaces.emplace_back(hardware_interface::StateInterface(
-        teknic_motor_.name, hardware_interface::HW_IF_VELOCITY, &teknic_motor_.vel_state
+        linear_slider_.name, hardware_interface::HW_IF_VELOCITY, &linear_slider_.vel_state
     ));
     return state_interfaces;
 }
@@ -154,11 +154,13 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
             return hardware_interface::return_type::ERROR;
         }
 
-        // Get system status and store in teknic_motor_.system_status
-        teknic_motor_.system_status = msg_json["status"].asInt();
-        // Get motor RPM, convert to float velocity, store in teknic_motor_.rpm_state. Additionally, update teknic_motor_.vel_state
-        teknic_motor_.rpm_state = msg_json["servo_rpm"].asInt();
-        teknic_motor_.vel_state = teknic_motor_.rpm_to_vel(teknic_motor_.rpm_state); // TODO: this should probably either be completely internal, or completely external, but not both.
+        // Get system status and store in linear_slider_.system_status
+        linear_slider_.system_status = msg_json["status"].asInt();
+        // Get motor RPM, convert to float velocity, store in linear_slider_.rpm_state. Additionally, update linear_slider_.vel_state
+        linear_slider_.rpm_state = msg_json["servo_rpm"].asInt();
+        linear_slider_.vel_state = linear_slider_.rpm_to_vel(linear_slider_.rpm_state); // TODO: this should probably either be completely internal, or completely external, but not both.
+        linear_slider_.lim_switch_pos = msg_json["lim_switch_pos"].asBool();
+        linear_slider_.lim_switch_neg = msg_json["lim_switch_neg"].asBool();
     }
     return hardware_interface::return_type::OK;
 }
@@ -166,9 +168,9 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
 hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp::Time& time, const rclcpp::Duration& period) {
     /* Write data to the linear slider. Converts linear velocities to RPM speeds */
 
-    // convert teknic_motor_.vel_cmd to teknic_motor_.rpm_cmd. Convert this value to str, send via comms_
-    teknic_motor_.rpm_cmd = teknic_motor_.vel_to_rpm(teknic_motor_.vel_cmd); // TODO: this should probably either be completely internal, or completely external, but not both.
-    std::string cmd = std::to_string(teknic_motor_.rpm_cmd);
+    // convert linear_slider_.vel_cmd to linear_slider_.rpm_cmd. Convert this value to str, send via comms_
+    linear_slider_.rpm_cmd = linear_slider_.vel_to_rpm(linear_slider_.vel_cmd); // TODO: this should probably either be completely internal, or completely external, but not both.
+    std::string cmd = std::to_string(linear_slider_.rpm_cmd);
     comms_.send_data(cmd.c_str());
     return hardware_interface::return_type::OK;
 }

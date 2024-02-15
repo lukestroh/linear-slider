@@ -9,12 +9,14 @@ from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.substitutions import (
     LaunchConfiguration,
     PathJoinSubstitution,
+    PythonExpression
 )
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 import xacro
 import os
+
 
 
 def generate_launch_description():
@@ -72,7 +74,7 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "robot_controller",
-            default_value = "velocity_controllers",
+            default_value = "joint_trajectory_controller",
             choices = ["velocity_controllers", "joint_trajectory_controller"], # add another here if we want to switch between different controllers
             description = "Robot controller"
         )
@@ -101,6 +103,7 @@ def generate_launch_description():
         mock_sensor_commands=mock_sensor_commands
     )
     robot_description_content = xacro_file.toprettyxml()
+
 
     robot_description = {"robot_description": robot_description_content}
 
@@ -150,6 +153,8 @@ def generate_launch_description():
             "/controller_manager",
         ]
     )
+
+    _logmsg = LogInfo(msg=control_node)
 
     robot_controllers = [robot_controller]
     robot_controller_spawners = []
@@ -205,8 +210,10 @@ def generate_launch_description():
         )
 
     return LaunchDescription(
+        
         declared_args
         + [
+            _logmsg,
             control_node,
             robot_state_pub_node,
             delay_rviz_after_joint_state_broadcaster_spawner,

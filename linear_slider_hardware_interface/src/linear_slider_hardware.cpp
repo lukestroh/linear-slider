@@ -1,20 +1,20 @@
-#include "linear_slider_hardware_interface/teknic_motor.hpp"
+#include "linear_slider_hardware_interface/linear_slider_hardware.hpp"
 
-TeknicMotor::TeknicMotor(){
+LinearSliderHardware::LinearSliderHardware(){
     name = "default";
 }
 
-TeknicMotor::TeknicMotor(const std::string& motor_name) {
-    begin(motor_name);
+LinearSliderHardware::LinearSliderHardware(const std::string& system_name) {
+    begin(system_name);
 }
 
-TeknicMotor::~TeknicMotor(){}
+LinearSliderHardware::~LinearSliderHardware(){}
 
-void TeknicMotor::begin(const std::string& motor_name) {
-    name = motor_name;
+void LinearSliderHardware::begin(const std::string& system_name) {
+    name = system_name;
 }
 
-double TeknicMotor::rpm_to_vel(int rpm) {
+double LinearSliderHardware::rpm_to_vel(int rpm) {
     /* Convert revolutions per minute of the motor to linear velocity of the slider 
        two turns for each cm of distance
        1 rev/min * 1 min/60s * 1cm/2rev * 1m/100cm = m/s
@@ -22,7 +22,7 @@ double TeknicMotor::rpm_to_vel(int rpm) {
     return static_cast<double>(rpm / 60.0 / 2.0 / 100.0);
 }
 
-int TeknicMotor::vel_to_rpm(double& vel) {
+int LinearSliderHardware::vel_to_rpm(double& vel) {
     /* Convert linear velocity of the slider to revolultions per minute of the motor 
        1cm of distance for two turns
        1 m/s * 60s/min * 100cm/m * 2rev/cm = rev/min
