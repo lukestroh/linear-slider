@@ -15,7 +15,7 @@
                 <param name="joint_name">prismatic_joint</param>
                 <param name="robot_ip">169.254.97.178</param>
 
-                <!-- <plugin>gazebo_ros2_control/GazeboSystem</plugin> -->
+                <!-- <plugin>gz_ros2_control/GazeboSimSystem</plugin> -->
 
             </hardware>
 
@@ -52,6 +52,14 @@
                 </state_interface>
             </sensor>
         </ros2_control>
+
+        <!-- <gazebo>
+            <plugin filename="libgz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+                <robot_param>robot_description</robot_param>
+                <robot_param_node>robot_state_publisher<robot_param_node>
+                <parameters>$(find linear_slider_bringup)/config/linear_slider_controllers.yaml</parameters>
+            </plugin>
+        </gazebo> -->
 
     </xacro:macro>
 </robot>

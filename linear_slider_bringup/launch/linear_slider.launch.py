@@ -154,7 +154,7 @@ def generate_launch_description():
         ]
     )
 
-    _logmsg = LogInfo(msg=control_node)
+    # _logmsg = LogInfo(msg=control_node)
 
     robot_controllers = [robot_controller]
     robot_controller_spawners = []
@@ -213,7 +213,7 @@ def generate_launch_description():
         
         declared_args
         + [
-            _logmsg,
+            # _logmsg,
             control_node,
             robot_state_pub_node,
             delay_rviz_after_joint_state_broadcaster_spawner,
