@@ -125,7 +125,8 @@ def generate_launch_description():
         output = "both",
         parameters = [
             # robot_description, # Deprecated: Automatically subscribes to "/robot_description" topic from the /controller_manager node
-            robot_controllers
+            robot_controllers,
+            robot_description
         ]
     )
 

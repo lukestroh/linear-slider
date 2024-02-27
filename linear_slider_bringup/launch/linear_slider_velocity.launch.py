@@ -130,7 +130,6 @@ def generate_launch_description():
         executable = "robot_state_publisher",
         output = "both",
         parameters = [robot_description],
-        # namespace="linear_slider"
     )
 
     robot_controllers = PathJoinSubstitution([
@@ -145,7 +144,7 @@ def generate_launch_description():
         "linear_slider.rviz"
     ])
 
-    _log0 = LogInfo(msg=robot_description_content)
+    # _log0 = LogInfo(msg=robot_description_content)
     # _log1 = LogInfo(msg=robot_controllers)
 
     control_node = Node(
@@ -157,20 +156,7 @@ def generate_launch_description():
             robot_description # Says it's deprecated, but only works if this is provided!
             # {'use_sim_time': False}
         ],
-        # namespace="/linear_slider",
     )
-
-    # spawn_entity = Node(
-    #     package="gazebo_ros",
-    #     executable="spawn_entity.py",
-    #     arguments=[
-    #         "-topic",
-    #         "robot_description",
-    #         "-entity",
-    #         "linear_slider"
-    #     ],
-    #     output="screen"
-    # )
 
     joint_state_broadcaster_spawner = Node(
         package = "controller_manager",
@@ -180,7 +166,6 @@ def generate_launch_description():
             "-c",
             "/controller_manager",
         ],
-        # namespace="/linear_slider"
     )
 
     velocity_controller_spawner = Node(
@@ -190,7 +175,7 @@ def generate_launch_description():
             "velocity_controller",
             "-c",
             "/controller_manager"
-        ]
+        ],
     )
 
     rviz_node = Node(
@@ -205,7 +190,7 @@ def generate_launch_description():
         event_handler=OnProcessStart(
             target_action=control_node,
             on_start=TimerAction(
-                period=0.5,
+                period=0.001,
                 actions=[joint_state_broadcaster_spawner]
             )
         )
@@ -230,17 +215,12 @@ def generate_launch_description():
         declared_args
     
         + [
-            # joint_state_broadcaster_spawner,
-            # delay_joint_state_broadcaster,
-            # delay_joint_trajectory_controller,
-            _log0,
+            # _log0,
             # _log1,
             robot_state_pub_node,
             control_node,
             delay_joint_state_broadcaster_after_control_node,
             delay_velocity_controller_after_joint_state_broadcaster,
             delay_rviz_after_controllers,
-            # spawn_entity,
-            # gazebo,
         ]
     )

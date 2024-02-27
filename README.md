@@ -1,3 +1,5 @@
+This build process needs a better way to check for errors in the build.
+
 # Linear Slider Drivers
 
 This is a package that includes the hardware description, hardware interface, and controller interface for the linear slider.
@@ -12,22 +14,23 @@ Gazebo
 
 Actual hardware
 
-## Testing the linear slider
-
-Testing various launches
-
-<!--  -->
-<!--  -->
-
 ## Package Contents
 
 `linear_slider_bringup`: Launches all of the interfaces.
 
-`linear_slider_controllers`: Manages the control node for interfacing with ROS2 core.
+`linear_slider_controllers`: Manages the control node for interfacing with ROS2.
 
 `linear_slider_description`: Defines the geometry and links in a URDF file. Also specifies controller interfaces through `<ros2_control>` tag.
 
 `linear_slider_hardware_interface`: Defines the hardware and controller interfaces for the linear slider
+
+## Testing the linear slider
+
+Each of the packages has a set of launch files that help guide the creation of your drivers. A brief description of each of the test files is below:
+
+1. `linear_slider_description/launch/view_robot.launch.py` -- Spawns a `joint_state_publisher_gui` window, allowing the user to monitor the URDF's build process.
+
+2. 'linear_slider_bringup/launch/linear_slider.launch.py` -- Spawns the `/controller_manager` node, allowing the activation of various controller libraries. This also links the controller interface to the hardware interface.
 
 ## Linear Slider Description:
 
