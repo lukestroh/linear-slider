@@ -29,6 +29,10 @@ Testing various launches
 
 `linear_slider_hardware_interface`: Defines the hardware and controller interfaces for the linear slider
 
+## Linear Slider Description:
+
+Default state interface values can be found in `linear_slider_description/config/initial_state.yaml`.
+
 ## Hardware Interface
 
 `on_init()`: runs at the startup, reads parameters, allocates memory, etc. Hardware enters unconfigured state.

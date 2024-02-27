@@ -1,6 +1,6 @@
 # Default initial positions for linear_slider's ros2_control fake system
 initial_state:
-  joint1_position: 0
-  joint1_velocity: 0
-  lim_switch_neg: false
-  lim_switch_pos: false
+  joint1_position: 0.0
+  joint1_velocity: 0.0
+  lim_switch_neg: 0 # boolean values must be integer types
+  lim_switch_pos: 0 

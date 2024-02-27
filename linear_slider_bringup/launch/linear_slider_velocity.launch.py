@@ -2,12 +2,24 @@
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.actions import (
     DeclareLaunchArgument,
     IncludeLaunchDescription,
-    LogInfo
+    RegisterEventHandler,
+    ExecuteProcess,
+    LogInfo,
+    TimerAction,
+    IncludeLaunchDescription,
+    OpaqueFunction,
+    SetLaunchConfiguration
 )
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import(
+    LaunchConfiguration,
+    PathJoinSubstitution,
+    Command,
+    FindExecutable
+)
 from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
@@ -59,7 +71,8 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "use_mock_hardware",
-            default_value = "true",
+            default_value = "false",
+            choices=['true', 'false'],
             description = "Start robot with fake hardware mirroring command to its states."
         )
     )
@@ -90,21 +103,35 @@ def generate_launch_description():
     robot_controller = LaunchConfiguration("robot_controller")
 
     # Get URDF from xacro
-    urdf_file = os.path.join(
-        FindPackageShare('linear_slider_description').find('linear_slider_description'),
-        "urdf",
-        "linear_slider_velocity.urdf.xacro"
+    robot_description_content = Command(
+        [
+            PathJoinSubstitution([FindExecutable(name="xacro")]),
+            " ",
+            PathJoinSubstitution(
+                [FindPackageShare(description_package), "urdf", description_file]
+            ),
+            " ",
+            "prefix:=",
+            prefix,
+            " ",
+            "use_mock_hardware:=",
+            use_mock_hardware,
+            " ",
+            "mock_sensor_commands:=",
+            mock_sensor_commands,
+            " ",
+        ]
     )
-    xacro_file = xacro.process_file(
-        urdf_file,
-        prefix=prefix,
-        use_mock_hardware=use_mock_hardware,
-        mock_sensor_commands=mock_sensor_commands
-    )
-    robot_description_content = xacro_file.toprettyxml()
-
 
     robot_description = {"robot_description": robot_description_content}
+
+    robot_state_pub_node = Node(
+        package = "robot_state_publisher",
+        executable = "robot_state_publisher",
+        output = "both",
+        parameters = [robot_description],
+        # namespace="linear_slider"
+    )
 
     robot_controllers = PathJoinSubstitution([
         FindPackageShare(runtime_config_package),
@@ -118,71 +145,102 @@ def generate_launch_description():
         "linear_slider.rviz"
     ])
 
-    _log = LogInfo(msg=urdf_file)
+    _log0 = LogInfo(msg=robot_description_content)
+    # _log1 = LogInfo(msg=robot_controllers)
 
     control_node = Node(
         package = "controller_manager",
         executable = "ros2_control_node",
         output = "both",
         parameters = [
-            # robot_description, # Deprecated: Automatically subscribes to "/robot_description" topic from the /controller_manager node
-            robot_controllers
-        ]
-    )
-
-    robot_state_pub_node = Node(
-        package = "robot_state_publisher",
-        executable = "robot_state_publisher",
-        output = "both",
-        parameters = [robot_description]
-    )
-
-    gazebo_node = Node(
-        package="gazebo_ros",
-        executable="spawn_entity.py",
-        arguments=[
-            "-topic",
-            "robot_description",
-            "-entity",
-            "linear_slider"
+            robot_controllers,
+            robot_description # Says it's deprecated, but only works if this is provided!
+            # {'use_sim_time': False}
         ],
-        output="screen"
+        # namespace="/linear_slider",
     )
 
-    rviz_node = Node(
-        package = "rviz2",
-        executable = "rviz2",
-        name = "rviz2",
-        output = "log",
-        arguments = ["-d", rviz_config_file]
-    )
+    # spawn_entity = Node(
+    #     package="gazebo_ros",
+    #     executable="spawn_entity.py",
+    #     arguments=[
+    #         "-topic",
+    #         "robot_description",
+    #         "-entity",
+    #         "linear_slider"
+    #     ],
+    #     output="screen"
+    # )
 
     joint_state_broadcaster_spawner = Node(
         package = "controller_manager",
         executable = "spawner",
         arguments = [
             "joint_state_broadcaster",
-            "--controller-manager",
+            "-c",
             "/controller_manager",
+        ],
+        # namespace="/linear_slider"
+    )
+
+    velocity_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "velocity_controller",
+            "-c",
+            "/controller_manager"
         ]
     )
 
+    rviz_node = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="log",
+        arguments=["-d", rviz_config_file],
+    )
 
-    gazebo = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([os.path.join(
-                    get_package_share_directory('gazebo_ros'), 'launch'), '/gazebo.launch.py']),
-             )
+    delay_joint_state_broadcaster_after_control_node = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=control_node,
+            on_start=TimerAction(
+                period=0.5,
+                actions=[joint_state_broadcaster_spawner]
+            )
+        )
+    )
 
+    delay_velocity_controller_after_joint_state_broadcaster = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=joint_state_broadcaster_spawner,
+            on_exit=[velocity_controller_spawner]
+        )
+    )
+    
+    delay_rviz_after_controllers = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=velocity_controller_spawner,
+            on_exit=[rviz_node]
+        )
+    )
 
 
     return LaunchDescription(
         declared_args
+    
         + [
-            _log,
+            # joint_state_broadcaster_spawner,
+            # delay_joint_state_broadcaster,
+            # delay_joint_trajectory_controller,
+            _log0,
+            # _log1,
             robot_state_pub_node,
-            # control_node,
-            gazebo_node,
-            gazebo,
-            joint_state_broadcaster_spawner
+            control_node,
+            delay_joint_state_broadcaster_after_control_node,
+            delay_velocity_controller_after_joint_state_broadcaster,
+            delay_rviz_after_controllers,
+            # spawn_entity,
+            # gazebo,
         ]
     )

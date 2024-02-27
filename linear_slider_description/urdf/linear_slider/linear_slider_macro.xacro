@@ -41,7 +41,7 @@
         <!-- ================== -->
         <!--       Links        -->
         <!-- ================== -->
-
+        <!-- <link name="world" /> -->
         <link name="${prefix}base_link">
             <visual>
                 <material name="alpha_black"/>
@@ -60,6 +60,7 @@
                 </geometry>
             </collision>
         </link>
+
 
         <link name="${prefix}moving_base">
             <visual>
