@@ -9,12 +9,14 @@ from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.substitutions import (
     LaunchConfiguration,
     PathJoinSubstitution,
+    PythonExpression
 )
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 import xacro
 import os
+
 
 
 def generate_launch_description():
@@ -73,7 +75,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "robot_controller",
             default_value = "joint_trajectory_controller",
-            choices = ["joint_trajectory_controller"], # add another here if we want to switch between different controllers
+            choices = ["velocity_controllers", "joint_trajectory_controller"], # add another here if we want to switch between different controllers
             description = "Robot controller"
         )
     )
@@ -102,14 +104,7 @@ def generate_launch_description():
     )
     robot_description_content = xacro_file.toprettyxml()
 
-    # robot_description = ParameterValue(Command([
-    #     'xacro ',
-    #     os.path.join(get_package_share_directory("robot_description"),
-    #     "urdf",
-    #     "robot_des.urdf.xacro"
-    #     )]),
-    #     value_type=str
-    # )
+
     robot_description = {"robot_description": robot_description_content}
 
     robot_controllers = PathJoinSubstitution([
@@ -130,7 +125,8 @@ def generate_launch_description():
         output = "both",
         parameters = [
             # robot_description, # Deprecated: Automatically subscribes to "/robot_description" topic from the /controller_manager node
-            robot_controllers
+            robot_controllers,
+            robot_description
         ]
     )
 
@@ -158,6 +154,8 @@ def generate_launch_description():
             "/controller_manager",
         ]
     )
+
+    # _logmsg = LogInfo(msg=control_node)
 
     robot_controllers = [robot_controller]
     robot_controller_spawners = []
@@ -213,8 +211,10 @@ def generate_launch_description():
         )
 
     return LaunchDescription(
+        
         declared_args
         + [
+            # _logmsg,
             control_node,
             robot_state_pub_node,
             delay_rviz_after_joint_state_broadcaster_spawner,

@@ -21,7 +21,7 @@
 #include "linear_slider_hardware_interface/visibility_control.h"
 
 #include "linear_slider_hardware_interface/clearcore_comms.hpp"
-#include "linear_slider_hardware_interface/teknic_motor.hpp"
+#include "linear_slider_hardware_interface/linear_slider_hardware.hpp"
 
 namespace linear_slider_system_interface
 {
@@ -45,22 +45,22 @@ namespace linear_slider_system_interface
             std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
 
             LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
-            hardware_interface::CallbackReturn on_configure(const rclcpp_lifecycle::State& previous_state) override;
+            hardware_interface::CallbackReturn on_configure(const rclcpp_lifecycle::State& /*previous_state*/) override;
 
             LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
-            hardware_interface::CallbackReturn on_cleanup(const rclcpp_lifecycle::State& previous_state) override;
+            hardware_interface::CallbackReturn on_cleanup(const rclcpp_lifecycle::State& /*previous_state*/) override;
 
             LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
-            hardware_interface::CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
+            hardware_interface::CallbackReturn on_activate(const rclcpp_lifecycle::State& /*previous_state*/) override;
 
             LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
-            hardware_interface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
+            hardware_interface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State& /*previous_state*/) override;
 
             LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
-            hardware_interface::return_type read(const rclcpp::Time& time, const rclcpp::Duration& period) override;
+            hardware_interface::return_type read(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) override;
 
             LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
-            hardware_interface::return_type write(const rclcpp::Time& time, const rclcpp::Duration& period) override;
+            hardware_interface::return_type write(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) override;
 
 
         private:
@@ -71,8 +71,8 @@ namespace linear_slider_system_interface
             // Comms
             ClearCoreComms comms_;
 
-            // Teknic Motor
-            TeknicMotor teknic_motor_;
+            // LinearSlider hardware (Motor, Limit switches)
+            LinearSliderHardware linear_slider_;
 
             // Config
             Config config_;

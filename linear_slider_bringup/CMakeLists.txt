@@ -7,6 +7,8 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(xacro REQUIRED) # TODO: can be deleted
+find_package(urdf REQUIRED) # TODO: can be deleted
 
 install(
   DIRECTORY config launch

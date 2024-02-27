@@ -12,6 +12,8 @@
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
 
+#define _LOGGER rclcpp::get_logger("LinearSliderSystemHardware")
+
 namespace linear_slider_system_interface 
 {
 
@@ -22,7 +24,7 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
     }
 
     // Set up motor
-    teknic_motor_.begin("teknic_clearpath_mc");
+    linear_slider_.begin("linear_slider_hardware");
 
     // TODO: Can probably delete these, since we have a custom object representing our motor
     // // Allocate enough memory for our velocities
@@ -37,7 +39,7 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
         // Command interface check
         if (joint.command_interfaces.size() != 1) {
             RCLCPP_FATAL(
-                rclcpp::get_logger("LinearSliderSystemHardware"),
+                _LOGGER,
                 "Joint '%s' has %zu command interfaces found. 1 expected.",
                 joint.name.c_str(),
                 joint.command_interfaces.size()
@@ -90,7 +92,7 @@ std::vector<hardware_interface::CommandInterface> LinearSliderSystemInterface::e
     //     ));
     // }
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
-        teknic_motor_.name, hardware_interface::HW_IF_VELOCITY, &teknic_motor_.vel_cmd
+        linear_slider_.name, hardware_interface::HW_IF_VELOCITY, &linear_slider_.vel_cmd
     ));
     return command_interfaces;
 }
@@ -104,40 +106,40 @@ std::vector<hardware_interface::StateInterface> LinearSliderSystemInterface::exp
     //     ));
     // }
     state_interfaces.emplace_back(hardware_interface::StateInterface(
-        teknic_motor_.name, hardware_interface::HW_IF_VELOCITY, &teknic_motor_.vel_state
+        linear_slider_.name, hardware_interface::HW_IF_VELOCITY, &linear_slider_.vel_state
     ));
     return state_interfaces;
 }
 
-hardware_interface::CallbackReturn LinearSliderSystemInterface::on_configure(const rclcpp_lifecycle::State& previous_state) {
+hardware_interface::CallbackReturn LinearSliderSystemInterface::on_configure(const rclcpp_lifecycle::State& /*previous_state*/) {
     /* Set up the comms */
     RCLCPP_INFO(rclcpp::get_logger("LinearSliderSystemHardware"), "Configuring system, please wait...");
     comms_.begin();
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::CallbackReturn LinearSliderSystemInterface::on_cleanup(const rclcpp_lifecycle::State& previous_state) {
+hardware_interface::CallbackReturn LinearSliderSystemInterface::on_cleanup(const rclcpp_lifecycle::State& /*previous_state*/) {
     /* Close comms connection */
     RCLCPP_INFO(rclcpp::get_logger("LinearSliderSystemHardware"), "Cleaning up, please wait...");
 
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(const rclcpp_lifecycle::State& previous_state) {
+hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(const rclcpp_lifecycle::State& /*previous_state*/) {
     RCLCPP_INFO(rclcpp::get_logger("LinearSliderSystemHardware"), "Activating hardware, please wait...");
 
     RCLCPP_INFO(rclcpp::get_logger("LinearSliderSystemHardware"), "Successfully activated!");
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::CallbackReturn LinearSliderSystemInterface::on_deactivate(const rclcpp_lifecycle::State& previous_state) {
+hardware_interface::CallbackReturn LinearSliderSystemInterface::on_deactivate(const rclcpp_lifecycle::State& /*previous_state*/) {
     RCLCPP_INFO(rclcpp::get_logger("LinearSliderSystemHardware"), "Deactivating hardware, please wait...");
 
     RCLCPP_INFO(rclcpp::get_logger("LinearSliderSystemHardware"), "Successfully deactivated.");
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::Time& time, const rclcpp::Duration& period) {
+hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
     /* Read data from the linear slider. Message formatted as JSON string. Converts RPM speeds to linear velocities */
     char* msg = comms_.read_data();
     if (msg[0] != '\0'){
@@ -154,21 +156,23 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
             return hardware_interface::return_type::ERROR;
         }
 
-        // Get system status and store in teknic_motor_.system_status
-        teknic_motor_.system_status = msg_json["status"].asInt();
-        // Get motor RPM, convert to float velocity, store in teknic_motor_.rpm_state. Additionally, update teknic_motor_.vel_state
-        teknic_motor_.rpm_state = msg_json["servo_rpm"].asInt();
-        teknic_motor_.vel_state = teknic_motor_.rpm_to_vel(teknic_motor_.rpm_state); // TODO: this should probably either be completely internal, or completely external, but not both.
+        // Get system status and store in linear_slider_.system_status
+        linear_slider_.system_status = msg_json["status"].asInt();
+        // Get motor RPM, convert to float velocity, store in linear_slider_.rpm_state. Additionally, update linear_slider_.vel_state
+        linear_slider_.rpm_state = msg_json["servo_rpm"].asInt();
+        linear_slider_.vel_state = linear_slider_.rpm_to_vel(linear_slider_.rpm_state); // TODO: this should probably either be completely internal, or completely external, but not both.
+        linear_slider_.lim_switch_pos = msg_json["lim_switch_pos"].asBool();
+        linear_slider_.lim_switch_neg = msg_json["lim_switch_neg"].asBool();
     }
     return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp::Time& time, const rclcpp::Duration& period) {
+hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
     /* Write data to the linear slider. Converts linear velocities to RPM speeds */
 
-    // convert teknic_motor_.vel_cmd to teknic_motor_.rpm_cmd. Convert this value to str, send via comms_
-    teknic_motor_.rpm_cmd = teknic_motor_.vel_to_rpm(teknic_motor_.vel_cmd); // TODO: this should probably either be completely internal, or completely external, but not both.
-    std::string cmd = std::to_string(teknic_motor_.rpm_cmd);
+    // convert linear_slider_.vel_cmd to linear_slider_.rpm_cmd. Convert this value to str, send via comms_
+    linear_slider_.rpm_cmd = linear_slider_.vel_to_rpm(linear_slider_.vel_cmd); // TODO: this should probably either be completely internal, or completely external, but not both.
+    std::string cmd = std::to_string(linear_slider_.rpm_cmd);
     comms_.send_data(cmd.c_str());
     return hardware_interface::return_type::OK;
 }
