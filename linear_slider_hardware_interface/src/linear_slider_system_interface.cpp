@@ -49,7 +49,7 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
 
         if (!(joint.command_interfaces[0].name == hardware_interface::HW_IF_VELOCITY)) {
             RCLCPP_FATAL(
-                rclcpp::get_logger("LinearSliderSystemHardware"),
+                _LOGGER,
                 "Joint '%s' has %s command interface. Expected %s.",
                 joint.name.c_str(),
                 joint.command_interfaces[0].name.c_str(),
@@ -61,7 +61,7 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
         // State interface check
         if (joint.state_interfaces.size() != 1) {
             RCLCPP_FATAL(
-                rclcpp::get_logger("LinearSliderSystemHardware"),
+                _LOGGER,
                 "Joint '%s' has %zu state interfaces. 1 expected.",
                 joint.name.c_str(),
                 joint.state_interfaces.size()
@@ -71,7 +71,7 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
 
         if (!(joint.state_interfaces[0].name == hardware_interface::HW_IF_VELOCITY)) {
             RCLCPP_FATAL(
-                rclcpp::get_logger("LinearSliderSystemHardware"),
+                _LOGGER,
                 "Joint '%s' has %s state interface. Expected %s.",
                 joint.name.c_str(),
                 joint.state_interfaces[0].name.c_str(),
@@ -113,29 +113,29 @@ std::vector<hardware_interface::StateInterface> LinearSliderSystemInterface::exp
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_configure(const rclcpp_lifecycle::State& /*previous_state*/) {
     /* Set up the comms */
-    RCLCPP_INFO(rclcpp::get_logger("LinearSliderSystemHardware"), "Configuring system, please wait...");
+    RCLCPP_INFO(_LOGGER, "Configuring system, please wait...");
     comms_.begin();
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_cleanup(const rclcpp_lifecycle::State& /*previous_state*/) {
     /* Close comms connection */
-    RCLCPP_INFO(rclcpp::get_logger("LinearSliderSystemHardware"), "Cleaning up, please wait...");
+    RCLCPP_INFO(_LOGGER, "Cleaning up, please wait...");
 
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(const rclcpp_lifecycle::State& /*previous_state*/) {
-    RCLCPP_INFO(rclcpp::get_logger("LinearSliderSystemHardware"), "Activating hardware, please wait...");
+    RCLCPP_INFO(_LOGGER, "Activating hardware, please wait...");
 
-    RCLCPP_INFO(rclcpp::get_logger("LinearSliderSystemHardware"), "Successfully activated!");
+    RCLCPP_INFO(_LOGGER, "Successfully activated!");
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_deactivate(const rclcpp_lifecycle::State& /*previous_state*/) {
-    RCLCPP_INFO(rclcpp::get_logger("LinearSliderSystemHardware"), "Deactivating hardware, please wait...");
+    RCLCPP_INFO(_LOGGER, "Deactivating hardware, please wait...");
 
-    RCLCPP_INFO(rclcpp::get_logger("LinearSliderSystemHardware"), "Successfully deactivated.");
+    RCLCPP_INFO(_LOGGER, "Successfully deactivated.");
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
@@ -152,7 +152,7 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
         delete reader;
 
         if (!parsingSuccessful) {
-            RCLCPP_ERROR(rclcpp::get_logger("LinearSliderSystemHardware"), "Failed to parse JSON message: %s", errors.c_str());
+            RCLCPP_ERROR(_LOGGER, "Failed to parse JSON message: %s", errors.c_str());
             return hardware_interface::return_type::ERROR;
         }
 

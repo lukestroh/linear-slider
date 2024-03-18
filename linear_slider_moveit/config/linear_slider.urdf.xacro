@@ -3,7 +3,7 @@
     <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
 
     <!-- Import linear_slider urdf file -->
-    <xacro:include filename="$(find linear_slider_description)/urdf/linear_slider.urdf" />
+    <xacro:include filename="$(find linear_slider_description)/urdf/linear_slider.urdf.xacro" />
 
     <!-- Import control_xacro -->
     <xacro:include filename="linear_slider.ros2_control.xacro" />

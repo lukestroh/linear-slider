@@ -14,3 +14,11 @@ Edits to the design of the linear slider should be done in your preferred CAD an
 Similarly, hardware parameters and joint configurations are set in the `linear_slider_macro.xacro file`.
 
 Edits to the ros2_control hardware interface description should be made under `linear_slider_description/urdf/linear_slider/linear_slider.ros2_control.xacro`.
+
+
+
+
+```
+<limit effort="10" lower="-0.4" upper="0.4" velocity="0.25"/>
+<!-- effort is attribute for enforcing maximum joint effort, between 0 and 100% -->
+```

@@ -1,53 +1,43 @@
 controller_manager:
   ros__parameters:
-    update_rate: 13 # hz
+    update_rate: 100 # hz
 
-    # joint_velocity_controller:
-    #   type: velocity_controllers/JointGroupVelocityController
-
-# joint_velocity_controller:
-#   ros__parameters:
-#     type: velocity_controllers/JointGroupVelocityController
-#     joints:
-#       - joint1
     joint_trajectory_controller:
       type: joint_trajectory_controller/JointTrajectoryController
       # TODO: Therefore if the hardware provides only acceleration or velocity states they have to be integrated in the hardware-interface implementation of velocity and position to use these controllers.
+
+    # velocity_controller:
+    #   type: velocity_controllers/JointGroupVelocityController
+
+    
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
 
-# joint_state_broadcaster:
+# velocity_controller:
 #   ros__parameters:
 #     joints:
 #       - joint1
-
-#     interfaces:
-#       - position
-#       - velocity
-
-#     map_interface_to_joint_state:
-#       position: position
-#       velocity: velocity
-
-
-# Make sure this matches up with the URDF
+#     interface_name: velocity
+    
 joint_trajectory_controller:
   ros__parameters:
     joints:
       - joint1
 
     command_interfaces:
-      # - position
-      - velocity
+      - position
+      # - velocity
 
     state_interfaces:
       - position
-      - velocity
+      # - velocity
+
+    
 
     state_publish_rate: 50.0 # defaults to 50
-    action_monitor_rate: 20.0 # defaults to 20
+    action_monitor_rate: 21.0 # defaults to 20
 
     allow_partial_joints_goal: false # defaults to false
     constraints:
@@ -55,3 +45,12 @@ joint_trajectory_controller:
       goal_time: 0.0 # defaults to 0.0 (start immediately)
       
     allow_nonzero_velocity_at_trajectory_end: false
+
+
+# gazebo_ros_control:
+#   ros__parameters:
+#     start_parameters:
+#       command_interface: "position"
+    
+#     stop_parameters:
+#       command_interface: "position"

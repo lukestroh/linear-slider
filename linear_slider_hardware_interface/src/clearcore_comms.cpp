@@ -19,16 +19,16 @@ bool ClearCoreComms::begin() {
         return false;
     }
 
-    memset(&local_srv_addr, 0, sizeof(local_srv_addr));
+    memset(&local_svr_addr, 0, sizeof(local_svr_addr));
     memset(&client_addr, 0, sizeof(client_addr));
 
 
     // Set server information
-    local_srv_addr.sin_port = htons(remote_port);
-    local_srv_addr.sin_addr.s_addr = INADDR_ANY;
+    local_svr_addr.sin_port = htons(remote_port);
+    local_svr_addr.sin_addr.s_addr = INADDR_ANY;
 
     // Bind the socket with the server address
-    if (bind(sock, (const struct sockaddr*)&local_srv_addr, sizeof(local_srv_addr)) < 0) {
+    if (bind(sock, (const struct sockaddr*)&local_svr_addr, sizeof(local_svr_addr)) < 0) {
         RCLCPP_FATAL(
             rclcpp::get_logger("LinearSliderCommunicationInterface"),
             "Socket bind failed."

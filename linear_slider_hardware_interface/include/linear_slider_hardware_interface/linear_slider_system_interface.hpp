@@ -65,8 +65,8 @@ namespace linear_slider_system_interface
 
         private:
             // data structures for holding velocity data
-            std::vector<double> hw_states_velocities_;
-            std::vector<double> hw_commands_velocities_;
+            // std::vector<double> hw_states_velocities_;
+            // std::vector<double> hw_commands_velocities_;
 
             // Comms
             ClearCoreComms comms_;

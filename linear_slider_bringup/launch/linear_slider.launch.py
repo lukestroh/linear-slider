@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
@@ -9,7 +10,9 @@ from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.substitutions import (
     LaunchConfiguration,
     PathJoinSubstitution,
-    PythonExpression
+    PythonExpression,
+    Command,
+    FindExecutable
 )
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -53,7 +56,7 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "prefix",
-            default_value = '""',
+            default_value = "''",
             description = "Prefix of the joint names, useful for multi-robot setup. If changed, then you need to update the joint names in the controllers' description."
         )
     )
@@ -61,6 +64,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "use_mock_hardware",
             default_value = "true",
+            choices=['true', 'false'],
             description = "Start robot with fake hardware mirroring command to its states."
         )
     )
@@ -75,7 +79,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "robot_controller",
             default_value = "joint_trajectory_controller",
-            choices = ["velocity_controllers", "joint_trajectory_controller"], # add another here if we want to switch between different controllers
+            choices = ["velocity_controller", "joint_trajectory_controller"], # add another here if we want to switch between different controllers
             description = "Robot controller"
         )
     )
@@ -91,19 +95,25 @@ def generate_launch_description():
     robot_controller = LaunchConfiguration("robot_controller")
 
     # Get URDF from xacro
-    urdf_file = os.path.join(
-        FindPackageShare('linear_slider_description').find('linear_slider_description'),
-        "urdf",
-        "linear_slider.urdf.xacro"
+    robot_description_content = Command(
+        [
+            PathJoinSubstitution([FindExecutable(name="xacro")]),
+            " ",
+            PathJoinSubstitution(
+                [FindPackageShare(description_package), "urdf", description_file]
+            ),
+            " ",
+            "prefix:=",
+            prefix,
+            " ",
+            "use_mock_hardware:=",
+            use_mock_hardware,
+            " ",
+            "mock_sensor_commands:=",
+            mock_sensor_commands,
+            " ",
+        ]
     )
-    xacro_file = xacro.process_file(
-        urdf_file,
-        prefix=prefix,
-        use_mock_hardware=use_mock_hardware,
-        mock_sensor_commands=mock_sensor_commands
-    )
-    robot_description_content = xacro_file.toprettyxml()
-
 
     robot_description = {"robot_description": robot_description_content}
 
@@ -124,9 +134,8 @@ def generate_launch_description():
         executable = "ros2_control_node",
         output = "both",
         parameters = [
-            # robot_description, # Deprecated: Automatically subscribes to "/robot_description" topic from the /controller_manager node
             robot_controllers,
-            robot_description
+            robot_description # Says it's deprecated, but only works if this is provided!
         ]
     )
 
@@ -155,8 +164,6 @@ def generate_launch_description():
         ]
     )
 
-    # _logmsg = LogInfo(msg=control_node)
-
     robot_controllers = [robot_controller]
     robot_controller_spawners = []
     for controller in robot_controllers:
@@ -175,7 +182,7 @@ def generate_launch_description():
                 target_action = control_node,
                 on_start = [
                     TimerAction(
-                        period = 1.0,
+                        period = 0.05,
                         actions = [joint_state_broadcaster_spawner]
                     )
                 ]
@@ -200,12 +207,7 @@ def generate_launch_description():
             RegisterEventHandler(
                 event_handler = OnProcessExit(
                     target_action = joint_state_broadcaster_spawner,
-                    on_exit = [
-                        TimerAction(
-                            period = 3.0,
-                            actions = [controller]
-                        )
-                    ]
+                    on_exit = [controller]
                 )
             )
         )
@@ -220,7 +222,7 @@ def generate_launch_description():
             delay_rviz_after_joint_state_broadcaster_spawner,
             delay_joint_state_broadcaster_after_ros2_control_node
           ]
-        + delay_robot_controller_spawners_after_joint_state_broadcaster_spawner
+        # + delay_robot_controller_spawners_after_joint_state_broadcaster_spawner
     )
 
 if __name__ == "__main__":

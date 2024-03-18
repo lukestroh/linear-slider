@@ -6,7 +6,7 @@
   <description>
      An automatically generated package with all the configuration and launch files for using the linear_slider with the MoveIt Motion Planning Framework
   </description>
-  <maintainer email="strohbel@oregonstate.edu">Luke Strohbehn</maintainer>
+  <maintainer email="luke.strohbehn@gmail.com">Luke Strohbehn</maintainer>
 
   <license>BSD</license>
 
@@ -14,7 +14,7 @@
   <url type="bugtracker">https://github.com/ros-planning/moveit2/issues</url>
   <url type="repository">https://github.com/ros-planning/moveit2</url>
 
-  <author email="strohbel@oregonstate.edu">Luke Strohbehn</author>
+  <author email="luke.strohbehn@gmail.com">Luke Strohbehn</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

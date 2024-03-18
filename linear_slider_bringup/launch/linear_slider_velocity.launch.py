@@ -186,6 +186,18 @@ def generate_launch_description():
         arguments=["-d", rviz_config_file],
     )
 
+    # spawn_entity = Node(
+    #     package="gazebo_ros",
+    #     executable="spawn_entity.py",
+    #     arguments=[
+    #         "-topic",
+    #         "robot_description",
+    #         "-entity",
+    #         "linear_slider"
+    #     ],
+    #     output="screen"
+    # )
+
     delay_joint_state_broadcaster_after_control_node = RegisterEventHandler(
         event_handler=OnProcessStart(
             target_action=control_node,

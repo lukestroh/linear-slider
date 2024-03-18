@@ -4,6 +4,9 @@
 <!-- |    EDITING THIS FILE BY HAND IS NOT RECOMMENDED                                 | -->
 <!-- =================================================================================== -->
 <robot name="linear_slider">
+  <!-- <xacro:arg name="simulation_controllers" default="" /> -->
+  <!-- World link -->
+  <link name="world"/>
   <!-- ================== -->
   <!--     Properties     -->
   <!-- ================== -->
@@ -19,7 +22,6 @@
   <!-- ================== -->
   <!--       Links        -->
   <!-- ================== -->
-  <!-- <link name="world" /> -->
   <link name="base_link">
     <visual>
       <material name="alpha_black"/>
@@ -30,8 +32,11 @@
     </visual>
     <collision>
       <geometry>
-        <!-- <box size="0.22 0.202 0.118"/> -->
-        <mesh filename="package://linear_slider_description/meshes/7thlink_fixed.STL" scale="0.001 0.001 0.001"/>
+        <box size="0.8 0.3 0.14"/>
+        <!-- <mesh
+                        filename="package://linear_slider_description/meshes/7thlink_fixed.STL"
+                        scale="${model_scale}"
+                    /> -->
       </geometry>
     </collision>
   </link>
@@ -45,7 +50,11 @@
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://linear_slider_description/meshes/7thlink_move.STL" scale="0.001 0.001 0.001"/>
+        <box size="0.22 0.202 0.118"/>
+        <!-- <mesh
+                        filename="package://linear_slider_description/meshes/7thlink_move.STL"
+                        scale="${model_scale}"
+                    /> -->
       </geometry>
     </collision>
     <inertial>
@@ -54,6 +63,14 @@
       <inertia ixx="0.0915" ixy="0.0" ixz="0.0" iyy="0.975" iyz="0.0" izz="0.9915"/>
     </inertial>
   </link>
+  <!-- ================== -->
+  <!--       Joints       -->
+  <!-- ================== -->
+  <joint name="base_joint" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
   <joint name="joint1" type="prismatic">
     <parent link="base_link"/>
     <child link="moving_base"/>
@@ -63,15 +80,17 @@
     <origin xyz="0.0 0.0 0.0"/>
     <!-- Define where the joint will be located, defined in terms of parent's reference frame -->
   </joint>
-  <ros2_control name="linear_slider" type="system">
+  <!-- The caret ^ indicates to use the outer-scope property (with same name). The pipe | indicates to use the given fallback if the property is not defined in outer scope. -->
+  <!-- ================== -->
+  <!--    ros2_control    -->
+  <!-- ================== -->
+  <ros2_control name="linear_slider_ros2_control" type="system">
     <!-- Hardware -->
     <hardware>
       <plugin>linear_slider_hardware_interface/LinearSliderHardwareInterface</plugin>
-      <!-- <plugin>linear_slider_system_interface/LinearSliderSystemInterface</plugin> -->
-      <param name="device_name">linear_slider_ros2_control</param>
-      <param name="joint_name">prismatic_joint</param>
-      <param name="robot_ip">169.254.97.178</param>
-      <!-- <plugin>gz_ros2_control/GazeboSimSystem</plugin> -->
+      <!-- <param name="device_name">linear_slider_device</param>
+                <param name="joint_name">prismatic_joint</param>
+                <param name="robot_ip">169.254.97.178</param> -->
     </hardware>
     <!-- Joints -->
     <joint name="joint1">
@@ -80,35 +99,28 @@
         <param name="min">-0.40</param>
         <param name="max">0.40</param>
       </command_interface>
-      <command_interface name="velocity">
-        <param name="min">-0.1</param>
-        <param name="max">0.1</param>
-      </command_interface>
+      <!-- <command_interface name="velocity">
+                    <param name="min">-0.1</param>
+                    <param name="max">0.1</param>
+                </command_interface> -->
       <!-- State interface -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
-      <state_interface name="velocity">
-        <param name="initial_value">0.0</param>
-      </state_interface>
+      <!-- <state_interface name="velocity">
+                    <param name="initial_value">${initial_state['joint1_velocity']}</param>
+                </state_interface> -->
     </joint>
     <!-- Sensors -->
-    <sensor name="lim_switch_neg">
-      <state_interface name="switch_val">
-        <param name="initial_value">False</param>
-      </state_interface>
-    </sensor>
-    <sensor name="lim_switch_pos">
-      <state_interface name="swtich_val">
-        <param name="initial_value">False</param>
-      </state_interface>
-    </sensor>
+    <!-- <sensor name="lim_switch_neg">
+                <state_interface name="switch_val">
+                    <param name="initial_value">${initial_state['lim_switch_neg']}</param>
+                </state_interface>
+            </sensor>
+            <sensor name="lim_switch_pos">
+                <state_interface name="switch_val">
+                    <param name="initial_value">${initial_state['lim_switch_pos']}</param>
+                </state_interface>
+            </sensor> -->
   </ros2_control>
-  <gazebo>
-    <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-      <robot_param>robot_description</robot_param>
-      <robot_param_node>robot_state_publisher</robot_param_node>
-      <parameters>/home/luke/ros2_ws/install/linear_slider_bringup/share/linear_slider_bringup/config/linear_slider_controllers.yaml</parameters>
-    </plugin>
-  </gazebo>
 </robot>
