@@ -1,27 +1,23 @@
 moveit_setup_assistant_config:
   urdf:
     package: linear_slider_description
-    relative_path: urdf/linear_slider.urdf
+    relative_path: urdf/linear_slider.urdf.xacro
   srdf:
     relative_path: config/linear_slider.srdf
   package_settings:
     author_name: Luke Strohbehn
-    author_email: strohbel@oregonstate.edu
-    generated_timestamp: 1705115986
+    author_email: luke.strohbehn@gmail.com
+    generated_timestamp: 1710492219
   control_xacro:
     command:
       - position
-      - velocity
     state:
       - position
-      - velocity
   modified_urdf:
     xacros:
       - control_xacro
   control_xacro:
     command:
       - position
-      - velocity
     state:
       - position
-      - velocity

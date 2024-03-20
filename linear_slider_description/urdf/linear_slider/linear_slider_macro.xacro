@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="linear_slider">
 
-    <xacro:macro name="linear_slider_macro" params="prefix">
+    <xacro:macro name="linear_slider_macro" params="prefix parent *origin">
         
         <!-- ================== -->
         <!--     Properties     -->
@@ -30,7 +30,6 @@
         <!-- ================== -->
         <!--     Materials      -->
         <!-- ================== -->
-
         <material name="alpha_black">
             <color rgba="0.6 0.6 0.6 1"/>
         </material>
@@ -41,7 +40,7 @@
         <!-- ================== -->
         <!--       Links        -->
         <!-- ================== -->
-        <!-- <link name="world" /> -->
+        <!-- base_link -->
         <link name="${prefix}base_link">
             <visual>
                 <material name="alpha_black"/>
@@ -52,16 +51,18 @@
             </visual>
             <collision>
                 <geometry>
-                    <!-- <box size="0.22 0.202 0.118"/> -->
-                    <mesh
+                    <box size="1.0 0.3 0.10"/>
+                    <!-- <mesh
                         filename="package://linear_slider_description/meshes/7thlink_fixed.STL"
                         scale="${model_scale}"
-                    />
+                    /> -->
                 </geometry>
             </collision>
         </link>
-
-
+        <gazebo reference="${prefix}base_link">
+            <material>Gazebo/Gray</material>
+        </gazebo>
+        <!-- moving_base link -->
         <link name="${prefix}moving_base">
             <visual>
                 <origin rpy="${moving_base_start_orientation}" xyz="${start_offset}" />
@@ -75,9 +76,11 @@
             </visual>
             <collision>
                 <geometry>
-                    <mesh
+                    <box size="0.22 0.202 0.118"/>
+                    <!-- <mesh
                         filename="package://linear_slider_description/meshes/7thlink_move.STL"
-                        scale="${model_scale}" />
+                        scale="${model_scale}"
+                    /> -->
                 </geometry>
             </collision>
             <inertial>
@@ -92,19 +95,58 @@
                     izz="${1*12/(frame_mass + moving_base_mass) * (frame_width**2 + frame_length**2)}"
                 />
             </inertial>
-            
         </link>
-            <joint name="${prefix}joint1" type="prismatic">
-                <parent link="base_link"/>
-                <child link="moving_base"/>
-                <axis xyz="1 0 0"/>
-                <limit 
-                    effort="${slider_effort_limit}"
-                    lower="${slider_limit_min}"
-                    upper="${slider_limit_max}"
-                    velocity="${slider_velocity_limit}"
-                /> <!-- effort is attribute for enforcing maximum joint effort, between 0 and 100% -->
-                <origin xyz="0.0 0.0 0.0" /> <!-- Define where the joint will be located, defined in terms of parent's reference frame -->
-            </joint>
+        <gazebo reference="${prefix}moving_base">
+            <material>Gazebo/Red</material>
+        </gazebo>
+
+        <!-- tool link -->
+        <link name="${prefix}tool0" />
+        <link name="${prefix}base" />
+        <!-- Frame for mounting EEF models to a manipulator. x+ axis points forward (REP 103). -->
+        <link name="${prefix}flange" />
+        
+
+        <!-- ================== -->
+        <!--       Joints       -->
+        <!-- ================== -->
+        <!-- base_joint fixes base_link to the environment -->
+        <joint name="${prefix}base_joint" type="fixed">
+            <parent link="${parent}"/>
+            <child link="${prefix}base_link"/>
+            <xacro:insert_block name="origin"/>
+        </joint>
+        <!-- joint1 -->
+        <joint name="${prefix}joint1" type="prismatic">
+            <parent link="base_link"/>
+            <child link="moving_base"/>
+            <axis xyz="1 0 0"/>
+            <limit 
+                effort="${slider_effort_limit}"
+                lower="${slider_limit_min}"
+                upper="${slider_limit_max}"
+                velocity="${slider_velocity_limit}"
+            /> <!-- effort is attribute for enforcing maximum joint effort, between 0 and 100% -->
+            <origin xyz="0.0 0.0 0.0" /> <!-- Define where the joint will be located, defined in terms of parent's reference frame -->
+        </joint>
+        <!-- Extra joints for ros-industrial standard compatability -->
+        <!-- tool frame to fixed frame -->
+        <joint name="${prefix}moving_base-tool0" type="fixed">
+            <parent link="${prefix}moving_base"/>
+            <child link="${prefix}tool0"/>
+            <origin xyz="0 0 0" rpy="0 0 0" />   
+        </joint>
+        <joint name="${prefix}base_link-base_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="${prefix}base_link" />
+            <child link="${prefix}base" />
+        </joint>
+    
+        <joint name="${prefix}tool0-flange_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <parent link="${prefix}tool0" />
+            <child link="${prefix}flange" />
+        </joint>
+
     </xacro:macro>
 </robot>
