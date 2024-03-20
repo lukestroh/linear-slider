@@ -90,7 +90,7 @@ class TestJoinTrajectoryControllerNode(Node):
         goal_msg.trajectory.joint_names = ['joint1']
 
         point = JointTrajectoryPoint()
-        point.positions = [-0.4]
+        point.positions = [0.4] # This is the position that we're sending the linear slider to.
         point.time_from_start = Duration(seconds=2).to_msg()
 
         goal_msg.trajectory.points.append(point)

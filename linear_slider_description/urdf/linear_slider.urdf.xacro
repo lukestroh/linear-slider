@@ -17,6 +17,7 @@
     <!-- World link -->
     <link name="world" />
 
+    <!-- Macro information -->
     <xacro:linear_slider_macro prefix="$(arg prefix)" parent="world">
         <origin xyz="0 0 0" rpy="0 0 0"/>
     </xacro:linear_slider_macro>
@@ -51,16 +52,6 @@
             <sensor name="lim_switch_pos">
                 <always_on>1</always_on>
             </sensor> -->
-        </gazebo>
-
-        <gazebo reference="$(arg prefix)joint1"/>
-
-        <gazebo reference="$(arg prefix)base_link">
-            <material>Gazebo/Gray</material>
-        </gazebo>
-        
-        <gazebo reference="$(arg prefix)moving_base">
-            <material>Gazebo/Red</material>
         </gazebo>
     </xacro:if>
 

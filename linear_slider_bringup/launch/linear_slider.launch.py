@@ -222,7 +222,7 @@ def generate_launch_description():
             delay_rviz_after_joint_state_broadcaster_spawner,
             delay_joint_state_broadcaster_after_ros2_control_node
           ]
-        # + delay_robot_controller_spawners_after_joint_state_broadcaster_spawner
+        + delay_robot_controller_spawners_after_joint_state_broadcaster_spawner
     )
 
 if __name__ == "__main__":

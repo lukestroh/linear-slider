@@ -111,10 +111,6 @@ def generate_launch_description():
     sim_gazebo = LaunchConfiguration("sim_gazebo")
     sim_gazebo_classic = LaunchConfiguration("sim_gazebo_classic")
 
-    # robot_controllers = PathJoinSubstitution(
-    #     [FindPackageShare(runtime_config_package), "config", controllers_file]
-    # )
-
     # Get URDF from xacro
     robot_description_content = Command(
         [
@@ -139,10 +135,6 @@ def generate_launch_description():
             "sim_gazebo_classic:=",
             sim_gazebo_classic,
             " ",
-            # "simulation_controllers:=",
-            # robot_controllers,
-            # " ",
-
         ]
     )
 
