@@ -204,7 +204,11 @@ def generate_launch_description():
         package="gazebo_ros",
         executable="spawn_entity.py",
         name="spawn_linear_slider",
-        arguments=["-entity", "linear_slider", "-topic", "robot_description", "-x", "0", "-y", "0","-z", "1"],
+        arguments=["-entity", "linear_slider",
+                   "-topic", "robot_description", 
+                   "-x", "0",
+                   "-y", "0",
+                   "-z", "1"],
         condition=IfCondition(sim_gazebo_classic),
         output="screen"
     )
@@ -238,13 +242,6 @@ def generate_launch_description():
         ),
         condition=IfCondition(sim_gazebo_classic)
     )
-
-    # delay_rviz_after_joint_state_broadcaster = RegisterEventHandler(
-    #     event_handler=OnProcessExit(
-    #         target_action=joint_state_broadcaster_spawner,
-    #         on_exit=[rviz_node],
-    #     )
-    # )
 
     delay_robot_controller_spawners_after_joint_state_broadcaster_spawner = []
     for controller in robot_controller_spawners:

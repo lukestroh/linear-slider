@@ -37,13 +37,13 @@ ros2 run rqt_joint_trajectory_controller rqt_joint_trajectory_controller
 ros2 run linear_slider_test test_joint_trajectory_controller_node
 ```
 
-#### Gazebo Classic
-Gazebo Classic functionality not available at this time. If you wish to view the current bugs with this launch, please run the following command:
+#### Gazebo Classic Simulation
+Launching the linear slider in Gazebo Classic can be done with the following command.  
 ```
 ros2 launch linear_slider_bringup linear_slider_sim_gazebo.launch.py sim_gazebo_classic:=true
 ```
 
-#### Gazebo Ignition
+#### Gazebo Ignition Simulation
 Gazebo Ignition functionality not available at this time. If you wish to view the current bugs with this launch, please run the following command:
 ```
 ros2 launch linear_slider_bringup linear_slider_sim_gazebo.launch.py sim_gazebo:=true
