@@ -38,7 +38,9 @@
         <!--   Gazebo Classic   -->
         <!-- ================== -->    
 
-        <gazebo reference="world"/>
+        <gazebo reference="$(arg prefix)base_link">
+            <static>true</static>
+        </gazebo>
         <gazebo>
             <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
                 <robot_param>robot_description</robot_param>

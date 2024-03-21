@@ -14,6 +14,7 @@
         <xacro:property name="frame_height" value="0.25"/>
 
         <xacro:property name="moving_base_mass" value="10.0" />
+        <xacro:property name="base_link_mass" value="20.0" />
 
         <!-- Model default position/orientation -->
         <xacro:property name="model_scale" value="0.001 0.001 0.001"/>
@@ -46,7 +47,7 @@
                 <material name="alpha_black"/>
                 <origin rpy="${base_link_start_orientation}" xyz="${start_offset}"/>
                 <geometry>
-                    <mesh filename="package://linear_slider_description/meshes/7thlink_fixed.STL" scale="${model_scale}" />
+                    <mesh filename="file://$(find linear_slider_description)/meshes/7thlink_fixed.STL" scale="${model_scale}" />
                 </geometry>
             </visual>
             <collision>
@@ -58,6 +59,18 @@
                     /> -->
                 </geometry>
             </collision>
+            <inertial>
+                <mass value="${base_link_mass}" />
+                <origin xyz="0.0 0.0 0.0" />
+                <inertia
+                    ixx="${1*12/(frame_mass + base_link_mass) * (frame_width**2 + frame_height**2)}"
+                    ixy="0.0"
+                    ixz="0.0"
+                    iyy="${1*12/(frame_mass + base_link_mass) * (frame_length**2 + frame_height**2)}"
+                    iyz="0.0"
+                    izz="${1*12/(frame_mass + base_link_mass) * (frame_width**2 + frame_length**2)}"
+                />
+            </inertial>
         </link>
         <gazebo reference="${prefix}base_link">
             <material>Gazebo/Gray</material>
@@ -69,7 +82,7 @@
                 <material name="red_v" />
                 <geometry>
                     <mesh
-                        filename="package://linear_slider_description/meshes/7thlink_move.STL"
+                        filename="file://$(find linear_slider_description)/meshes/7thlink_move.STL"
                         scale="${model_scale}"
                     />
                 </geometry>

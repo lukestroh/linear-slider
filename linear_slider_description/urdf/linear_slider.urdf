@@ -40,6 +40,11 @@
                     /> -->
       </geometry>
     </collision>
+    <inertial>
+      <mass value="1000.0"/>
+      <origin xyz="0.0 0.0 0.0"/>
+      <inertia ixx="0.0018118811881188118" ixy="0.0" ixz="0.0" iyy="0.019306930693069307" iyz="0.0" izz="0.019633663366336634"/>
+    </inertial>
   </link>
   <gazebo reference="base_link">
     <material>Gazebo/Gray</material>
@@ -152,7 +157,7 @@
     </sensor>
     <sensor name="lim_switch_pos">
       <state_interface name="switch_val">
-        <param name="initial_value">False</param>
+        <param name="initial_value">0</param>
       </state_interface>
       <param name="frame_id">base_link</param>
     </sensor>

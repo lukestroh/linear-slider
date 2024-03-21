@@ -60,7 +60,7 @@
             </joint>
             
             <!-- Sensors -->
-            <sensor name="lim_switch_neg">
+            <!-- <sensor name="lim_switch_neg">
                 <state_interface name="switch_val">
                     <param name="initial_value">${initial_state['lim_switch_neg']}</param>
                 </state_interface>
@@ -71,7 +71,7 @@
                     <param name="initial_value">${initial_state['lim_switch_pos']}</param>
                 </state_interface>
                 <param name="frame_id">${prefix}base_link</param>
-            </sensor>
+            </sensor> -->
         </ros2_control>
     </xacro:macro>
 </robot>

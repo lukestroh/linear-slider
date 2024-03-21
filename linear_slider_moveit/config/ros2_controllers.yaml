@@ -3,14 +3,14 @@ controller_manager:
   ros__parameters:
     update_rate: 100  # Hz
 
-    joint1_planning_group_controller:
+    moving_base_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
-joint1_planning_group_controller:
+moving_base_controller:
   ros__parameters:
     joint: joint1
     command_interfaces:
