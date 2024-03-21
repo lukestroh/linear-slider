@@ -14,10 +14,17 @@ ros2 launch linear_slider_bringup linear_slider.launch.py
 ```
 
 ## Gazebo Classic
-This feature does not currently exist, but a [Robotics Stack Exchange question](https://robotics.stackexchange.com/questions/110116/gazebo-ros2-control-does-not-load-joints-or-sensors-from-urdf) regarding my bug is available for viewing.
+The model successfully launches in Gazebo after having fixed some strange bugs. Important bugs to note:
+1. When calling the mesh files into the URDF, RViz allows for the package to be called using the command `filename="package://<package_name>/path/to/file"`. Gazebo did not like this, however, and requires the URDF to find the file with the command `filename="file://$(find <package_name>)/path/to/file"`.
+2. The model must also not interact with the ground, so in the launch file, the object is spawned at a height of z=1.
+
+Launching the linear slider in Gazebo Classic can be done with the following command.  
+```
+ros2 launch linear_slider_bringup linear_slider_sim_gazebo.launch.py sim_gazebo_classic:=true
+```
 
 ## Gazebo Ignition
 This feature does not currently exist.
 
 ## Real World
-While the system hardware interface has been defined in `linear_slider_hardware_interface`, proper visualization and controller tools are required. Unfortunately this means that the real-world hardware interface has not yet been tested.
+While the system hardware interface has been defined in `linear_slider_hardware_interface`, proper visualization and controller tools are required. Unfortunately this means that the real-world hardware interface has not yet been tested.    
