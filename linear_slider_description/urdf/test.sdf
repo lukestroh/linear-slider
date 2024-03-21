@@ -1,0 +1,125 @@
+<sdf version='1.7'>
+  <model name='linear_slider'>
+    <joint name='base_joint' type='fixed'>
+      <pose relative_to='__model__'>0 0 0 0 -0 0</pose>
+      <parent>world</parent>
+      <child>base_link</child>
+    </joint>
+    <link name='base_link'>
+      <pose relative_to='base_joint'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>1000</mass>
+        <inertia>
+          <ixx>0.00181188</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.0193069</iyy>
+          <iyz>0</iyz>
+          <izz>0.0196337</izz>
+        </inertia>
+      </inertial>
+      <collision name='base_link_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>1 0.3 0.1</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='base_link_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>model://linear_slider_description/meshes/7thlink_fixed.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Gray</name>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+          </script>
+        </material>
+      </visual>
+    </link>
+    <joint name='joint1' type='prismatic'>
+      <pose relative_to='base_link'>0 0 0 0 -0 0</pose>
+      <parent>base_link</parent>
+      <child>moving_base</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-0.4</lower>
+          <upper>0.4</upper>
+          <effort>10</effort>
+          <velocity>0.25</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='moving_base'>
+      <pose relative_to='joint1'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>10</mass>
+        <inertia>
+          <ixx>0.0915</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.975</iyy>
+          <iyz>0</iyz>
+          <izz>0.9915</izz>
+        </inertia>
+      </inertial>
+      <collision name='moving_base_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.22 0.202 0.118</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='moving_base_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>model://linear_slider_description/meshes/7thlink_move.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Red</name>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+          </script>
+        </material>
+      </visual>
+    </link>
+    <static>0</static>
+    <plugin name='gazebo_ros2_control' filename='libgazebo_ros2_control.so'>
+      <robot_param>robot_description</robot_param>
+      <robot_param_node>robot_state_publisher</robot_param_node>
+      <parameters>/home/luke/ros2_ws/install/linear_slider_bringup/share/linear_slider_bringup/config/linear_slider_controllers.yaml</parameters>
+    </plugin>
+  </model>
+</sdf>
