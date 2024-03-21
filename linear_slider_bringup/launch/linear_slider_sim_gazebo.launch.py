@@ -204,7 +204,7 @@ def generate_launch_description():
         package="gazebo_ros",
         executable="spawn_entity.py",
         name="spawn_linear_slider",
-        arguments=["-entity", "linear_slider", "-topic", "robot_description"],
+        arguments=["-entity", "linear_slider", "-topic", "robot_description", "-x", "0", "-y", "0","-z", "1"],
         condition=IfCondition(sim_gazebo_classic),
         output="screen"
     )
@@ -239,12 +239,12 @@ def generate_launch_description():
         condition=IfCondition(sim_gazebo_classic)
     )
 
-    delay_rviz_after_joint_state_broadcaster = RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=joint_state_broadcaster_spawner,
-            on_exit=[rviz_node],
-        )
-    )
+    # delay_rviz_after_joint_state_broadcaster = RegisterEventHandler(
+    #     event_handler=OnProcessExit(
+    #         target_action=joint_state_broadcaster_spawner,
+    #         on_exit=[rviz_node],
+    #     )
+    # )
 
     delay_robot_controller_spawners_after_joint_state_broadcaster_spawner = []
     for controller in robot_controller_spawners:
@@ -258,21 +258,22 @@ def generate_launch_description():
         ]
 
 
+
     return LaunchDescription(
         declared_args
         + [
-            _log0,
-            _log1,
-            _log2,
+            # _log0,
+            # _log1,
+            # _log2,
             robot_state_pub_node,
+            rviz_node,
             gazebo_launch,
             gazebo_classic_launch,
             gazebo_node_spawner,
             gazebo_classic_node_spawner,
             delay_joint_state_broadcaster_spawner_after_gazebo_classic_spawner,
             delay_joint_state_broadcaster_spawner_after_gazebo_spawner,
-            delay_rviz_after_joint_state_broadcaster
-            
+           
         ]
         + delay_robot_controller_spawners_after_joint_state_broadcaster_spawner
     )
