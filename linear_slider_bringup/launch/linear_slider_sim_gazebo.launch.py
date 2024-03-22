@@ -259,7 +259,7 @@ def generate_launch_description():
     return LaunchDescription(
         declared_args
         + [
-            # _log0,
+            _log0,
             # _log1,
             # _log2,
             robot_state_pub_node,

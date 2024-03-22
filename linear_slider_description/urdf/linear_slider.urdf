@@ -28,7 +28,7 @@
       <material name="alpha_black"/>
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
       <geometry>
-        <mesh filename="package://linear_slider_description/meshes/7thlink_fixed.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="file:///home/main/ros2_ws/install/linear_slider_description/share/linear_slider_description/meshes/7thlink_fixed.STL" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
     <collision>
@@ -41,9 +41,9 @@
       </geometry>
     </collision>
     <inertial>
-      <mass value="1000.0"/>
+      <mass value="20.0"/>
       <origin xyz="0.0 0.0 0.0"/>
-      <inertia ixx="0.0018118811881188118" ixy="0.0" ixz="0.0" iyy="0.019306930693069307" iyz="0.0" izz="0.019633663366336634"/>
+      <inertia ixx="0.061" ixy="0.0" ixz="0.0" iyy="0.65" iyz="0.0" izz="0.661"/>
     </inertial>
   </link>
   <gazebo reference="base_link">
@@ -55,7 +55,7 @@
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
       <material name="red_v"/>
       <geometry>
-        <mesh filename="package://linear_slider_description/meshes/7thlink_move.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="file:///home/main/ros2_ws/install/linear_slider_description/share/linear_slider_description/meshes/7thlink_move.STL" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
     <collision>
@@ -124,7 +124,8 @@
   <ros2_control name="linear_slider_ros2_control" type="system">
     <!-- Hardware -->
     <hardware>
-      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+      <plugin>mock_components/GenericSystem</plugin>
+      <param name="mock_sensor_commands">True</param>
       <!-- <param name="device_name">linear_slider_device</param>
                 <param name="joint_name">prismatic_joint</param>
                 <param name="robot_ip">169.254.97.178</param> -->
@@ -132,52 +133,34 @@
     <!-- Joints -->
     <joint name="joint1">
       <!-- Command interface -->
-      <command_interface name="position">
-        <param name="min">-0.40</param>
-        <param name="max">0.40</param>
-      </command_interface>
-      <!-- <command_interface name="velocity">
-                    <param name="min">-0.1</param>
-                    <param name="max">0.1</param>
+      <!-- <command_interface name="position">
+                    <param name="min">-0.40</param>
+                    <param name="max">0.40</param>
                 </command_interface> -->
+      <command_interface name="velocity">
+        <param name="min">-0.1</param>
+        <param name="max">0.1</param>
+      </command_interface>
       <!-- State interface -->
       <state_interface name="position">
         <param name="initial_value">0.0</param>
       </state_interface>
-      <!-- <state_interface name="velocity">
-                    <param name="initial_value">${initial_state['joint1_velocity']}</param>
-                </state_interface> -->
+      <state_interface name="velocity">
+        <param name="initial_value">0.0</param>
+      </state_interface>
     </joint>
     <!-- Sensors -->
-    <sensor name="lim_switch_neg">
-      <state_interface name="switch_val">
-        <param name="initial_value">0</param>
-      </state_interface>
-      <param name="frame_id">base_link</param>
-    </sensor>
-    <sensor name="lim_switch_pos">
-      <state_interface name="switch_val">
-        <param name="initial_value">0</param>
-      </state_interface>
-      <param name="frame_id">base_link</param>
-    </sensor>
-  </ros2_control>
-  <!-- ================== -->
-  <!--   Gazebo Classic   -->
-  <!-- ================== -->
-  <gazebo reference="world"/>
-  <gazebo>
-    <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-      <robot_param>robot_description</robot_param>
-      <robot_param_node>robot_state_publisher</robot_param_node>
-      <parameters>/home/luke/ros2_ws/install/linear_slider_bringup/share/linear_slider_bringup/config/linear_slider_controllers.yaml</parameters>
-      <!-- <parameters>$(arg simulation_controllers)</parameters> -->
-    </plugin>
     <!-- <sensor name="lim_switch_neg">
-                <always_on>1</always_on>
+                <state_interface name="switch_val">
+                    <param name="initial_value">${initial_state['lim_switch_neg']}</param>
+                </state_interface>
+                <param name="frame_id">${prefix}base_link</param>
             </sensor>
             <sensor name="lim_switch_pos">
-                <always_on>1</always_on>
+                <state_interface name="switch_val">
+                    <param name="initial_value">${initial_state['lim_switch_pos']}</param>
+                </state_interface>
+                <param name="frame_id">${prefix}base_link</param>
             </sensor> -->
-  </gazebo>
+  </ros2_control>
 </robot>

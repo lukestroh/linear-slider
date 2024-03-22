@@ -17,9 +17,6 @@ from launch.substitutions import (
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
-import xacro
-import os
-
 
 
 def generate_launch_description():
@@ -63,7 +60,7 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "use_mock_hardware",
-            default_value = "true",
+            default_value = "false",
             choices=['true', 'false'],
             description = "Start robot with fake hardware mirroring command to its states."
         )
@@ -117,7 +114,7 @@ def generate_launch_description():
 
     robot_description = {"robot_description": robot_description_content}
 
-    _log0 = LogInfo(msg=f"{robot_description_content}")
+    _log0 = LogInfo(msg=robot_description_content)
 
     robot_controllers = PathJoinSubstitution([
         FindPackageShare(runtime_config_package),
