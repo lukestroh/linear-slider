@@ -18,6 +18,8 @@ add_library(
   ${PROJECT_NAME}
   SHARED
   src/linear_slider_system_interface.cpp
+  src/linear_slider_hardware.cpp
+  src/clearcore_comms.cpp
 )
 target_include_directories(
   ${PROJECT_NAME}
@@ -35,7 +37,7 @@ ament_target_dependencies(
 )
 
 pluginlib_export_plugin_description_file(
-  controller_interface
+  hardware_interface
   linear_slider_hardware_interface.xml
 )
 

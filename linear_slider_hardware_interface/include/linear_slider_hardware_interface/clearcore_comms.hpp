@@ -18,8 +18,8 @@ class ClearCoreComms {
         ~ClearCoreComms();
 
     private:
-        const int local_port;
-        const int remote_port;
+        const int local_port = 8888;
+        const int remote_port = 8888;
         int sock;
         struct sockaddr_in local_svr_addr;
         struct sockaddr_in client_addr;

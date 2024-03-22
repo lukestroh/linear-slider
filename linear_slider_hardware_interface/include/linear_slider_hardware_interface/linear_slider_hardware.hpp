@@ -2,16 +2,27 @@
 #define __LINEAR_SLIDER_HARDWARE_HPP__
 
 #include <string>
-// #include <cmath>
+#include <vector>
+#include "rclcpp/rclcpp.hpp"
+
+struct Interface{
+    double pos = 0;
+    double vel = 0;
+    int rpm;
+};
 
 class LinearSliderHardware {
     public:
         std::string name;
         int system_status = 0;
-        int rpm_cmd = 0;
-        int rpm_state = 0;
-        double vel_cmd = 0;
-        double vel_state = 0;
+        Interface state;
+        Interface command;
+        std::vector<std::string> joint_names = {"joint1"};
+
+        // int rpm_cmd = 0;
+        // int rpm_state = 0;
+        // double vel_cmd = 0;
+        // double vel_state = 0;
         bool lim_switch_pos = false;
         bool lim_switch_neg = false;
 
@@ -22,7 +33,6 @@ class LinearSliderHardware {
         void begin(const std::string& system_name);
         double rpm_to_vel(int rpm);
         int vel_to_rpm(double& vel);
-
 };
 
 #endif // __LINEAR_SLIDER_HARDWARE_HPP__
