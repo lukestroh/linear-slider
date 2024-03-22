@@ -6,9 +6,9 @@
 #include "rclcpp/rclcpp.hpp"
 
 struct Interface{
-    double pos = 0;
-    double vel = 0;
-    int rpm;
+    double pos = 0.0;
+    double vel = 0.0;
+    int rpm = 0;
 };
 
 class LinearSliderHardware {

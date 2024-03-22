@@ -117,6 +117,8 @@ def generate_launch_description():
 
     robot_description = {"robot_description": robot_description_content}
 
+    _log0 = LogInfo(msg=f"{robot_description_content}")
+
     robot_controllers = PathJoinSubstitution([
         FindPackageShare(runtime_config_package),
         "config",
@@ -182,7 +184,7 @@ def generate_launch_description():
                 target_action = control_node,
                 on_start = [
                     TimerAction(
-                        period = 0.05,
+                        period = 0.5,
                         actions = [joint_state_broadcaster_spawner]
                     )
                 ]
@@ -216,7 +218,7 @@ def generate_launch_description():
         
         declared_args
         + [
-            # _logmsg,
+            _log0,
             control_node,
             robot_state_pub_node,
             delay_rviz_after_joint_state_broadcaster_spawner,

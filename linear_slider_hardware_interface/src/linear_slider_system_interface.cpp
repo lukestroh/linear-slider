@@ -95,7 +95,7 @@ std::vector<hardware_interface::CommandInterface> LinearSliderSystemInterface::e
     //     ));
     // }
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
-        linear_slider_.joint_names[0], hardware_interface::HW_IF_VELOCITY, &linear_slider_.command.vel
+        info_.joints[0].name, hardware_interface::HW_IF_VELOCITY, &linear_slider_.command.vel
     ));
     return command_interfaces;
 }
@@ -109,10 +109,10 @@ std::vector<hardware_interface::StateInterface> LinearSliderSystemInterface::exp
     //     ));
     // }
     state_interfaces.emplace_back(hardware_interface::StateInterface(
-        linear_slider_.joint_names[0], hardware_interface::HW_IF_POSITION, &linear_slider_.state.pos
+        info_.joints[0].name, hardware_interface::HW_IF_POSITION, &linear_slider_.state.pos
     ));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
-        linear_slider_.joint_names[0], hardware_interface::HW_IF_VELOCITY, &linear_slider_.state.vel
+        info_.joints[0].name, hardware_interface::HW_IF_VELOCITY, &linear_slider_.state.vel
     ));
     return state_interfaces;
 }
@@ -121,8 +121,8 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_configure(con
     /* Set up the comms */
     RCLCPP_INFO(_LOGGER, "Configuring system, please wait...");
     RCLCPP_INFO(_LOGGER, "Setting up communication...");
-    comms_.begin();
-    return hardware_interface::CallbackReturn::SUCCESS;
+    if (comms_.begin()) {return hardware_interface::CallbackReturn::SUCCESS;}
+    else {return hardware_interface::CallbackReturn::FAILURE;}
 }
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_cleanup(const rclcpp_lifecycle::State& /*previous_state*/) {
@@ -134,6 +134,8 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_cleanup(const
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(const rclcpp_lifecycle::State& /*previous_state*/) {
     RCLCPP_INFO(_LOGGER, "Activating hardware, please wait...");
+
+    /* TODO: Send zeroing message request to the ClearCore mcu*/
 
     RCLCPP_INFO(_LOGGER, "Successfully activated!");
     return hardware_interface::CallbackReturn::SUCCESS;
@@ -171,7 +173,7 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
         linear_slider_.lim_switch_pos = msg_json["lim_switch_pos"].asBool();
         linear_slider_.lim_switch_neg = msg_json["lim_switch_neg"].asBool();
 
-        rclcpp::Duration last_read_time = last_time - time;
+        rclcpp::Duration last_read_time = time - last_time;
         linear_slider_.state.pos += last_read_time.nanoseconds() * 1e9 * linear_slider_.state.vel;
 
         char msg[80];
