@@ -1,6 +1,9 @@
 #include "linear_slider_hardware_interface/clearcore_comms.hpp"
 #include "rclcpp/rclcpp.hpp"
 
+#define _LOGGER rclcpp::get_logger("LinearSliderCommunicationInterface")
+
+
 ClearCoreComms::ClearCoreComms() {
 
 }
@@ -13,7 +16,7 @@ bool ClearCoreComms::begin() {
     // Create socket file descriptor
     if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         RCLCPP_FATAL(
-            rclcpp::get_logger("LinearSliderCommunicationInterface"),
+            _LOGGER,
             "Socket creation failed."
         );
         return false;
@@ -30,14 +33,14 @@ bool ClearCoreComms::begin() {
     // Bind the socket with the server address
     if (bind(sock, (const struct sockaddr*)&local_svr_addr, sizeof(local_svr_addr)) < 0) {
         RCLCPP_FATAL(
-            rclcpp::get_logger("LinearSliderCommunicationInterface"),
+            _LOGGER,
             "Socket bind failed."
         );
         return false;
     }
 
     RCLCPP_INFO(
-        rclcpp::get_logger("LinearSliderCommunicationInterface"),
+        _LOGGER,
         "ClearCoreComms setup complete."
     );
 
