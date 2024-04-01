@@ -154,11 +154,10 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
     if (msg[0] != '\0'){
         // parse message
         Json::CharReaderBuilder builder;
-        Json::CharReader* reader = builder.newCharReader();
+        const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
         Json::Value msg_json;
         std::string errors;
         bool parsingSuccessful = reader->parse(msg, msg + strlen(msg), &msg_json, &errors);
-        delete reader;
 
         if (!parsingSuccessful) {
             RCLCPP_ERROR(_LOGGER, "Failed to parse JSON message: %s", errors.c_str());
