@@ -1,6 +1,6 @@
 <library path="linear_slider_hardware_interface">
     <class
-        name="linear_slider_hardware_interface/LinearSliderSystemInterface"
+        name="linear_slider_system_interface/LinearSliderSystemInterface"
         type="linear_slider_system_interface::LinearSliderSystemInterface"
         base_class_type="hardware_interface::SystemInterface"
     >

@@ -59,25 +59,28 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
         }
 
         // State interface check
-        if (joint.state_interfaces.size() != 1) {
+        if (joint.state_interfaces.size() != 2) {
             RCLCPP_FATAL(
                 _LOGGER,
-                "Joint '%s' has %zu state interfaces. 1 expected.",
+                "Joint '%s' has %zu state interfaces. 2 expected.",
                 joint.name.c_str(),
                 joint.state_interfaces.size()
             );
             return hardware_interface::CallbackReturn::ERROR;
         }
 
-        if (!(joint.state_interfaces[0].name == hardware_interface::HW_IF_VELOCITY)) {
-            RCLCPP_FATAL(
-                _LOGGER,
-                "Joint '%s' has %s state interface. Expected %s.",
-                joint.name.c_str(),
-                joint.state_interfaces[0].name.c_str(),
-                hardware_interface::HW_IF_VELOCITY
-            );
-            return hardware_interface::CallbackReturn::ERROR;
+        for (std::size_t i=0; i > joint.state_interfaces.size(); ++i) {
+            if (!(joint.state_interfaces[i].name == hardware_interface::HW_IF_VELOCITY) || !(joint.state_interfaces[i].name == hardware_interface::HW_IF_POSITION)) {
+                RCLCPP_FATAL(
+                    _LOGGER,
+                    "Joint '%s' has %s state interface. Expected %s. or %s",
+                    joint.name.c_str(),
+                    joint.state_interfaces[0].name.c_str(),
+                    hardware_interface::HW_IF_POSITION,
+                    hardware_interface::HW_IF_VELOCITY
+                );
+                return hardware_interface::CallbackReturn::ERROR;
+            }
         }
     }
     return hardware_interface::CallbackReturn::SUCCESS;
@@ -92,7 +95,7 @@ std::vector<hardware_interface::CommandInterface> LinearSliderSystemInterface::e
     //     ));
     // }
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
-        linear_slider_.name, hardware_interface::HW_IF_VELOCITY, &linear_slider_.vel_cmd
+        info_.joints[0].name, hardware_interface::HW_IF_VELOCITY, &linear_slider_.command.vel
     ));
     return command_interfaces;
 }
@@ -106,7 +109,10 @@ std::vector<hardware_interface::StateInterface> LinearSliderSystemInterface::exp
     //     ));
     // }
     state_interfaces.emplace_back(hardware_interface::StateInterface(
-        linear_slider_.name, hardware_interface::HW_IF_VELOCITY, &linear_slider_.vel_state
+        info_.joints[0].name, hardware_interface::HW_IF_POSITION, &linear_slider_.state.pos
+    ));
+    state_interfaces.emplace_back(hardware_interface::StateInterface(
+        info_.joints[0].name, hardware_interface::HW_IF_VELOCITY, &linear_slider_.state.vel
     ));
     return state_interfaces;
 }
@@ -114,8 +120,9 @@ std::vector<hardware_interface::StateInterface> LinearSliderSystemInterface::exp
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_configure(const rclcpp_lifecycle::State& /*previous_state*/) {
     /* Set up the comms */
     RCLCPP_INFO(_LOGGER, "Configuring system, please wait...");
-    comms_.begin();
-    return hardware_interface::CallbackReturn::SUCCESS;
+    RCLCPP_INFO(_LOGGER, "Setting up communication...");
+    if (comms_.begin()) {return hardware_interface::CallbackReturn::SUCCESS;}
+    else {return hardware_interface::CallbackReturn::FAILURE;}
 }
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_cleanup(const rclcpp_lifecycle::State& /*previous_state*/) {
@@ -128,6 +135,8 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_cleanup(const
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(const rclcpp_lifecycle::State& /*previous_state*/) {
     RCLCPP_INFO(_LOGGER, "Activating hardware, please wait...");
 
+    /* TODO: Send zeroing message request to the ClearCore mcu*/
+
     RCLCPP_INFO(_LOGGER, "Successfully activated!");
     return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -139,17 +148,16 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_deactivate(co
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
+hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::Time& time, const rclcpp::Duration& /*period*/) {
     /* Read data from the linear slider. Message formatted as JSON string. Converts RPM speeds to linear velocities */
     char* msg = comms_.read_data();
     if (msg[0] != '\0'){
         // parse message
         Json::CharReaderBuilder builder;
-        Json::CharReader* reader = builder.newCharReader();
+        const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
         Json::Value msg_json;
         std::string errors;
         bool parsingSuccessful = reader->parse(msg, msg + strlen(msg), &msg_json, &errors);
-        delete reader;
 
         if (!parsingSuccessful) {
             RCLCPP_ERROR(_LOGGER, "Failed to parse JSON message: %s", errors.c_str());
@@ -159,10 +167,17 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
         // Get system status and store in linear_slider_.system_status
         linear_slider_.system_status = msg_json["status"].asInt();
         // Get motor RPM, convert to float velocity, store in linear_slider_.rpm_state. Additionally, update linear_slider_.vel_state
-        linear_slider_.rpm_state = msg_json["servo_rpm"].asInt();
-        linear_slider_.vel_state = linear_slider_.rpm_to_vel(linear_slider_.rpm_state); // TODO: this should probably either be completely internal, or completely external, but not both.
+        linear_slider_.state.rpm = msg_json["servo_rpm"].asInt();
+        linear_slider_.state.vel = linear_slider_.rpm_to_vel(linear_slider_.state.rpm); // TODO: this should probably either be completely internal, or completely external, but not both.
         linear_slider_.lim_switch_pos = msg_json["lim_switch_pos"].asBool();
         linear_slider_.lim_switch_neg = msg_json["lim_switch_neg"].asBool();
+
+        rclcpp::Duration last_read_duration = time - last_read_time;
+        linear_slider_.state.pos += last_read_duration.nanoseconds() * 1e9 * linear_slider_.state.vel;
+
+        char msg[80];
+        sprintf(msg, "%f", time.seconds());
+        RCLCPP_INFO(_LOGGER, "%s",msg);
     }
     return hardware_interface::return_type::OK;
 }
@@ -171,8 +186,8 @@ hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp:
     /* Write data to the linear slider. Converts linear velocities to RPM speeds */
 
     // convert linear_slider_.vel_cmd to linear_slider_.rpm_cmd. Convert this value to str, send via comms_
-    linear_slider_.rpm_cmd = linear_slider_.vel_to_rpm(linear_slider_.vel_cmd); // TODO: this should probably either be completely internal, or completely external, but not both.
-    std::string cmd = std::to_string(linear_slider_.rpm_cmd);
+    linear_slider_.command.rpm = linear_slider_.vel_to_rpm(linear_slider_.command.vel); // TODO: this should probably either be completely internal, or completely external, but not both.
+    std::string cmd = std::to_string(linear_slider_.command.rpm);
     comms_.send_data(cmd.c_str());
     return hardware_interface::return_type::OK;
 }
