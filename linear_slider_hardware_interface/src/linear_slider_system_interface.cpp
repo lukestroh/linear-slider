@@ -153,7 +153,11 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
     char* msg = comms_.read_data();
     if (msg[0] != '\0'){
         // parse message
+        RCLCPP_WARN(_LOGGER, "%s", msg);
         Json::CharReaderBuilder builder;
+
+        RCLCPP_WARN(_LOGGER, "so much room for activities!");
+
         const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
         Json::Value msg_json;
         std::string errors;
@@ -163,6 +167,7 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
             RCLCPP_ERROR(_LOGGER, "Failed to parse JSON message: %s", errors.c_str());
             return hardware_interface::return_type::ERROR;
         }
+        
 
         // Get system status and store in linear_slider_.system_status
         linear_slider_.system_status = msg_json["status"].asInt();
@@ -175,9 +180,11 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
         rclcpp::Duration last_read_duration = time - last_read_time;
         linear_slider_.state.pos += last_read_duration.nanoseconds() * 1e9 * linear_slider_.state.vel;
 
+        
+
         char msg[80];
         sprintf(msg, "%f", time.seconds());
-        RCLCPP_INFO(_LOGGER, "%s",msg);
+        RCLCPP_WARN(_LOGGER, "Time duration %s",msg);
     }
     return hardware_interface::return_type::OK;
 }

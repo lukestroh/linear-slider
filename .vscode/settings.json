@@ -71,6 +71,13 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "list": "cpp",
-        "codecvt": "cpp"
+        "codecvt": "cpp",
+        "csignal": "cpp",
+        "any": "cpp",
+        "strstream": "cpp",
+        "regex": "cpp",
+        "future": "cpp",
+        "cfenv": "cpp",
+        "variant": "cpp"
     }
 }

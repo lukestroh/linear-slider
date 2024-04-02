@@ -21,8 +21,6 @@ bool ClearCoreComms::begin() {
         return false;
     }
 
-    RCLCPP_WARN(_LOGGER, "Hello world");
-
     // Reset addresses
     memset(&local_svr_addr, 0, sizeof(local_svr_addr));
     memset(&client_addr, 0, sizeof(client_addr));
