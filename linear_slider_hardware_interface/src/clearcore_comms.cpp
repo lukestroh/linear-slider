@@ -3,10 +3,6 @@
 
 #define _LOGGER rclcpp::get_logger("LinearSliderCommunicationInterface")
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 86d1a33 (updates that may conflict...)
 ClearCoreComms::ClearCoreComms() {
 
 }
