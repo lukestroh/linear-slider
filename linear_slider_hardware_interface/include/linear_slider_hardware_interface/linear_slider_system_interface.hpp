@@ -77,7 +77,7 @@ namespace linear_slider_system_interface
             // Config
             Config config_;
 
-            rclcpp::Time last_time;
+            rclcpp::Time last_read_time;
     };
 } // namespace linear_slider_system_interface
 

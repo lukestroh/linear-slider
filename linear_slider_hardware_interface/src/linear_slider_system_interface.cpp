@@ -172,8 +172,8 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
         linear_slider_.lim_switch_pos = msg_json["lim_switch_pos"].asBool();
         linear_slider_.lim_switch_neg = msg_json["lim_switch_neg"].asBool();
 
-        rclcpp::Duration last_read_time = time - last_time;
-        linear_slider_.state.pos += last_read_time.nanoseconds() * 1e9 * linear_slider_.state.vel;
+        rclcpp::Duration last_read_duration = time - last_read_time;
+        linear_slider_.state.pos += last_read_duration.nanoseconds() * 1e9 * linear_slider_.state.vel;
 
         char msg[80];
         sprintf(msg, "%f", time.seconds());
