@@ -134,8 +134,13 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_cleanup(const
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(const rclcpp_lifecycle::State& /*previous_state*/) {
     RCLCPP_INFO(_LOGGER, "Activating hardware, please wait...");
-
     /* TODO: Send zeroing message request to the ClearCore mcu*/
+    while (true) {
+        hardware_interface::return_type read_success = read(rclcpp::Clock().now(), rclcpp::Duration(1, 2));
+        if (read_success == hardware_interface::return_type::OK) {
+            
+        }
+    }
 
     RCLCPP_INFO(_LOGGER, "Successfully activated!");
     return hardware_interface::CallbackReturn::SUCCESS;
@@ -179,8 +184,6 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
 
         rclcpp::Duration last_read_duration = time - last_read_time;
         linear_slider_.state.pos += last_read_duration.nanoseconds() * 1e9 * linear_slider_.state.vel;
-
-        
 
         char msg[80];
         sprintf(msg, "%f", time.seconds());
