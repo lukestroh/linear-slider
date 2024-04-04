@@ -128,17 +128,49 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_configure(con
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_cleanup(const rclcpp_lifecycle::State& /*previous_state*/) {
     /* Close comms connection */
     RCLCPP_INFO(_LOGGER, "Cleaning up, please wait...");
-
+    
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(const rclcpp_lifecycle::State& /*previous_state*/) {
+    /* Activate the hardware by sending a calibration request if the system is in standby. */
     RCLCPP_INFO(_LOGGER, "Activating hardware, please wait...");
-    /* TODO: Send zeroing message request to the ClearCore mcu*/
     while (true) {
-        hardware_interface::return_type read_success = read(rclcpp::Clock().now(), rclcpp::Duration(1, 2));
+        hardware_interface::return_type read_success = read(rclcpp::Clock().now(), rclcpp::Duration(0, 0));
+        RCLCPP_WARN(_LOGGER, "sTATUS: %d", linear_slider_.state.system_status);
         if (read_success == hardware_interface::return_type::OK) {
-            
+            // Don't do anything if system is normal
+            if (linear_slider_.state.system_status == slidersystem::SYSTEM_OK) {
+                linear_slider_.command.system_status = slidersystem::SYSTEM_OK;
+                break;
+            }
+            // If in standby, calibrate
+            else if (linear_slider_.state.system_status == slidersystem::SYSTEM_STANDBY) {
+                linear_slider_.command.system_status = slidersystem::SYSTEM_CALIBRATING;
+                this->write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
+            }
+            // If E-stop, don't do anything
+            else if (linear_slider_.state.system_status == slidersystem::E_STOP) {
+                RCLCPP_ERROR(_LOGGER, "Linear slider E-stop triggered.");
+                return hardware_interface::CallbackReturn::FAILURE;
+            }
+            // If the system is calibrating, don't do anything
+            else if (linear_slider_.state.system_status == slidersystem::SYSTEM_CALIBRATING) {
+                RCLCPP_INFO(_LOGGER, "System calibrating...");
+            }
+            // If at the switches, update position and return to normal operation
+            else if (linear_slider_.state.system_status == slidersystem::NEG_LIM) {
+                linear_slider_.state.pos = -0.4; // TODO: remove hardcode
+                linear_slider_.command.system_status = slidersystem::SYSTEM_OK;
+                linear_slider_.command.vel = 0.0;
+                this->write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
+            }
+            else if (linear_slider_.state.system_status == slidersystem::POS_LIM) {
+                linear_slider_.state.pos = 0.4; // TODO: remove hardcode
+                linear_slider_.command.system_status = slidersystem::SYSTEM_OK;
+                linear_slider_.command.vel = 0.0;
+                this->write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
+            }
         }
     }
 
@@ -147,47 +179,41 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(cons
 }
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_deactivate(const rclcpp_lifecycle::State& /*previous_state*/) {
+    /* Put the slider into SYSTEM_STANDBY status */
     RCLCPP_INFO(_LOGGER, "Deactivating hardware, please wait...");
+    linear_slider_.command.system_status = slidersystem::SYSTEM_STANDBY;
+    write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
 
     RCLCPP_INFO(_LOGGER, "Successfully deactivated.");
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::Time& time, const rclcpp::Duration& /*period*/) {
+hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::Time& /*time*/, const rclcpp::Duration& period) {
     /* Read data from the linear slider. Message formatted as JSON string. Converts RPM speeds to linear velocities */
+
     char* msg = comms_.read_data();
     if (msg[0] != '\0'){
-        // parse message
-        RCLCPP_WARN(_LOGGER, "%s", msg);
-        Json::CharReaderBuilder builder;
-
-        RCLCPP_WARN(_LOGGER, "so much room for activities!");
-
-        const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+        const std::unique_ptr<Json::CharReader> reader(Json::CharReaderBuilder().newCharReader());
         Json::Value msg_json;
-        std::string errors;
-        bool parsingSuccessful = reader->parse(msg, msg + strlen(msg), &msg_json, &errors);
+        const std::unique_ptr<std::string> errors;
+        
+        bool parsingSuccessful = reader->parse(msg, msg + strlen(msg), &msg_json, errors.get());
 
         if (!parsingSuccessful) {
-            RCLCPP_ERROR(_LOGGER, "Failed to parse JSON message: %s", errors.c_str());
+            RCLCPP_ERROR(_LOGGER, "Failed to parse JSON message: %s", (*errors).c_str());
             return hardware_interface::return_type::ERROR;
         }
-        
 
         // Get system status and store in linear_slider_.system_status
-        linear_slider_.system_status = msg_json["status"].asInt();
+        linear_slider_.state.system_status = static_cast<slidersystem::SystemStatus>(msg_json["status"].asInt());
         // Get motor RPM, convert to float velocity, store in linear_slider_.rpm_state. Additionally, update linear_slider_.vel_state
         linear_slider_.state.rpm = msg_json["servo_rpm"].asInt();
         linear_slider_.state.vel = linear_slider_.rpm_to_vel(linear_slider_.state.rpm); // TODO: this should probably either be completely internal, or completely external, but not both.
         linear_slider_.lim_switch_pos = msg_json["lim_switch_pos"].asBool();
         linear_slider_.lim_switch_neg = msg_json["lim_switch_neg"].asBool();
 
-        rclcpp::Duration last_read_duration = time - last_read_time;
-        linear_slider_.state.pos += last_read_duration.nanoseconds() * 1e9 * linear_slider_.state.vel;
-
-        char msg[80];
-        sprintf(msg, "%f", time.seconds());
-        RCLCPP_WARN(_LOGGER, "Time duration %s",msg);
+        // rclcpp::Duration last_read_duration = time - last_read_time;
+        linear_slider_.state.pos += period.nanoseconds() * 1e9 * linear_slider_.state.vel;
     }
     return hardware_interface::return_type::OK;
 }
@@ -196,9 +222,13 @@ hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp:
     /* Write data to the linear slider. Converts linear velocities to RPM speeds */
 
     // convert linear_slider_.vel_cmd to linear_slider_.rpm_cmd. Convert this value to str, send via comms_
+
     linear_slider_.command.rpm = linear_slider_.vel_to_rpm(linear_slider_.command.vel); // TODO: this should probably either be completely internal, or completely external, but not both.
-    std::string cmd = std::to_string(linear_slider_.command.rpm);
-    comms_.send_data(cmd.c_str());
+    std::string status_cmd = std::to_string(linear_slider_.command.system_status);
+    std::string rpm_cmd = std::to_string(linear_slider_.command.rpm);
+
+    comms_.send_data((status_cmd + "," + rpm_cmd).c_str());
+
     return hardware_interface::return_type::OK;
 }
 

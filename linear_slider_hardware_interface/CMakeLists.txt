@@ -13,6 +13,7 @@ find_package(realtime_tools REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(jsoncpp REQUIRED)
 
 add_library(
   ${PROJECT_NAME}
@@ -34,6 +35,11 @@ ament_target_dependencies(
   rclcpp
   rclcpp_lifecycle
   pluginlib
+  # jsoncpp
+)
+target_link_libraries(
+  ${PROJECT_NAME}
+  jsoncpp
 )
 
 pluginlib_export_plugin_description_file(

@@ -4,8 +4,10 @@
 #include <string>
 #include <vector>
 #include "rclcpp/rclcpp.hpp"
+#include "linear_slider_hardware_interface/system_status.h"
 
 struct Interface{
+    slidersystem::SystemStatus system_status = slidersystem::SYSTEM_STANDBY;
     double pos = 0.0;
     double vel = 0.0;
     int rpm = 0;
@@ -14,7 +16,6 @@ struct Interface{
 class LinearSliderHardware {
     public:
         std::string name;
-        int system_status = 0;
         Interface state;
         Interface command;
         std::vector<std::string> joint_names = {"joint1"};
