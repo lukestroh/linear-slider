@@ -198,6 +198,16 @@ def generate_launch_description():
     #     output="screen"
     # )
 
+    delay_control_node_after_robot_state_publisher = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=robot_state_pub_node,
+            on_start=TimerAction(
+                period=10,
+                actions=[control_node],
+            )
+        )
+    )
+
     delay_joint_state_broadcaster_after_control_node = RegisterEventHandler(
         event_handler=OnProcessStart(
             target_action=control_node,
@@ -230,7 +240,8 @@ def generate_launch_description():
             # _log0,
             # _log1,
             robot_state_pub_node,
-            control_node,
+            # control_node,
+            delay_control_node_after_robot_state_publisher,
             delay_joint_state_broadcaster_after_control_node,
             delay_velocity_controller_after_joint_state_broadcaster,
             delay_rviz_after_controllers,
