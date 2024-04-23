@@ -209,12 +209,9 @@ def generate_launch_description():
     )
 
     delay_joint_state_broadcaster_after_control_node = RegisterEventHandler(
-        event_handler=OnProcessStart(
+        event_handler=OnProcessExit(
             target_action=control_node,
-            on_start=TimerAction(
-                period=0.001,
-                actions=[joint_state_broadcaster_spawner]
-            )
+            on_exit=joint_state_broadcaster_spawner
         )
     )
 

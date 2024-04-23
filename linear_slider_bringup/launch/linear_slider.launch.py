@@ -153,6 +153,12 @@ def generate_launch_description():
         arguments = ["-d", rviz_config_file]
     )
 
+    timeout_duration = DeclareLaunchArgument(
+        'timeout',
+        default_value='120',  # Default timeout value (in seconds)
+        description='Timeout duration for joint_state_broadcaster_spawner (in seconds)'
+    )
+
     joint_state_broadcaster_spawner = Node(
         package = "controller_manager",
         executable = "spawner",
@@ -160,8 +166,13 @@ def generate_launch_description():
             "joint_state_broadcaster",
             "--controller-manager",
             "/controller_manager",
+        ],
+        parameters=[
+            {"timeout": LaunchConfiguration("timeout")}
         ]
     )
+
+    
 
     robot_controllers = [robot_controller]
     robot_controller_spawners = []
@@ -179,12 +190,7 @@ def generate_launch_description():
         RegisterEventHandler(
             event_handler = OnProcessStart(
                 target_action = control_node,
-                on_start = [
-                    TimerAction(
-                        period = 0.5,
-                        actions = [joint_state_broadcaster_spawner]
-                    )
-                ]
+                on_start=[joint_state_broadcaster_spawner]
             )
         )
     )
@@ -192,9 +198,9 @@ def generate_launch_description():
     # Delay rviz start after joint_state_broadcaster to avoid unnecessary warning output
     delay_rviz_after_joint_state_broadcaster_spawner = (
         RegisterEventHandler(
-            event_handler = OnProcessExit(
+            event_handler = OnProcessStart(
                 target_action = joint_state_broadcaster_spawner,
-                on_exit = [rviz_node]
+                on_start = [rviz_node]
             )
         )
     )
@@ -215,7 +221,8 @@ def generate_launch_description():
         
         declared_args
         + [
-            _log0,
+            # _log0,\
+            timeout_duration,
             control_node,
             robot_state_pub_node,
             delay_rviz_after_joint_state_broadcaster_spawner,

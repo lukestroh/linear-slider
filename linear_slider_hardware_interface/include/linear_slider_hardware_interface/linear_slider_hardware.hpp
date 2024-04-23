@@ -27,6 +27,10 @@ class LinearSliderHardware {
         bool lim_switch_pos = false;
         bool lim_switch_neg = false;
 
+        double pos_min = -0.4;
+        double pos_max = 0.4;
+        double start_velocity = 0.0;
+
         LinearSliderHardware();
         LinearSliderHardware(const std::string& system_name);
         ~LinearSliderHardware();

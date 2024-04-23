@@ -138,7 +138,7 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(cons
     while (true) {
         hardware_interface::return_type read_success = read(rclcpp::Clock().now(), rclcpp::Duration(0, 0));
 
-        RCLCPP_WARN(_LOGGER, "sTATUS: %d", linear_slider_.state.system_status);
+        RCLCPP_WARN(_LOGGER, "Slider status: %d", linear_slider_.state.system_status);
 
         if (read_success == hardware_interface::return_type::OK) {
             // Don't do anything if system is normal
@@ -153,8 +153,7 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(cons
                     linear_slider_.command.system_status = slidersystem::SYSTEM_CALIBRATING;
                     this->write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
                     calibration_cmd_sent = true;
-
-                    RCLCPP_WARN(_LOGGER, "this is a TEST");
+                    RCLCPP_INFO(_LOGGER, "Calibration request sent.");
                 }
             }
             // If E-stop, don't do anything
@@ -168,15 +167,15 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(cons
             }
             // If at the switches, update position and return to normal operation
             else if (linear_slider_.state.system_status == slidersystem::NEG_LIM) {
-                linear_slider_.state.pos = 0.0; // TODO: remove hardcode
+                linear_slider_.state.pos = linear_slider_.pos_min; // TODO: remove hardcode
                 linear_slider_.command.system_status = slidersystem::SYSTEM_OK;
-                linear_slider_.command.vel = 0.0;
+                linear_slider_.command.vel = linear_slider_.start_velocity;
                 this->write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
             }
             else if (linear_slider_.state.system_status == slidersystem::POS_LIM) {
-                linear_slider_.state.pos = 0.4; // TODO: remove hardcode
+                linear_slider_.state.pos = linear_slider_.pos_max; // TODO: remove hardcode
                 linear_slider_.command.system_status = slidersystem::SYSTEM_OK;
-                linear_slider_.command.vel = 0.0;
+                linear_slider_.command.vel = linear_slider_.start_velocity;
                 this->write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
             }
         }
@@ -189,7 +188,9 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(cons
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_deactivate(const rclcpp_lifecycle::State& /*previous_state*/) {
     /* Put the slider into SYSTEM_STANDBY status */
     RCLCPP_INFO(_LOGGER, "Deactivating hardware, please wait...");
+    // Send hardware to standby mode, set velocity to 0.
     linear_slider_.command.system_status = slidersystem::SYSTEM_STANDBY;
+    linear_slider_.command.rpm = 0.0;
     write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
 
     RCLCPP_INFO(_LOGGER, "Successfully deactivated.");
@@ -226,7 +227,7 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
         // rclcpp::Duration last_read_duration = time - last_read_time;
         linear_slider_.state.pos += period.nanoseconds() / 1e9 * linear_slider_.state.vel;
          
-        RCLCPP_INFO(_LOGGER, "State Position: %f, Velocity: %f, Duration: %d", linear_slider_.state.pos, linear_slider_.state.vel, period.nanoseconds() / 1e9);
+        // RCLCPP_INFO(_LOGGER, "State Position: %f, Velocity: %f, Duration: %f", linear_slider_.state.pos, linear_slider_.state.vel, period.nanoseconds() / 1e9);
         // RCLCPP_INFO(_LOGGER, "Command Position: %f, Velocity: %f", linear_slider_.command.pos, linear_slider_.command.vel);
 
     }
@@ -246,8 +247,7 @@ hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp:
     comms_.send_data((status_cmd + "," + rpm_cmd).c_str());
 
     // RCLCPP_WARN(_LOGGER, "Write rpm: %s", (status_cmd + "," + rpm_cmd).c_str());
-    RCLCPP_WARN(_LOGGER, "Write period: %f", period.nanoseconds() / 1e9);
-
+    // RCLCPP_WARN(_LOGGER, "Write period: %f", period.nanoseconds() / 1e9);
 
     return hardware_interface::return_type::OK; 
 }
