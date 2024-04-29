@@ -42,8 +42,6 @@ joint_trajectory_controller:
         d: 5.0
         # i_clamp: 1.0
 
-      # velocity_ff: # does most of work in place of PID
-      #   joint1: 1.0
 
     state_publish_rate: 50.0 # defaults to 50
     action_monitor_rate: 20.0 # defaults to 20
@@ -57,7 +55,7 @@ joint_trajectory_controller:
 
       
       
-    allow_nonzero_velocity_at_trajectory_end: false
+    allow_nonzero_velocity_at_trajectory_end: true
 
 
 # gazebo_ros_control:

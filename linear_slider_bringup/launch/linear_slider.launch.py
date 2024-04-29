@@ -6,7 +6,7 @@ from launch.actions import (
     TimerAction,
     LogInfo
 )
-from launch.event_handlers import OnProcessExit, OnProcessStart
+from launch.event_handlers import OnProcessExit, OnProcessStart, OnExecutionComplete
 from launch.substitutions import (
     LaunchConfiguration,
     PathJoinSubstitution,
@@ -15,6 +15,7 @@ from launch.substitutions import (
     FindExecutable
 )
 from launch_ros.actions import Node
+from launch_ros.event_handlers import OnStateTransition
 from launch_ros.substitutions import FindPackageShare
 
 
@@ -166,13 +167,8 @@ def generate_launch_description():
             "joint_state_broadcaster",
             "--controller-manager",
             "/controller_manager",
-        ],
-        parameters=[
-            {"timeout": LaunchConfiguration("timeout")}
         ]
     )
-
-    
 
     robot_controllers = [robot_controller]
     robot_controller_spawners = []
@@ -185,15 +181,31 @@ def generate_launch_description():
             )
         )
 
+    delay_lifecycle_node = Node(
+        package="linear_slider_bringup",
+        executable="delay_joint_state_broadcaster_lifecycle_node.py",
+        output="screen"
+    )
+
     # Delay loading and activation of 'joint_state_broadcaster' after the start of ros2_control_node
     delay_joint_state_broadcaster_after_ros2_control_node = (
         RegisterEventHandler(
-            event_handler = OnProcessStart(
+            event_handler = OnExecutionComplete(
                 target_action = control_node,
-                on_start=[joint_state_broadcaster_spawner]
+                on_completion=[joint_state_broadcaster_spawner]
             )
         )
     )
+
+    # register_event_for_slider_on_activate = RegisterEventHandler(
+    #     OnStateTransition(
+    #         target_lifecycle_node="resource_manager",
+    #         goal_state="active",
+    #         entities=[
+    #             joint_state_broadcaster_spawner
+    #         ]
+    #     )
+    # )
 
     # Delay rviz start after joint_state_broadcaster to avoid unnecessary warning output
     delay_rviz_after_joint_state_broadcaster_spawner = (
@@ -222,11 +234,13 @@ def generate_launch_description():
         declared_args
         + [
             # _log0,\
+            delay_lifecycle_node,
             timeout_duration,
             control_node,
             robot_state_pub_node,
             delay_rviz_after_joint_state_broadcaster_spawner,
-            delay_joint_state_broadcaster_after_ros2_control_node
+            delay_joint_state_broadcaster_after_ros2_control_node,
+            # register_event_for_slider_on_activate
           ]
         + delay_robot_controller_spawners_after_joint_state_broadcaster_spawner
     )

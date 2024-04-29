@@ -19,6 +19,7 @@ namespace linear_slider_system_interface
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const hardware_interface::HardwareInfo& info) {
     /* Checks whether the hardware interface matches the robot description */
+
     if (hardware_interface::SystemInterface::on_init(info) != hardware_interface::CallbackReturn::SUCCESS) {
         return hardware_interface::CallbackReturn::ERROR;
     }

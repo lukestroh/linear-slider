@@ -17,7 +17,10 @@
 #include "rclcpp/time.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
+#include "rclcpp_lifecycle/lifecycle_publisher.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "std_msgs/msg/string.hpp"
+
 
 #include "linear_slider_hardware_interface/visibility_control.h"
 
@@ -89,6 +92,9 @@ namespace linear_slider_system_interface
             bool calibration_cmd_sent = false;
 
             rclcpp::Clock clock_ = rclcpp::Clock();
+
+            std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<std_msgs::msg::String>> _pub = rclcpp_lifecycle::LifecyclePublisher(this, "test_topic", 1);
+
 
     };
 } // namespace linear_slider_system_interface
