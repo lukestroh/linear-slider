@@ -17,11 +17,14 @@
 #include "rclcpp/time.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
+#include "std_msgs/msg/string.hpp"
 
 #include "linear_slider_hardware_interface/visibility_control.h"
 
 #include "linear_slider_hardware_interface/clearcore_comms.hpp"
 #include "linear_slider_hardware_interface/linear_slider_hardware.hpp"
+
+#include "linear_slider_hardware_interface/system_status.h"
 
 namespace linear_slider_system_interface
 {
@@ -57,10 +60,10 @@ namespace linear_slider_system_interface
             hardware_interface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State& /*previous_state*/) override;
 
             LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
-            hardware_interface::return_type read(const rclcpp::Time& time, const rclcpp::Duration& /*period*/) override;
+            hardware_interface::return_type read(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
             LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
-            hardware_interface::return_type write(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) override;
+            hardware_interface::return_type write(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
 
         private:
@@ -77,7 +80,16 @@ namespace linear_slider_system_interface
             // Config
             Config config_;
 
-            rclcpp::Time last_read_time;
+            // System status
+            slidersystem::SystemStatus system_status;
+
+            // read time
+            // rclcpp::Time last_read_time = rclcpp::Clock().now();
+
+            bool calibration_cmd_sent = false;
+
+            rclcpp::Clock clock_ = rclcpp::Clock();
+
     };
 } // namespace linear_slider_system_interface
 
