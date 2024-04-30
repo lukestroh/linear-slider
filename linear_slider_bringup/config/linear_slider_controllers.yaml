@@ -1,6 +1,6 @@
 controller_manager:
   ros__parameters:
-    update_rate: 1000 # hz
+    update_rate: 200 # hz
 
     joint_trajectory_controller:
       type: joint_trajectory_controller/JointTrajectoryController
@@ -24,7 +24,7 @@ joint_trajectory_controller:
 
     gains: # required for velocity interface
       joint1:
-        # ff_velocity_scale: 1.0
+        ff_velocity_scale: 1.0
         p: 10.0 
         i: 2.0
         d: 5.0

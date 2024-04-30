@@ -14,7 +14,7 @@ from launch.substitutions import (
     Command,
     FindExecutable
 )
-from launch_ros.actions import Node
+from launch_ros.actions import Node, LifecycleNode
 from launch_ros.event_handlers import OnStateTransition
 from launch_ros.substitutions import FindPackageShare
 
@@ -181,31 +181,33 @@ def generate_launch_description():
             )
         )
 
-    delay_lifecycle_node = Node(
+    delay_lifecycle_node = LifecycleNode(
+        name="delay_jsb_node_spawner",
+        namespace="",
         package="linear_slider_bringup",
         executable="delay_joint_state_broadcaster_lifecycle_node.py",
         output="both"
     )
 
-    # Delay loading and activation of 'joint_state_broadcaster' after the start of ros2_control_node
-    delay_joint_state_broadcaster_after_ros2_control_node = (
-        RegisterEventHandler(
-            event_handler = OnExecutionComplete(
-                target_action = control_node,
-                on_completion=[joint_state_broadcaster_spawner]
-            )
-        )
-    )
-
-    # register_event_for_slider_on_activate = RegisterEventHandler(
-    #     OnStateTransition(
-    #         target_lifecycle_node="resource_manager",
-    #         goal_state="active",
-    #         entities=[
-    #             joint_state_broadcaster_spawner
-    #         ]
+    # # Delay loading and activation of 'joint_state_broadcaster' after the start of ros2_control_node
+    # delay_joint_state_broadcaster_after_ros2_control_node = (
+    #     RegisterEventHandler(
+    #         event_handler = OnExecutionComplete(
+    #             target_action = delay_lifecycle_node,
+    #             on_completion=[joint_state_broadcaster_spawner]
+    #         )
     #     )
     # )
+
+    register_event_for_slider_on_activate = RegisterEventHandler(
+        OnStateTransition(
+            target_lifecycle_node=delay_lifecycle_node,
+            goal_state="finalized",
+            entities=[
+                joint_state_broadcaster_spawner
+            ]
+        )
+    )
 
     # Delay rviz start after joint_state_broadcaster to avoid unnecessary warning output
     delay_rviz_after_joint_state_broadcaster_spawner = (
@@ -238,10 +240,10 @@ def generate_launch_description():
             timeout_duration,
             control_node,
             robot_state_pub_node,
-            joint_state_broadcaster_spawner,
+            # joint_state_broadcaster_spawner,
             delay_rviz_after_joint_state_broadcaster_spawner,
-            delay_joint_state_broadcaster_after_ros2_control_node,
-            # register_event_for_slider_on_activate
+            # delay_joint_state_broadcaster_after_ros2_control_node,
+            register_event_for_slider_on_activate
           ]
         + delay_robot_controller_spawners_after_joint_state_broadcaster_spawner
     )

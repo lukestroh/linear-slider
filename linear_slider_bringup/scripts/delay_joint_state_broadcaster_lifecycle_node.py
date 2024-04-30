@@ -11,18 +11,19 @@ from rclpy.lifecycle.node import LifecycleState
 from controller_manager_msgs.srv import ListControllers
 
 class DelayJointStateBroadcasterNode(Node):
-    def __init__(self, node_name, **kwargs) -> None:
-        super().__init__(node_name=node_name, kwargs=kwargs)
+    def __init__(self, node_name) -> None:
+        super().__init__(node_name=node_name)
 
-        self._timer_ping_CM_srv = self.create_timer(timer_period_sec=0.1, callback=self._timer_ping_CM_srv_cb)
+        # self._timer_ping_CM_srv = self.create_timer(timer_period_sec=0.1, callback=self._timer_ping_CM_srv_cb)
+        srv = "/controller_manager/list_controllers"
         self.client = self.create_client(
-            srv_name="/controller_manager/list_controllers",
+            srv_name=srv,
             srv_type=ListControllers,
-            qos_profile=1
         )
-
-        self.get_logger().warn(f"Client: {self.client}")
-
+        self.trigger_configure()
+        while not self.client.wait_for_service(timeout_sec=1):
+            self.get_logger().info(f"Service {srv} not available, waiting again...")
+        self.trigger_shutdown()
         return
     
     def _timer_ping_CM_srv_cv(self) -> None:
@@ -30,22 +31,28 @@ class DelayJointStateBroadcasterNode(Node):
         return
 
     def on_configure(self, state: LifecycleState) -> TransitionCallbackReturn:
-        self.get_logger().info(f"Configuring: {state}")
-        self.get_logger().warn(f"Client: {self.client}")
         return super().on_configure(state)
     
     def on_activate(self, state: LifecycleState) -> TransitionCallbackReturn:
-        self.get_logger().info(f"Activating: {state}")
-        self.get_logger().warn(f"Client: {self.client}")
         return super().on_activate(state)
     
     def on_deactivate(self, state: LifecycleState) -> TransitionCallbackReturn:
-        self.get_logger().warn(f"Client: {self.client}")
         return super().on_deactivate(state)
     
     def on_shutdown(self, state: LifecycleState) -> TransitionCallbackReturn:
-        self.get_logger().warn(f"Client: {self.client}")
+        self.get_logger().info(f"Node shutdown")
         return super().on_shutdown(state)
     
 
+def main(args=None) -> None:
+    rclpy.init(args=args)
+    lifecycle_node = DelayJointStateBroadcasterNode("delay_jsb_node_spawner")
+    try:
+        rclpy.spin(lifecycle_node)
+    finally:
+        lifecycle_node.destroy_node()
+        rclpy.shutdown()
+
+if __name__ == "__main__":
+    main()
 
