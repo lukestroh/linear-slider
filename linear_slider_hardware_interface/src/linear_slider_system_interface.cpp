@@ -7,7 +7,9 @@
 #include <string>
 #include <vector>
 #include <jsoncpp/json/json.h>
-
+#include "rclcpp_lifecycle/lifecycle_publisher.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
+#include "std_msgs/msg/string.hpp"
 
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -19,6 +21,7 @@ namespace linear_slider_system_interface
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const hardware_interface::HardwareInfo& info) {
     /* Checks whether the hardware interface matches the robot description */
+    // _pub = this->create_publisher<std_msgs::msg::String>("test_messages", 10);
 
     if (hardware_interface::SystemInterface::on_init(info) != hardware_interface::CallbackReturn::SUCCESS) {
         return hardware_interface::CallbackReturn::ERROR;

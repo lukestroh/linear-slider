@@ -20,6 +20,7 @@
 #include "rclcpp_lifecycle/lifecycle_publisher.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 
 #include "linear_slider_hardware_interface/visibility_control.h"
@@ -31,7 +32,8 @@
 
 namespace linear_slider_system_interface
 {
-    class LinearSliderSystemInterface : public hardware_interface::SystemInterface
+    class LinearSliderSystemInterface : public hardware_interface::SystemInterface,
+    public std::enable_shared_from_this<LinearSliderSystemInterface>
     {
 
         struct Config {
@@ -68,6 +70,16 @@ namespace linear_slider_system_interface
             LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
             hardware_interface::return_type write(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
+            template<typename MessageT, typename AllocatorT = std::allocator<void>>
+            std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<MessageT, AllocatorT>>
+            create_publisher(
+                const std::string & topic_name,
+                const rclcpp::QoS & qos,
+                const rclcpp::PublisherOptionsWithAllocator<AllocatorT> & options = (
+                rclcpp_lifecycle::create_default_publisher_options<AllocatorT>()
+                )
+            );
+
 
         private:
             // data structures for holding velocity data
@@ -93,7 +105,7 @@ namespace linear_slider_system_interface
 
             rclcpp::Clock clock_ = rclcpp::Clock();
 
-            std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<std_msgs::msg::String>> _pub = rclcpp_lifecycle::LifecyclePublisher(this, "test_topic", 1);
+            // std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<std_msgs::msg::String>> _pub;
 
 
     };

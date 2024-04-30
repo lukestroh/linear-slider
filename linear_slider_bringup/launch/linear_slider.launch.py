@@ -184,7 +184,7 @@ def generate_launch_description():
     delay_lifecycle_node = Node(
         package="linear_slider_bringup",
         executable="delay_joint_state_broadcaster_lifecycle_node.py",
-        output="screen"
+        output="both"
     )
 
     # Delay loading and activation of 'joint_state_broadcaster' after the start of ros2_control_node
@@ -233,11 +233,12 @@ def generate_launch_description():
         
         declared_args
         + [
-            # _log0,\
+            # _log0,
             delay_lifecycle_node,
             timeout_duration,
             control_node,
             robot_state_pub_node,
+            joint_state_broadcaster_spawner,
             delay_rviz_after_joint_state_broadcaster_spawner,
             delay_joint_state_broadcaster_after_ros2_control_node,
             # register_event_for_slider_on_activate

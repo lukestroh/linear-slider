@@ -6,21 +6,9 @@ controller_manager:
       type: joint_trajectory_controller/JointTrajectoryController
       # TODO: Therefore if the hardware provides only acceleration or velocity states they have to be integrated in the hardware-interface implementation of velocity and position to use these controllers.
 
-    # velocity_controller:
-    #   type: velocity_controllers/JointGroupVelocityController
-
-    
-
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
-
-# velocity_controller:
-#   ros__parameters:
-#     joints:
-#       - joint1
-#     interface_name: velocity
-    
 joint_trajectory_controller:
   ros__parameters:
     joints:
@@ -36,12 +24,11 @@ joint_trajectory_controller:
 
     gains: # required for velocity interface
       joint1:
-        ff_velocity_scale: 1.0
+        # ff_velocity_scale: 1.0
         p: 10.0 
         i: 2.0
         d: 5.0
         # i_clamp: 1.0
-
 
     state_publish_rate: 50.0 # defaults to 50
     action_monitor_rate: 20.0 # defaults to 20
@@ -53,15 +40,4 @@ joint_trajectory_controller:
       joint1:
         goal: 0.01 # position tolerace
 
-      
-      
-    allow_nonzero_velocity_at_trajectory_end: true
-
-
-# gazebo_ros_control:
-#   ros__parameters:
-#     start_parameters:
-#       command_interface: "position"
-    
-#     stop_parameters:
-#       command_interface: "position"
+    allow_nonzero_velocity_at_trajectory_end: false
