@@ -28,7 +28,7 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "mock_sensor_commands",
-            default_value = "false",
+            default_value = "true",
             description = "Enable fake command interfaces for sensors for simple simulation. Use only if `use_mock_hardware` parameter is true."
         )
     )
