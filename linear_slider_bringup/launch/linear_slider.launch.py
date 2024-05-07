@@ -16,6 +16,7 @@ from launch.substitutions import (
 )
 from launch_ros.actions import Node, LifecycleNode
 from launch_ros.event_handlers import OnStateTransition
+from launch_ros.parameter_descriptions import ParameterFile
 from launch_ros.substitutions import FindPackageShare
 
 
@@ -47,14 +48,14 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "description_file",
-            default_value = "linear_slider.urdf.xacro",
+            default_value = "linear_slider_solo.urdf.xacro",
             description = "URDF/xacro description file of the robot."
         )
     )
     declared_args.append(
         DeclareLaunchArgument(
             "prefix",
-            default_value = "''",
+            default_value = "linear_slider/",
             description = "Prefix of the joint names, useful for multi-robot setup. If changed, then you need to update the joint names in the controllers' description."
         )
     )
@@ -77,7 +78,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "robot_controller",
             default_value = "joint_trajectory_controller",
-            choices = ["velocity_controller", "joint_trajectory_controller"], # add another here if we want to switch between different controllers
+            choices = ["joint_trajectory_controller"], # add another here if we want to switch between different controllers
             description = "Robot controller"
         )
     )
@@ -134,7 +135,7 @@ def generate_launch_description():
         executable = "ros2_control_node",
         output = "both",
         parameters = [
-            robot_controllers,
+            ParameterFile(robot_controllers, allow_substs=True),
             robot_description # Says it's deprecated, but only works if this is provided!
         ]
     )
@@ -232,7 +233,6 @@ def generate_launch_description():
         )
 
     return LaunchDescription(
-        
         declared_args
         + [
             # _log0,
