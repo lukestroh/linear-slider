@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="linear_slider">
+    <xacro:macro name="linear_slider" params="
+        prefix:=''
+        use_mock_hardware:=^|false
+        mock_sensor_commands:=^|false
+        sim_gazebo:=^|false
+        sim_gazebo_classic:=^|false
+        ">
+    
+
+        <!-- Robot description -->
+        <xacro:include filename="$(find linear_slider_description)/urdf/linear_slider/linear_slider_macro.xacro"/>
+        <xacro:include filename="$(find linear_slider_description)/urdf/linear_slider/linear_slider.ros2_control.xacro"/>
+
+        <!-- World link -->
+        <link name="world" />
+
+        <!-- Macro information -->
+        <xacro:linear_slider_macro prefix="${prefix}" parent="world">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:linear_slider_macro>
+
+        <!-- ros2_control -->
+        <xacro:linear_slider_ros2_control
+            name="linear_slider_ros2_control"
+            prefix="${prefix}"
+            initial_state_file="$(find linear_slider_description)/config/initial_state.yaml"
+            sim_gazebo="${sim_gazebo}"
+            sim_gazebo_classic="${sim_gazebo_classic}"
+            use_mock_hardware="${use_mock_hardware}"
+            mock_sensor_commands="${mock_sensor_commands}"
+        />
+
+        <xacro:if value="${sim_gazebo_classic}"> 
+            <!-- ================== -->
+            <!--   Gazebo Classic   -->
+            <!-- ================== -->    
+
+            <gazebo reference="${prefix}base_link">
+                <static>true</static>
+            </gazebo>
+            <gazebo>
+                <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+                    <robot_param>robot_description</robot_param>
+                    <robot_param_node>robot_state_publisher</robot_param_node>
+                    <parameters>$(find linear_slider_bringup)/config/linear_slider_controllers.yaml</parameters>
+                </plugin>
+                <!-- <sensor name="lim_switch_neg">
+                    <always_on>1</always_on>
+                </sensor>
+                <sensor name="lim_switch_pos">
+                    <always_on>1</always_on>
+                </sensor> -->
+            </gazebo>
+        </xacro:if>
+
+        <xacro:if value="${sim_gazebo}">
+            <!-- ================== -->
+            <!--  Gazebo Ignition   -->
+            <!-- ================== -->
+            <gazebo reference="world"/>
+            <gazebo>
+                <plugin filename="libign_ros2_control-system.so" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+                    <parameters>$(find linear_slider_bringup)/config/linear_slider_controllers.yaml</parameters>
+                    <controller_manager_node_name>${prefix}controller_manager</controller_manager_node_name>
+                </plugin>
+            </gazebo>
+        </xacro:if>
+    </xacro:macro>
+</robot>
