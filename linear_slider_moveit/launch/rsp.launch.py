@@ -3,5 +3,5 @@ from moveit_configs_utils.launches import generate_rsp_launch
 
 
 def generate_launch_description():
-    moveit_config = MoveItConfigsBuilder("linear_slider", package_name="linear_slider_moveit").to_moveit_configs()
+    moveit_config = MoveItConfigsBuilder("ur_with_linear_slider", package_name="linear_slider_moveit").to_moveit_configs()
     return generate_rsp_launch(moveit_config)

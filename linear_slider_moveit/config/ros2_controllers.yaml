@@ -3,17 +3,18 @@ controller_manager:
   ros__parameters:
     update_rate: 100  # Hz
 
-    moving_base_controller:
+    linear_slider_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
-moving_base_controller:
+linear_slider_controller:
   ros__parameters:
-    joint: joint1
+    joint: linear_slider/joint1
     command_interfaces:
-      - position
+      - velocity
     state_interfaces:
       - position
+      - velocity

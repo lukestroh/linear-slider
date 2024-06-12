@@ -4,7 +4,7 @@
   <name>linear_slider_moveit</name>
   <version>0.3.0</version>
   <description>
-     An automatically generated package with all the configuration and launch files for using the linear_slider with the MoveIt Motion Planning Framework
+     An automatically generated package with all the configuration and launch files for using the ur_with_linear_slider with the MoveIt Motion Planning Framework
   </description>
   <maintainer email="luke.strohbehn@gmail.com">Luke Strohbehn</maintainer>
 
@@ -41,9 +41,9 @@
   <exec_depend>rviz2</exec_depend>
   <exec_depend>rviz_common</exec_depend>
   <exec_depend>rviz_default_plugins</exec_depend>
-  <exec_depend>tf2_ros</exec_depend>
+  <!-- <exec_depend>tf2_ros</exec_depend> -->
   <exec_depend>warehouse_ros_mongo</exec_depend>
-  <exec_depend>xacro</exec_depend>
+  <!-- <exec_depend>xacro</exec_depend> -->
 
 
   <export>
