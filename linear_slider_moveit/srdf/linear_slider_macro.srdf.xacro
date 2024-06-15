@@ -6,18 +6,29 @@
         <!--JOINTS - When a joint is specified, the child link of that joint (which will always exist) is automatically included-->
         <!--CHAINS - When a chain is specified, all the links along the chain (including endpoints) are included in the group. Additionally, all the joints that are parents to included links are also included. This means that joints along the chain and the parent joint of the base link are included in the group-->
         <!--SUBGROUPS - Groups can also be formed by referencing to already defined group names-->
-        <group name="${prefix}${name}_manipulator">
+        
+        
+        <group name="${prefix}manipulator">
+            <!-- <joint name="$(arg prefix)base_joint" />
+            <joint name="$(arg prefix)base_link__base_joint" />
             <joint name="$(arg prefix)joint1"/>
-            <joint name="$(arg prefix)virtual_joint"/>
+            <joint name="$(arg prefix)moving_base__flange_joint" />
+            <joint name="$(arg prefix)flange__tool0_joint" /> -->
             <chain base_link="${prefix}base_link" tip_link="${prefix}flange" />
+            <end_effector name="${prefix}eef" group="${prefix}manipulator" parent_link="${prefix}tool0"/>
         </group>
         <!--GROUP STATES - Purpose - Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
-        <group_state name="${prefix}center" group="${prefix}${name}_manipulator">
+        <group_state name="${prefix}center" group="${prefix}manipulator">
             <joint name="${prefix}joint1" value="0.0"/>
         </group_state>
 
+        <virtual_joint name="$(arg prefix)base_joint" type="fixed"  parent_frame="world" child_link="${prefix}base"/>
+
+
         <!-- DISABLE COLLISIONS -->
         <disable_collisions link1="${prefix}base_link" link2="${prefix}moving_base" reason="Adjacent"/>
+
+        
 
 
     </xacro:macro>

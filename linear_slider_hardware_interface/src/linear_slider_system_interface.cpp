@@ -37,6 +37,8 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
 
     // Set hardware configs from the linear_slider.ros2_control.xacro file
     config_.device_name = info_.hardware_parameters["device_name"];
+    config_.ip_addr = info_.hardware_parameters["device_ip"];
+    config_.port = info_.hardware_parameters["device_port"];
 
     for (const hardware_interface::ComponentInfo& joint : info_.joints) {
         // The linear slider has one state and one command interface on the single prismatic joint, make sure they exist

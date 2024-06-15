@@ -12,7 +12,7 @@ controller_manager:
 
 linear_slider_controller:
   ros__parameters:
-    joint: linear_slider/joint1
+    joint: $(var prefix)joint1
     command_interfaces:
       - velocity
     state_interfaces:

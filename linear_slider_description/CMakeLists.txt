@@ -12,11 +12,8 @@ install(
     urdf
     config
     rviz
+    launch
   DESTINATION share/${PROJECT_NAME}
 )
 
 ament_package()
-
-install(DIRECTORY launch DESTINATION share/${PROJECT_NAME}
-  PATTERN "setup_assistant.launch" EXCLUDE)
-install(FILES .setup_assistant DESTINATION share/${PROJECT_NAME})

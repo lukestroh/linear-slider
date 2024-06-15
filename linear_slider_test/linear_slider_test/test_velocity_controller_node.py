@@ -10,11 +10,13 @@ from std_msgs.msg import Float64
 class TestVelocityControllerNode(Node):
     def __init__(self):
         super().__init__(node_name="test_velocity_controller_node")
-        self.vel_cmd_pub = self.create_publisher(msg_type=Float64MultiArray, topic="/velocity_controller/commands", qos_profile=1)
+        self.vel_cmd_pub = self.create_publisher(
+            msg_type=Float64MultiArray, topic="/velocity_controller/commands", qos_profile=1
+        )
 
         self.pub_timer = self.create_timer(timer_period_sec=0.01, callback=self.pub_timer_callback)
         return
-    
+
     def pub_timer_callback(self):
         msg = Float64MultiArray()
         msg.data = [-0.05]
@@ -23,6 +25,7 @@ class TestVelocityControllerNode(Node):
         self.vel_cmd_pub.publish(msg)
         self.get_logger().info(f"Publishing: {msg}")
         return
+
 
 def main():
     rclpy.init()
@@ -33,5 +36,6 @@ def main():
     rclpy.shutdown()
     return
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

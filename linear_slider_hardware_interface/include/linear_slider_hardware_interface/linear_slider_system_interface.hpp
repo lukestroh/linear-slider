@@ -38,6 +38,8 @@ namespace linear_slider_system_interface
 
         struct Config {
             std::string device_name = "";
+            std::string ip_addr = "";
+            std::string port = "";
         };
 
         public:
@@ -70,16 +72,6 @@ namespace linear_slider_system_interface
             LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
             hardware_interface::return_type write(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
-            template<typename MessageT, typename AllocatorT = std::allocator<void>>
-            std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<MessageT, AllocatorT>>
-            create_publisher(
-                const std::string & topic_name,
-                const rclcpp::QoS & qos,
-                const rclcpp::PublisherOptionsWithAllocator<AllocatorT> & options = (
-                rclcpp_lifecycle::create_default_publisher_options<AllocatorT>()
-                )
-            );
-
 
         private:
             // data structures for holding velocity data
@@ -97,17 +89,8 @@ namespace linear_slider_system_interface
 
             // System status
             slidersystem::SystemStatus system_status;
-
-            // read time
-            // rclcpp::Time last_read_time = rclcpp::Clock().now();
-
             bool calibration_cmd_sent = false;
-
             rclcpp::Clock clock_ = rclcpp::Clock();
-
-            // std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<std_msgs::msg::String>> _pub;
-
-
     };
 } // namespace linear_slider_system_interface
 

@@ -1,5 +1,7 @@
 controller_manager_node:
   ros__parameters:
-    device_name: default
+    device_name: clearcore__teknic_clearpath_mc
+    device_ip: "169.192.52.177"
+    device_port: 8888
 
   

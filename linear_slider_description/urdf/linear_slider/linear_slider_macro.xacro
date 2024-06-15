@@ -28,6 +28,9 @@
         <xacro:property name="slider_velocity_limit" value="0.25"/>
         <xacro:property name="slider_effort_limit" value="10"/>
 
+        <!-- tool0 / flange properties -->
+        <xacro:property name="moving_base__flange_offset" value="0.05" />
+
         <!-- ================== -->
         <!--     Materials      -->
         <!-- ================== -->
@@ -126,13 +129,18 @@
         <!-- base_joint fixes base_link to the environment -->
         <joint name="${prefix}base_joint" type="fixed">
             <parent link="${parent}"/>
-            <child link="${prefix}base_link"/>
+            <child link="${prefix}base"/>
             <xacro:insert_block name="origin"/>
         </joint>
-        <!-- joint1 -->
+        <joint name="${prefix}base_link__base_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <parent link="${prefix}base" />
+            <child link="${prefix}base_link" />
+        </joint>
+        <!-- joint1, moving prismatic joint -->
         <joint name="${prefix}joint1" type="prismatic">
-            <parent link="base_link"/>
-            <child link="moving_base"/>
+            <parent link="${prefix}base_link"/>
+            <child link="${prefix}moving_base"/>
             <axis xyz="1 0 0"/>
             <limit 
                 effort="${slider_effort_limit}"
@@ -140,25 +148,21 @@
                 upper="${slider_limit_max}"
                 velocity="${slider_velocity_limit}"
             /> <!-- effort is attribute for enforcing maximum joint effort, between 0 and 100% -->
-            <origin xyz="0.0 0.0 0.0" /> <!-- Define where the joint will be located, defined in terms of parent's reference frame -->
+            <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Define where the joint will be located, defined in terms of parent's reference frame -->
         </joint>
+        
+
         <!-- Extra joints for ros-industrial standard compatability -->
         <!-- tool frame to fixed frame -->
-        <joint name="${prefix}moving_base-tool0" type="fixed">
+        <joint name="${prefix}moving_base__flange_joint" type="fixed">
             <parent link="${prefix}moving_base"/>
-            <child link="${prefix}tool0"/>
-            <origin xyz="0 0 0" rpy="0 0 0" />   
-        </joint>
-        <joint name="${prefix}base_link-base_joint" type="fixed">
-            <origin xyz="0 0 0" rpy="0 0 0" />
-            <parent link="${prefix}base_link" />
-            <child link="${prefix}base" />
-        </joint>
-    
-        <joint name="${prefix}tool0-flange_joint" type="fixed">
-            <origin xyz="0 0 0" rpy="0 0 0" />
-            <parent link="${prefix}tool0" />
-            <child link="${prefix}flange" />
+            <child link="${prefix}flange"/>
+            <origin xyz="0 0 ${moving_base__flange_offset}" rpy="0 0 0" />   
+        </joint>    
+        <joint name="${prefix}flange__tool0_joint" type="fixed">
+            <parent link="${prefix}flange" />
+            <child link="${prefix}tool0" />
+            <origin xyz="0 0 0" rpy="0 0 0"/>
         </joint>
 
     </xacro:macro>

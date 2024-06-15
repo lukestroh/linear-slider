@@ -6,11 +6,12 @@ Author: Luke Strohbehn
 """
 
 import rclpy
-from rclpy.lifecycle import Node, TransitionCallbackReturn
+from rclpy.lifecycle import LifecycleNode, TransitionCallbackReturn
 from rclpy.lifecycle.node import LifecycleState
 from controller_manager_msgs.srv import ListControllers
 
-class DelayJointStateBroadcasterNode(Node):
+
+class DelayJointStateBroadcasterNode(LifecycleNode):
     def __init__(self, node_name) -> None:
         super().__init__(node_name=node_name)
 
@@ -25,24 +26,20 @@ class DelayJointStateBroadcasterNode(Node):
             self.get_logger().info(f"Service {srv} not available, waiting again...")
         self.trigger_shutdown()
         return
-    
-    def _timer_ping_CM_srv_cv(self) -> None:
-        self.get_logger().info("hello world")
-        return
 
     def on_configure(self, state: LifecycleState) -> TransitionCallbackReturn:
         return super().on_configure(state)
-    
+
     def on_activate(self, state: LifecycleState) -> TransitionCallbackReturn:
         return super().on_activate(state)
-    
+
     def on_deactivate(self, state: LifecycleState) -> TransitionCallbackReturn:
         return super().on_deactivate(state)
-    
+
     def on_shutdown(self, state: LifecycleState) -> TransitionCallbackReturn:
         self.get_logger().info(f"Node shutdown")
         return super().on_shutdown(state)
-    
+
 
 def main(args=None) -> None:
     rclpy.init(args=args)
@@ -51,8 +48,7 @@ def main(args=None) -> None:
         rclpy.spin(lifecycle_node)
     finally:
         lifecycle_node.destroy_node()
-        rclpy.shutdown()
+
 
 if __name__ == "__main__":
     main()
-

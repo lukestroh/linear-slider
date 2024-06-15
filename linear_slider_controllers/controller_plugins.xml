@@ -1,0 +1,12 @@
+<library path="linear_slider_controllers">
+    <!-- <class name="ur_controllers/SpeedScalingStateBroadcaster" type="ur_controllers::SpeedScalingStateBroadcaster" base_class_type="controller_interface::ControllerInterface">
+      <description>
+        This controller publishes the readings of all available speed scaling factors.
+      </description>
+    </class> -->
+    <class name="linear_slider_controllers/CombinedController" type="linear_slider_controllers::CombinedController" base_class_type="controller_interface::ControllerInterface">
+      <description>
+        Scaled position-based joint trajectory controller.
+      </description>
+    </class>
+  </library>

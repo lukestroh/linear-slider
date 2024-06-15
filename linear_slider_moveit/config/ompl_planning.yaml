@@ -55,7 +55,7 @@ planner_configs:
 
 
 # ur_manipulator:
-linear_slider_manipulator:
+$(var prefix)manipulator:
   planner_configs:
     - SBLkConfigDefault
     - ESTkConfigDefault

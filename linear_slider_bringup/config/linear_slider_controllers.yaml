@@ -2,20 +2,19 @@ controller_manager:
   ros__parameters:
     update_rate: 2000 # hz
 
-    joint_trajectory_controller:
+    linear_slider_controller:
       type: joint_trajectory_controller/JointTrajectoryController
       # TODO: Therefore if the hardware provides only acceleration or velocity states they have to be integrated in the hardware-interface implementation of velocity and position to use these controllers.
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
-joint_trajectory_controller:
+linear_slider_controller:
   ros__parameters:
     joints:
       - $(var prefix)joint1
 
     command_interfaces:
-      # - position
       - velocity
 
     state_interfaces:

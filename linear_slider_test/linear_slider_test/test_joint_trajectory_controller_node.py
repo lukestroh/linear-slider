@@ -15,32 +15,29 @@ class TestJoinTrajectoryControllerNode(Node):
         self.jt_client = ActionClient(
             node=self,
             action_type=FollowJointTrajectory,
-            action_name='/joint_trajectory_controller/follow_joint_trajectory',
+            action_name="/joint_trajectory_controller/follow_joint_trajectory",
         )
         goal_msg = FollowJointTrajectory.Goal()
         goal_msg.trajectory = JointTrajectory()
-        goal_msg.trajectory.joint_names = ['joint1']
+        goal_msg.trajectory.joint_names = ["joint1"]
 
         point = JointTrajectoryPoint()
         point.positions
 
         return
-    
-    def send_goal(self, goal = 0.3):
+
+    def send_goal(self, goal=0.3):
         self.info("Waiting for server...")
         self.jt_client.wait_for_server()
 
         goal_msg = self.create_msg(goal=goal)
 
         self.info(f"Sending trajectory goal request.")
-        self._send_goal_future = self.jt_client.send_goal_async(
-            goal=goal_msg,
-            feedback_callback=self._jt_feedback_cb
-        )
+        self._send_goal_future = self.jt_client.send_goal_async(goal=goal_msg, feedback_callback=self._jt_feedback_cb)
 
         self._send_goal_future.add_done_callback(self._goal_response_cb)
         return
-    
+
     def _goal_response_cb(self, future):
         goal_handle = future.result()
         if not goal_handle.accepted:
@@ -56,7 +53,7 @@ class TestJoinTrajectoryControllerNode(Node):
         return
 
     def timer_callback(self) -> None:
-        """A timer callback for """
+        """A timer callback for"""
         self.info("Canceling goal...")
         # Cancel the goal
         future = self._goal_handle.cancel_goal_async()
@@ -65,7 +62,7 @@ class TestJoinTrajectoryControllerNode(Node):
         # Cancel the timer
         self._timer.cancel()
         return
-    
+
     def cancel_request_done(self, future) -> None:
         """Handle the result from the cancel request to the server"""
         cancel_response = future.result()
@@ -77,20 +74,18 @@ class TestJoinTrajectoryControllerNode(Node):
 
         rclpy.shutdown()
         return
-    
 
     def _jt_feedback_cb(self, feedback):
         self.info(f"Launch server feedback: {feedback}")
         return
 
-
     def create_msg(self, goal):
         goal_msg = FollowJointTrajectory.Goal()
         goal_msg.trajectory = JointTrajectory()
-        goal_msg.trajectory.joint_names = ['joint1']
+        goal_msg.trajectory.joint_names = ["joint1"]
 
         point = JointTrajectoryPoint()
-        point.positions = [0.4] # This is the position that we're sending the linear slider to.
+        point.positions = [0.4]  # This is the position that we're sending the linear slider to.
         point.time_from_start = Duration(seconds=2).to_msg()
 
         goal_msg.trajectory.points.append(point)
@@ -110,5 +105,6 @@ def main():
     rclpy.shutdown()
     return
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

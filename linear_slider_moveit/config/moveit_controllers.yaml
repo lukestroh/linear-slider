@@ -11,4 +11,4 @@ moveit_simple_controller_manager:
     action_ns: follow_joint_trajectory
     default: true
     joints:
-      - linear_slider/joint1
+      - $(var prefix)joint1

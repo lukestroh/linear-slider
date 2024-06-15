@@ -17,7 +17,7 @@ scaled_joint_trajectory_controller:
     # - wrist_3_joint
 
 
-joint_trajectory_controller:
+linear_slider_controller:
   action_ns: follow_joint_trajectory
   type: FollowJointTrajectory
   default: false
