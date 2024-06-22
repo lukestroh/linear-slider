@@ -2,6 +2,11 @@
 #   ros__parameters:
 #     request_adapters: default_planner_request_adapters/AddTimeOptimalParameterization,default_planner_request_adapters/FixWorkspaceBounds
 #     robot_description_kinematics:
+#       $(var prefix)manipulator:
+#         kinematics_solver: kdl_kinematics_plugin/KDLKinematicsPlugin
+#         kinematics_solver_search_resolution: 0.0050000000000000001
+#         kinematics_solver_timeout: 0.0050000000000000001
+
 $(var prefix)manipulator:
   kinematics_solver: kdl_kinematics_plugin/KDLKinematicsPlugin
   kinematics_solver_search_resolution: 0.0050000000000000001

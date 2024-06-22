@@ -1,6 +1,6 @@
 controller_names:
   - scaled_joint_trajectory_controller
-  - joint_trajectory_controller
+  - linear_slider_controller
 
 
 scaled_joint_trajectory_controller:

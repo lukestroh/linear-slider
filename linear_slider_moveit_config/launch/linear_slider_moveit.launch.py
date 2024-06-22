@@ -14,8 +14,9 @@ This launch file adapted from: https://github.com/UniversalRobots/Universal_Robo
 
 """
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, OpaqueFunction, LogInfo
+from launch.actions import DeclareLaunchArgument, OpaqueFunction, RegisterEventHandler
 from launch.conditions import IfCondition
+from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution, TextSubstitution
 from launch.utilities import perform_substitutions
 from launch_ros.actions import Node
@@ -23,7 +24,8 @@ from launch_ros.parameter_descriptions import ParameterFile
 from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
 
-from linear_slider_moveit.launch_common import load_yaml
+from linear_slider_moveit_config.launch_common import load_yaml
+from moveit_configs_utils import MoveItConfigsBuilder
 
 import rclpy
 import rclpy.logging
@@ -32,7 +34,7 @@ import os
 import yaml
 import json
 
-logger = rclpy.logging.get_logger("linear_slider_moveit.logger")
+logger = rclpy.logging.get_logger("linear_slider_moveit_config.logger")
 
 
 def launch_setup(context, *args, **kwargs):
@@ -51,6 +53,8 @@ def launch_setup(context, *args, **kwargs):
     use_sim_time = LaunchConfiguration("use_sim_time")
     launch_rviz = LaunchConfiguration("launch_rviz")
     launch_servo = LaunchConfiguration("launch_servo")
+
+    debug_moveit_config_runtime_pkg = LaunchConfiguration("debug_moveit_config_runtime_pkg")
 
     # Get URDF from xacro
     robot_description_content = Command(
@@ -86,17 +90,16 @@ def launch_setup(context, *args, **kwargs):
     )
     robot_description_semantic = {"robot_description_semantic": robot_description_semantic_content}
 
-    # # MoveIt Kinematics
-    # robot_description_kinematics_path = PathJoinSubstitution(
-    #     [FindPackageShare(moveit_runtime_config_pkg), "config", "kinematics.yaml"]
-    # )
-    # logger.warn(robot_description_kinematics_path.perform(context))
-    # robot_description_kinematics_evaluated_file = ParameterFile(robot_description_kinematics_path, allow_substs=True)
-    # robot_description_kinematics_evaluated_file.evaluate(context=context)
-    # robot_description_kinematics_content = load_yaml(
-    #     package_name=str(moveit_runtime_config_pkg.perform(context=context)),
-    #     file_path=os.path.join("config", str(robot_description_kinematics_evaluated_file.param_file)),
-    # )
+    # MoveIt Kinematics
+    robot_description_kinematics_path = PathJoinSubstitution(
+        [FindPackageShare(moveit_runtime_config_pkg), "config", "kinematics.yaml"]
+    )
+    robot_description_kinematics_evaluated_file = ParameterFile(robot_description_kinematics_path, allow_substs=True)
+    robot_description_kinematics_evaluated_file.evaluate(context=context)
+    robot_description_kinematics_content = load_yaml(
+        package_name=str(moveit_runtime_config_pkg.perform(context=context)),
+        file_path=os.path.join("config", str(robot_description_kinematics_evaluated_file.param_file)),
+    )
     kinematics_tmp_path = PathJoinSubstitution(
         [  # For some reason, the temp file gets deleted pretty quickly, so rewrite the contents of that temp file to a slightly-more-permanent temp file in /linear_slider_moveit/config/tmp/
             FindPackageShare(moveit_runtime_config_pkg),
@@ -105,10 +108,9 @@ def launch_setup(context, *args, **kwargs):
             "tmp_kinematics.yaml",
         ]
     )
-    # _sv_path = kinematics_tmp_path.perform(context=context)
-    # with open(_sv_path, "w") as file:
-    #     yaml.safe_dump(robot_description_kinematics_content, file)
-    # logger.warn(f"{kinematics_tmp_path.perform(context=context)}")
+    _sv_path = kinematics_tmp_path.perform(context=context)
+    with open(_sv_path, "w") as file:
+        yaml.safe_dump(robot_description_kinematics_content, file)
 
     # MoveIt Joint Limits
     moveit_joint_limits_path = PathJoinSubstitution(
@@ -129,12 +131,10 @@ def launch_setup(context, *args, **kwargs):
     ompl_planning_pipeline_config = dict(
         move_group=dict(
             planning_plugins=["ompl_interface/OMPLPlanner"],
-            # request_adapters=
-            # "default_planning_request_adapters/ResolveConstraintFrames"
-            # "default_planning_request_adapters/ValidateWorkspaceBounds"
-            # "default_planning_request_adapters/CheckStartStateBounds"
-            # "default_planning_request_adapters/CheckStartStateCollision"
-            # ,
+            request_adapters= "default_planner_request_adapters/AddRuckigTrajectorySmoothing default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/Empty default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/ResolveConstraintFrames",
+            # """default_planning_request_adapters/ResolveConstraintFrames default_planning_request_adapters/ValidateWorkspaceBounds default_planning_request_adapters/CheckStartStateBounds default_planning_request_adapters/CheckStartStateCollision""",
+            # "default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStatePathConstraints default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/ResolveConstraintFrames default_planner_request_adapters/AddTimeOptimalParameterization",
+            
             response_adapters=[
                 "default_planning_response_adapters/AddTimeOptimalParameterization",
                 "default_planning_response_adapters/ValidateSolution",
@@ -160,7 +160,7 @@ def launch_setup(context, *args, **kwargs):
 
     # The scaled_joint_trajectory_controller does not work on mock_hardware, switch to regular joint_trajectory_controller
     change_controllers = context.perform_substitution(use_mock_hardware)
-    if change_controllers == "true":
+    if change_controllers.lower() == "true":
         controllers_content["scaled_joint_trajectory_controller"]["default"] = False
         controllers_content["linear_slider_controller"]["default"] = True
 
@@ -171,7 +171,7 @@ def launch_setup(context, *args, **kwargs):
 
     trajectory_execution = {
         "moveit_manage_controllers": False,
-        "trajectory_execution.allowed_execution_during_scaling": 1.2,  # Dear UR, isn't assigning class attributes within a python launch string a bit hacky????
+        "trajectory_execution.allowed_execution_during_scaling": 1.2,
         "trajectory_execution.allowed_goal_duration_margin": 0.5,
         "trajectory_execution.allowed_start_tolerance": 0.01,
     }
@@ -187,7 +187,30 @@ def launch_setup(context, *args, **kwargs):
         warehouse_plugin="warehouse_ros_sqlite::DatabaseConnection", warehouse_host=warehouse_sqlite_path
     )
 
-    # logger.warn(f"{moveit_controllers_content}")
+
+    mcb = MoveItConfigsBuilder(robot_name="linear_slider", package_name="linear_slider_moveit_config")
+    mcb.robot_description(
+        file_path=os.path.join(get_package_share_directory("linear_slider_description"), "urdf/linear_slider.urdf.xacro"),
+        mappings=robot_description
+    )
+    mcb.robot_description_semantic(
+        file_path=os.path.join(get_package_share_directory("linear_slider_moveit_config"), "srdf/linear_slider.srdf.xacro"),
+        mappings=robot_description_semantic
+    )
+    mcb.robot_description_kinematics(
+        file_path=os.path.join(get_package_share_directory("linear_slider_moveit_config"), "config/tmp/tmp_kinematics.yaml"),
+        # mappings=robot_description_semantic_content
+    )
+    mcb.planning_pipelines(
+        default_planning_pipeline="ompl",
+        pipelines=[
+            "ompl", "pilz_industrial_motion_planner", "chomp"
+        ]
+    )
+
+    moveit_config = mcb.to_moveit_configs()
+    # logger.warn(f"{moveit_config.robot_description_kinematics}")
+
 
     # Start the actual move_group node/action server
     node_move_group = Node(
@@ -198,7 +221,7 @@ def launch_setup(context, *args, **kwargs):
             robot_description,
             robot_description_semantic,
             # robot_description_kinematics_path,
-            kinematics_tmp_path,
+            moveit_config.robot_description_kinematics,
             robot_description_planning,
             ompl_planning_pipeline_config,
             trajectory_execution,
@@ -222,7 +245,7 @@ def launch_setup(context, *args, **kwargs):
         parameters=[
             robot_description,
             robot_description_semantic,
-            kinematics_tmp_path,
+            moveit_config.robot_description_kinematics,
             robot_description_planning,
             ompl_planning_pipeline_config,
             warehouse_ros_config,
@@ -246,12 +269,46 @@ def launch_setup(context, *args, **kwargs):
         package="moveit_servo",
         executable="servo_node_main",
         output="screen",
-        parameters=[servo_params, robot_description, robot_description_semantic],
-        condition=IfCondition(launch_servo),
+        parameters=[servo_params, robot_description, robot_description_semantic, moveit_config.robot_description_kinematics],
+        condition=IfCondition(launch_servo)
     )
 
 
+    # robot_controllers = PathJoinSubstitution([get_package_share_directory("linear_slider_bringup"), "config", "linear_slider_controllers.yaml"])
+
+    # control_node = Node(
+    #     package="controller_manager",
+    #     executable="ros2_control_node",
+    #     output="both",
+    #     parameters=[
+    #         ParameterFile(robot_controllers, allow_substs=True),
+    #         robot_description,  # Says it's deprecated, but only works if this is provided!
+    #     ],
+    #     condition=IfCondition(debug_moveit_config_runtime_pkg)
+    # )
+
+    # pub = Node(
+    #     package='robot_state_publisher',
+    #     executable='robot_state_publisher',
+    #     name='robot_state_publisher',
+    #     output='screen',
+    #     parameters=[robot_description],
+    #     condition=IfCondition(debug_moveit_config_runtime_pkg)
+    # )
+    # js_pub = Node(
+    #     package="controller_manager",
+    #     executable="spawner",
+    #     arguments=[
+    #         "joint_state_broadcaster",
+    #         "--controller-manager",
+    #         "/controller_manager",
+    #     ],
+    #     condition=IfCondition(debug_moveit_config_runtime_pkg)
+    # )
+
+    # node_move_group, node_servo, node_rviz, , pub, js_pub
     nodes_to_start = [node_move_group, node_servo, node_rviz]
+    # nodes_to_start = [control_node, pub, js_pub]
 
     return nodes_to_start
 
@@ -261,7 +318,7 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "moveit_runtime_config_pkg",
-            default_value="linear_slider_moveit",
+            default_value="linear_slider_moveit_config",
             description="MoveIt config package with robot SRDF/xacro files. Usually, the argument is not set; it enables the use of a custom setup.",
         )
     )
@@ -333,6 +390,14 @@ def generate_launch_description():
     declared_args.append(DeclareLaunchArgument("launch_rviz", default_value="true", description="Launch RViz window."))
     declared_args.append(
         DeclareLaunchArgument("launch_servo", default_value="true", description="Launch servoing node.")
+    )
+
+    declared_args.append(
+        DeclareLaunchArgument(
+            "debug_moveit_config_runtime_pkg",
+            default_value="true",
+            description="Debug settings"
+        )
     )
 
     ld = LaunchDescription(declared_args + [OpaqueFunction(function=launch_setup)])

@@ -26,7 +26,7 @@
         <xacro:property name="slider_limit_min" value="-0.4"/>
         <xacro:property name="slider_limit_max" value="0.4"/>
         <xacro:property name="slider_velocity_limit" value="0.25"/>
-        <xacro:property name="slider_effort_limit" value="10"/>
+        <xacro:property name="slider_effort_limit" value="2"/>
 
         <!-- tool0 / flange properties -->
         <xacro:property name="moving_base__flange_offset" value="0.05" />

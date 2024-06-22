@@ -10,6 +10,10 @@ from launch_ros.event_handlers import OnStateTransition
 from launch_ros.parameter_descriptions import ParameterFile
 from launch_ros.substitutions import FindPackageShare
 
+import rclpy.logging
+
+logger = rclpy.logging.get_logger("linear_slider_bringup.logger")
+
 
 def generate_launch_description():
     # Declare arguments
@@ -45,7 +49,7 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "moveit_config_package",
-            default_value="linear_slider_moveit",
+            default_value="linear_slider_moveit_config",
             description="MoveIt2 configuration package for the linear slider.",
         )
     )
@@ -80,11 +84,20 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "robot_controller",
-            default_value="joint_trajectory_controller",
+            default_value="linear_slider_controller",
             choices=[
+                "linear_slider_controller",
                 "joint_trajectory_controller"
             ],  # add another here if we want to switch between different controllers
             description="Robot controller",
+        )
+    )
+    declared_args.append(
+        DeclareLaunchArgument(
+            "use_sim_time",
+            default_value="false",
+            description="Use simulation time. Default false.",
+            choices=["true", "false"]
         )
     )
 
@@ -99,6 +112,8 @@ def generate_launch_description():
     use_mock_hardware = LaunchConfiguration("use_mock_hardware")
     mock_sensor_commands = LaunchConfiguration("mock_sensor_commands")
     robot_controller = LaunchConfiguration("robot_controller")
+
+    use_sim_time = LaunchConfiguration("use_sim_time")
 
     # Get URDF from xacro
     robot_description_content = Command(
@@ -125,7 +140,14 @@ def generate_launch_description():
 
     rviz_config_file = PathJoinSubstitution([FindPackageShare(description_package), "rviz", "linear_slider.rviz"])
 
-    control_node = Node(
+    node_sim_time_publisher = Node(
+        package=runtime_config_package,
+        executable="sim_time_publisher.py",
+        output="screen",
+        condition=IfCondition(use_sim_time)
+    )
+
+    node_controller_manager = Node(
         package="controller_manager",
         executable="ros2_control_node",
         output="both",
@@ -135,14 +157,14 @@ def generate_launch_description():
         ],
     )
 
-    robot_state_pub_node = Node(
+    node_robot_state_pub = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
         output="both",
         parameters=[robot_description],
     )
 
-    rviz_node = Node(
+    node_rviz = Node(
         package="rviz2",
         executable="rviz2",
         name="rviz2",
@@ -150,12 +172,6 @@ def generate_launch_description():
         arguments=["-d", rviz_config_file],
         condition=UnlessCondition(use_moveit),
     )
-
-    # timeout_duration = DeclareLaunchArgument(
-    #     'timeout',
-    #     default_value='120',  # Default timeout value (in seconds)
-    #     description='Timeout duration for joint_state_broadcaster_spawner (in seconds)'
-    # )
 
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
@@ -172,11 +188,13 @@ def generate_launch_description():
     for controller in robot_controllers:
         robot_controller_spawners.append(
             Node(
-                package="controller_manager", executable="spawner", arguments=[controller, "-c", "/controller_manager"]
+                package="controller_manager",
+                executable="spawner",
+                arguments=[controller, "-c", "/controller_manager"]
             )
         )
 
-    delay_lifecycle_node = LifecycleNode(
+    lifecycle_node_delay_jsb = LifecycleNode(
         name="delay_jsb_node_spawner",
         namespace="",
         package="linear_slider_bringup",
@@ -196,7 +214,7 @@ def generate_launch_description():
 
     register_event_for_slider_on_activate = RegisterEventHandler(
         OnStateTransition(
-            target_lifecycle_node=delay_lifecycle_node,
+            target_lifecycle_node=lifecycle_node_delay_jsb,
             goal_state="finalized",
             entities=[joint_state_broadcaster_spawner],
         )
@@ -204,7 +222,7 @@ def generate_launch_description():
 
     # Delay rviz start after joint_state_broadcaster to avoid unnecessary warning output
     delay_rviz_after_joint_state_broadcaster_spawner = RegisterEventHandler(
-        event_handler=OnProcessStart(target_action=joint_state_broadcaster_spawner, on_start=[rviz_node])
+        event_handler=OnProcessStart(target_action=joint_state_broadcaster_spawner, on_start=[node_rviz])
     )
 
     # MoveIt launch
@@ -216,7 +234,7 @@ def generate_launch_description():
         launch_arguments=[
             ("use_mock_hardware", use_mock_hardware),
             ("mock_sensor_commands", mock_sensor_commands),
-            ("use_sim_time", "true"),
+            ("use_sim_time", use_sim_time),
         ],
         condition=IfCondition(use_moveit)
     )
@@ -233,9 +251,10 @@ def generate_launch_description():
     return LaunchDescription(
         declared_args
         + [
-            delay_lifecycle_node,
-            control_node,
-            robot_state_pub_node,
+            # node_sim_time_publisher,
+            lifecycle_node_delay_jsb,
+            node_controller_manager,
+            node_robot_state_pub,
             delay_rviz_after_joint_state_broadcaster_spawner,
             # delay_joint_state_broadcaster_after_ros2_control_node,
             register_event_for_slider_on_activate,

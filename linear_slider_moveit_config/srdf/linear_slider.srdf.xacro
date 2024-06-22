@@ -7,6 +7,6 @@
     <xacro:arg name="prefix" default=""/>
     <xacro:arg name="name" default="linear_slider"/>
 
-    <xacro:include filename="$(find linear_slider_moveit)/srdf/linear_slider_macro.srdf.xacro"/>
+    <xacro:include filename="$(find linear_slider_moveit_config)/srdf/linear_slider_macro.srdf.xacro"/>
     <xacro:linear_slider_srdf name="$(arg name)" prefix="$(arg prefix)" />
 </robot>

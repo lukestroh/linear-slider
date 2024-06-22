@@ -9,6 +9,8 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 find_package(rclpy REQUIRED)
+find_package(builtin_interfaces REQUIRED)
+find_package(rosgraph_msgs REQUIRED)
 
 
 # Install Python modules
@@ -23,6 +25,7 @@ install(
 install(
   PROGRAMS
   scripts/delay_joint_state_broadcaster_lifecycle_node.py
+  scripts/sim_time_publisher.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
