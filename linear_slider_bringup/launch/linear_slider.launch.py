@@ -5,10 +5,12 @@ from launch.conditions import UnlessCondition, IfCondition
 from launch.event_handlers import OnProcessExit, OnProcessStart, OnExecutionComplete
 from launch.launch_description_sources import AnyLaunchDescriptionSource, PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression, Command, FindExecutable
-from launch_ros.actions import Node, LifecycleNode
+from launch_ros.actions import Node, LifecycleNode, ComposableNodeContainer
 from launch_ros.event_handlers import OnStateTransition
 from launch_ros.parameter_descriptions import ParameterFile
 from launch_ros.substitutions import FindPackageShare
+
+from ament_index_python.packages import get_package_share_directory
 
 import rclpy.logging
 
@@ -202,16 +204,6 @@ def generate_launch_description():
         output="both",
     )
 
-    # # Delay loading and activation of 'joint_state_broadcaster' after the start of ros2_control_node
-    # delay_joint_state_broadcaster_after_ros2_control_node = (
-    #     RegisterEventHandler(
-    #         event_handler = OnExecutionComplete(
-    #             target_action = delay_lifecycle_node,
-    #             on_completion=[joint_state_broadcaster_spawner]
-    #         )
-    #     )
-    # )
-
     register_event_for_slider_on_activate = RegisterEventHandler(
         OnStateTransition(
             target_lifecycle_node=lifecycle_node_delay_jsb,
@@ -227,7 +219,7 @@ def generate_launch_description():
 
     # MoveIt launch
     moveit_config_package_path = PathJoinSubstitution(
-        [FindPackageShare(moveit_config_package), "launch", "linear_slider_moveit.launch.py"]
+        [get_package_share_directory("linear_slider_moveit_config"), "launch", "linear_slider_moveit.launch.py"] # TODO: For some reason this wasn't working with FindPackageShare. Why ?
     )
     launch_linear_slider_moveit = IncludeLaunchDescription(
         AnyLaunchDescriptionSource(moveit_config_package_path),
@@ -238,6 +230,7 @@ def generate_launch_description():
         ],
         condition=IfCondition(use_moveit)
     )
+    
 
     # Delay loading and activation of robot_controller after 'joint_state_broadcaster'
     delay_robot_controller_spawners_after_joint_state_broadcaster_spawner = []
@@ -256,7 +249,6 @@ def generate_launch_description():
             node_controller_manager,
             node_robot_state_pub,
             delay_rviz_after_joint_state_broadcaster_spawner,
-            # delay_joint_state_broadcaster_after_ros2_control_node,
             register_event_for_slider_on_activate,
             launch_linear_slider_moveit,
         ]

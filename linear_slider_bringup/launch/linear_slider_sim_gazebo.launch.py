@@ -56,7 +56,7 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "prefix",
-            default_value="linear_slider/",
+            default_value="linear_slider__",
             description="Prefix of the joint names, useful for multi-robot setup. If changed, then you need to update the joint names in the controllers' description.",
         )
     )
@@ -203,6 +203,9 @@ def generate_launch_description():
         name="rviz2",
         output="log",
         arguments=["-d", rviz_config_file],
+        # parameters=[
+
+        # ]
     )
 
     delay_joint_state_broadcaster_spawner_after_gazebo_spawner = RegisterEventHandler(

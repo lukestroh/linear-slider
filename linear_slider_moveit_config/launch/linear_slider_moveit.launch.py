@@ -34,7 +34,7 @@ import os
 import yaml
 import json
 
-logger = rclpy.logging.get_logger("linear_slider_moveit_config.logger")
+logger = rclpy.logging.get_logger("linear_slider_moveit_config.launch_logger")
 
 
 def launch_setup(context, *args, **kwargs):
@@ -53,8 +53,6 @@ def launch_setup(context, *args, **kwargs):
     use_sim_time = LaunchConfiguration("use_sim_time")
     launch_rviz = LaunchConfiguration("launch_rviz")
     launch_servo = LaunchConfiguration("launch_servo")
-
-    debug_moveit_config_runtime_pkg = LaunchConfiguration("debug_moveit_config_runtime_pkg")
 
     # Get URDF from xacro
     robot_description_content = Command(
@@ -159,10 +157,10 @@ def launch_setup(context, *args, **kwargs):
     )
 
     # The scaled_joint_trajectory_controller does not work on mock_hardware, switch to regular joint_trajectory_controller
-    change_controllers = context.perform_substitution(use_mock_hardware)
-    if change_controllers.lower() == "true":
-        controllers_content["scaled_joint_trajectory_controller"]["default"] = False
-        controllers_content["linear_slider_controller"]["default"] = True
+    # change_controllers = context.perform_substitution(use_mock_hardware)
+    # if change_controllers.lower() == "true":
+    #     controllers_content["scaled_joint_trajectory_controller"]["default"] = False
+    #     controllers_content["linear_slider_controller"]["default"] = True
 
     moveit_controllers_content = dict(
         moveit_simple_controller_manager=controllers_content,
@@ -199,7 +197,6 @@ def launch_setup(context, *args, **kwargs):
     )
     mcb.robot_description_kinematics(
         file_path=os.path.join(get_package_share_directory("linear_slider_moveit_config"), "config/tmp/tmp_kinematics.yaml"),
-        # mappings=robot_description_semantic_content
     )
     mcb.planning_pipelines(
         default_planning_pipeline="ompl",
@@ -209,8 +206,12 @@ def launch_setup(context, *args, **kwargs):
     )
 
     moveit_config = mcb.to_moveit_configs()
+    # logger.info(f"{robot_description_kinematics_content}")
     # logger.warn(f"{moveit_config.robot_description_kinematics}")
+    # logger.info(f"{robot_description_semantic_content.perform(context=context)}")
+    # logger.warn(f"{moveit_config.robot_description_semantic['robot_description_semantic']}")
 
+    
 
     # Start the actual move_group node/action server
     node_move_group = Node(
@@ -273,42 +274,7 @@ def launch_setup(context, *args, **kwargs):
         condition=IfCondition(launch_servo)
     )
 
-
-    # robot_controllers = PathJoinSubstitution([get_package_share_directory("linear_slider_bringup"), "config", "linear_slider_controllers.yaml"])
-
-    # control_node = Node(
-    #     package="controller_manager",
-    #     executable="ros2_control_node",
-    #     output="both",
-    #     parameters=[
-    #         ParameterFile(robot_controllers, allow_substs=True),
-    #         robot_description,  # Says it's deprecated, but only works if this is provided!
-    #     ],
-    #     condition=IfCondition(debug_moveit_config_runtime_pkg)
-    # )
-
-    # pub = Node(
-    #     package='robot_state_publisher',
-    #     executable='robot_state_publisher',
-    #     name='robot_state_publisher',
-    #     output='screen',
-    #     parameters=[robot_description],
-    #     condition=IfCondition(debug_moveit_config_runtime_pkg)
-    # )
-    # js_pub = Node(
-    #     package="controller_manager",
-    #     executable="spawner",
-    #     arguments=[
-    #         "joint_state_broadcaster",
-    #         "--controller-manager",
-    #         "/controller_manager",
-    #     ],
-    #     condition=IfCondition(debug_moveit_config_runtime_pkg)
-    # )
-
-    # node_move_group, node_servo, node_rviz, , pub, js_pub
     nodes_to_start = [node_move_group, node_servo, node_rviz]
-    # nodes_to_start = [control_node, pub, js_pub]
 
     return nodes_to_start
 
@@ -390,14 +356,6 @@ def generate_launch_description():
     declared_args.append(DeclareLaunchArgument("launch_rviz", default_value="true", description="Launch RViz window."))
     declared_args.append(
         DeclareLaunchArgument("launch_servo", default_value="true", description="Launch servoing node.")
-    )
-
-    declared_args.append(
-        DeclareLaunchArgument(
-            "debug_moveit_config_runtime_pkg",
-            default_value="true",
-            description="Debug settings"
-        )
     )
 
     ld = LaunchDescription(declared_args + [OpaqueFunction(function=launch_setup)])

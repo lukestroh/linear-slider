@@ -17,6 +17,7 @@ class TestJoinTrajectoryControllerNode(Node):
             action_type=FollowJointTrajectory,
             action_name="/joint_trajectory_controller/follow_joint_trajectory",
         )
+        self.declare_parameter(name="prefix").get_parameter_value().string_value
         goal_msg = FollowJointTrajectory.Goal()
         goal_msg.trajectory = JointTrajectory()
         goal_msg.trajectory.joint_names = ["joint1"]
