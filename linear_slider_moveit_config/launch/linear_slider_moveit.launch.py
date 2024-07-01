@@ -157,10 +157,10 @@ def launch_setup(context, *args, **kwargs):
     )
 
     # The scaled_joint_trajectory_controller does not work on mock_hardware, switch to regular joint_trajectory_controller
-    # change_controllers = context.perform_substitution(use_mock_hardware)
-    # if change_controllers.lower() == "true":
-    #     controllers_content["scaled_joint_trajectory_controller"]["default"] = False
-    #     controllers_content["linear_slider_controller"]["default"] = True
+    change_controllers = context.perform_substitution(use_mock_hardware)
+    if change_controllers.lower() == "true":
+        controllers_content["scaled_joint_trajectory_controller"]["default"] = False
+        controllers_content["linear_slider_controller"]["default"] = True
 
     moveit_controllers_content = dict(
         moveit_simple_controller_manager=controllers_content,
