@@ -144,7 +144,7 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(cons
     while (true) {
         hardware_interface::return_type read_success = read(rclcpp::Clock().now(), rclcpp::Duration(0, 0));
 
-        RCLCPP_WARN(_LOGGER, "Slider status: %d", linear_slider_.state.system_status);
+        // RCLCPP_WARN(_LOGGER, "Slider status: %d", linear_slider_.state.system_status);
 
         if (read_success == hardware_interface::return_type::OK) {
             // Don't do anything if system is normal

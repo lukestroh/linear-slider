@@ -235,7 +235,7 @@ def launch_setup(context, *args, **kwargs):
 
     # RViz
     rviz_config_file = PathJoinSubstitution(
-        [get_package_share_directory("linear_slider_description"), "rviz", "linear_slider.rviz"]
+        [get_package_share_directory("linear_slider_moveit_config"), "rviz", "linear_slider_moveit.rviz"]
     )
     node_rviz = Node(
         package="rviz2",

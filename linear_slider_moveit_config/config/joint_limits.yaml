@@ -9,8 +9,8 @@ default_acceleration_scaling_factor: 0.5
 # Joint limits can be turned off with [has_velocity_limits, has_acceleration_limits]
 joint_limits:
   $(var prefix)joint1:
-    max_position: 0.45
-    min_position: -0.45
+    max_position: 0.41
+    min_position: -0.41
     has_velocity_limits: true
     max_velocity: 0.25
     has_acceleration_limits: true

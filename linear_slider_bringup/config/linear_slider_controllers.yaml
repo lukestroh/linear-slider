@@ -33,22 +33,11 @@ linear_slider_controller:
     action_monitor_rate: 50.0 # defaults to 20
 
     allow_partial_joints_goal: false # defaults to false
-    constraints:
-      goal_time: 0.0 # defaults to 0.0 (start immediately)
-      stopped_velocity_tolerance: 0.01 # Defaults to 0.01
-      $(var prefix)joint1:
-        goal: 0.05 # position tolerace
-        # trajectory: 0.05 # trajectory tolerance
+    # constraints:
+    #     goal_time: 0.0 # defaults to 0.0 (start immediately)
+    #     stopped_velocity_tolerance: 0.001 # Defaults to 0.01
+    #     $(var prefix)joint1:
+    #       goal: 0.5 # position tolerace (m)
+    #       trajectory: 1.0
 
     allow_nonzero_velocity_at_trajectory_end: false
-
-
-# [ros2_control_node-2] [ERROR] [1719010880.962024934] [tolerances]: State tolerances failed for joint 0:
-# [ros2_control_node-2] [ERROR] [1719010880.962091096] [tolerances]: Position Error: -0.294945, Position Tolerance: 0.010000
-# [ros2_control_node-2] [WARN] [1719010880.962141226] [linear_slider_controller]: Aborted due to goal_time_tolerance exceeding by 5.000437 seconds
-# [move_group-4] [WARN] [1719010881.006656464] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'linear_slider_controller' failed with error GOAL_TOLERANCE_VIOLATED: Aborted due to goal_time_tolerance exceeding by 5.000437 seconds
-# [move_group-4] [WARN] [1719010881.006744079] [moveit_ros.trajectory_execution_manager]: Controller handle linear_slider_controller reports status ABORTED
-# [move_group-4] [INFO] [1719010881.006786998] [moveit_ros.trajectory_execution_manager]: Completed trajectory execution with status ABORTED ...
-# [move_group-4] [INFO] [1719010881.006872022] [moveit_move_group_default_capabilities.execute_trajectory_action_capability]: Execution completed: ABORTED
-# [rviz2-6] [INFO] [1719010881.007380365] [move_group_interface]: Execute request aborted
-# [rviz2-6] [ERROR] [1719010881.007514513] [move_group_interface]: MoveGroupInterface::execute() failed or timeout reached
