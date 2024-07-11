@@ -59,8 +59,8 @@
                 </state_interface>
             </joint>
             
-            <!-- Sensors -->
-            <!-- <sensor name="lim_switch_neg">
+            <!-- Sensors
+            <sensor name="lim_switch_neg">
                 <state_interface name="switch_val">
                     <param name="initial_value">${initial_state['lim_switch_neg']}</param>
                 </state_interface>

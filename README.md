@@ -1,3 +1,13 @@
+# TODO:
+
+1. Detect if slider starts up on limit switch. Otherwise calibration violates safety.
+2. Allow for backwards movement after limit switch hit.
+3. If program is restart while ClearCore controller is not, it accelerates off in the wrong direction of calibration.
+4. Add limit switches to URDF system state. Update Hardware Interface to reflect these values.
+5. Allow for calibration at any point.<br>
+    a. Calibration on either side?
+6. Get X-box controller to move slider with L2/R2
+
 # Linear Slider Drivers
 
 This is a repository that includes packages for the hardware description, hardware interface, and controller interface for the linear slider. Each package within this repository includes their own README for more detailed explanations.

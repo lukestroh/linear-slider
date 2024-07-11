@@ -4,7 +4,7 @@
   <name>linear_slider_description</name>
   <version>0.3.0</version>
   <description>
-     An automatically generated package with all the configuration and launch files for using the linear_slider with the MoveIt Motion Planning Framework
+     A description package for the linear slider.
   </description>
   <maintainer email="strohbel@oregonstate.edu">Luke Strohbehn</maintainer>
 

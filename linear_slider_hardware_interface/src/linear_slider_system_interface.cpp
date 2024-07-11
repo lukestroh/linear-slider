@@ -7,7 +7,9 @@
 #include <string>
 #include <vector>
 #include <jsoncpp/json/json.h>
-
+#include "rclcpp_lifecycle/lifecycle_publisher.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
+#include "std_msgs/msg/string.hpp"
 
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -19,6 +21,8 @@ namespace linear_slider_system_interface
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const hardware_interface::HardwareInfo& info) {
     /* Checks whether the hardware interface matches the robot description */
+    // _pub = this->create_publisher<std_msgs::msg::String>("test_messages", 10);
+
     if (hardware_interface::SystemInterface::on_init(info) != hardware_interface::CallbackReturn::SUCCESS) {
         return hardware_interface::CallbackReturn::ERROR;
     }
@@ -33,6 +37,8 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
 
     // Set hardware configs from the linear_slider.ros2_control.xacro file
     config_.device_name = info_.hardware_parameters["device_name"];
+    config_.ip_addr = info_.hardware_parameters["device_ip"];
+    config_.port = info_.hardware_parameters["device_port"];
 
     for (const hardware_interface::ComponentInfo& joint : info_.joints) {
         // The linear slider has one state and one command interface on the single prismatic joint, make sure they exist
@@ -138,7 +144,7 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(cons
     while (true) {
         hardware_interface::return_type read_success = read(rclcpp::Clock().now(), rclcpp::Duration(0, 0));
 
-        RCLCPP_WARN(_LOGGER, "Slider status: %d", linear_slider_.state.system_status);
+        // RCLCPP_WARN(_LOGGER, "Slider status: %d", linear_slider_.state.system_status);
 
         if (read_success == hardware_interface::return_type::OK) {
             // Don't do anything if system is normal

@@ -7,14 +7,27 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(xacro REQUIRED) # TODO: can be deleted
-find_package(urdf REQUIRED) # TODO: can be deleted
+find_package(ament_cmake_python REQUIRED)
+find_package(rclpy REQUIRED)
+find_package(builtin_interfaces REQUIRED)
+find_package(rosgraph_msgs REQUIRED)
+
+
+# Install Python modules
+ament_python_install_package(${PROJECT_NAME})
 
 install(
-  DIRECTORY config launch
+  DIRECTORY config launch scripts
   DESTINATION share/${PROJECT_NAME}
 )
 
+# Install Python executables
+install(
+  PROGRAMS
+  scripts/delay_joint_state_broadcaster_lifecycle_node.py
+  scripts/sim_time_publisher.py
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

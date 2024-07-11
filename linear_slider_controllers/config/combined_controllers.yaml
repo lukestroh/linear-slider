@@ -1,0 +1,5 @@
+controller_manager:
+  ros__parameters:
+    combined_controller:
+      type: linear_slider_controllers/CombinedController
+      

@@ -1,33 +1,20 @@
 controller_manager:
   ros__parameters:
-    update_rate: 1000 # hz
+    update_rate: 2000 # hz
 
-    joint_trajectory_controller:
+    linear_slider_controller:
       type: joint_trajectory_controller/JointTrajectoryController
       # TODO: Therefore if the hardware provides only acceleration or velocity states they have to be integrated in the hardware-interface implementation of velocity and position to use these controllers.
-
-    # velocity_controller:
-    #   type: velocity_controllers/JointGroupVelocityController
-
-    
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
-
-# velocity_controller:
-#   ros__parameters:
-#     joints:
-#       - joint1
-#     interface_name: velocity
-    
-joint_trajectory_controller:
+linear_slider_controller:
   ros__parameters:
     joints:
-      - joint1
+      - $(var prefix)joint1
 
     command_interfaces:
-      # - position
       - velocity
 
     state_interfaces:
@@ -35,35 +22,23 @@ joint_trajectory_controller:
       - velocity
 
     gains: # required for velocity interface
-      joint1:
+      $(var prefix)joint1:
         ff_velocity_scale: 1.0
-        p: 10.0 
+        p: 6.0 
         i: 2.0
-        d: 5.0
+        d: 2.0
         # i_clamp: 1.0
 
-      # velocity_ff: # does most of work in place of PID
-      #   joint1: 1.0
-
-    state_publish_rate: 50.0 # defaults to 50
-    action_monitor_rate: 20.0 # defaults to 20
+    state_publish_rate: 100.0 # defaults to 50
+    action_monitor_rate: 50.0 # defaults to 20
 
     allow_partial_joints_goal: false # defaults to false
+    # stop_trajectory_duration: 0.1
     constraints:
-      goal_time: 5.0 # defaults to 0.0 (start immediately)
-      stopped_velocity_tolerance: 0.0 # Defaults to 0.01\
-      joint1:
-        goal: 0.01 # position tolerace
+    #     goal_time: 0.0 # defaults to 0.0 (start immediately)
+        stopped_velocity_tolerance: 0.01 # Defaults to 0.01
+        $(var prefix)joint1:
+          goal: 0.01 # position tolerace (m)
+    #       trajectory: 1.0
 
-      
-      
     allow_nonzero_velocity_at_trajectory_end: false
-
-
-# gazebo_ros_control:
-#   ros__parameters:
-#     start_parameters:
-#       command_interface: "position"
-    
-#     stop_parameters:
-#       command_interface: "position"

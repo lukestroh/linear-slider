@@ -17,7 +17,11 @@
 #include "rclcpp/time.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
+#include "rclcpp_lifecycle/lifecycle_publisher.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "rclcpp/rclcpp.hpp"
+
 
 #include "linear_slider_hardware_interface/visibility_control.h"
 
@@ -28,11 +32,14 @@
 
 namespace linear_slider_system_interface
 {
-    class LinearSliderSystemInterface : public hardware_interface::SystemInterface
+    class LinearSliderSystemInterface : public hardware_interface::SystemInterface,
+    public std::enable_shared_from_this<LinearSliderSystemInterface>
     {
 
         struct Config {
             std::string device_name = "";
+            std::string ip_addr = "";
+            std::string port = "";
         };
 
         public:
@@ -82,14 +89,8 @@ namespace linear_slider_system_interface
 
             // System status
             slidersystem::SystemStatus system_status;
-
-            // read time
-            // rclcpp::Time last_read_time = rclcpp::Clock().now();
-
             bool calibration_cmd_sent = false;
-
             rclcpp::Clock clock_ = rclcpp::Clock();
-
     };
 } // namespace linear_slider_system_interface
 
