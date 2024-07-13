@@ -11,6 +11,9 @@ struct Interface{
     double pos = 0.0;
     double vel = 0.0;
     int rpm = 0;
+    double lim_switch_neg {false}; // hardware_interface::StateInterface only accepts double as a value, not bool. TODO: Switch to GPIO??
+    double lim_switch_pos {false};
+    double* limit_switches[2] = {&lim_switch_neg, &lim_switch_pos};
 };
 
 class LinearSliderHardware {
@@ -19,13 +22,6 @@ class LinearSliderHardware {
         Interface state;
         Interface command;
         std::vector<std::string> joint_names = {"joint1"};
-
-        // int rpm_cmd = 0;
-        // int rpm_state = 0;
-        // double vel_cmd = 0;
-        // double vel_state = 0;
-        bool lim_switch_pos = false;
-        bool lim_switch_neg = false;
 
         double pos_min = -0.4;
         double pos_max = 0.4;

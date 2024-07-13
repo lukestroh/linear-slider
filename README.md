@@ -7,6 +7,7 @@
 5. Allow for calibration at any point.<br>
     a. Calibration on either side?
 6. Get X-box controller to move slider with L2/R2
+7. Check if `on_deactivate()` runs for linear_slider_hardware when control-c is hit.
 
 # Linear Slider Drivers
 
