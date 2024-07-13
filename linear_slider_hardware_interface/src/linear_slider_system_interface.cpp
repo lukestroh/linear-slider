@@ -107,19 +107,35 @@ std::vector<hardware_interface::CommandInterface> LinearSliderSystemInterface::e
 }
 
 std::vector<hardware_interface::StateInterface> LinearSliderSystemInterface::export_state_interfaces() {
-    /* Tells the rest of ros2_control which state interfaces are accessible */
+    /* Tells the rest of ros2_control which state interfaces are accessible.
+       Linear slide contains a single joint and two limit switches.
+    */
     std::vector<hardware_interface::StateInterface> state_interfaces;
     // for (std::size_t i = 0; i<info_.joints.size(); ++i) {
     //     state_interfaces.emplace_back(hardware_interface::StateInterface(
     //         info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_states_velocities_[i]
     //     ));
     // }
+
+    // Export joint state interface. We have just one joint, so no for loop needed
     state_interfaces.emplace_back(hardware_interface::StateInterface(
         info_.joints[0].name, hardware_interface::HW_IF_POSITION, &linear_slider_.state.pos
     ));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
         info_.joints[0].name, hardware_interface::HW_IF_VELOCITY, &linear_slider_.state.vel
     ));
+
+    // Export sensor state interface (adding limit switches into the exported state)
+    for (std::size_t i=0; i<info_.sensors.size(); ++i) {
+        for (std::size_t j=0; j<info_.sensors[i].state_interfaces.size(); ++j) {
+            state_interfaces.emplace_back(hardware_interface::StateInterface(
+                info_.sensors[i].name, info_.sensors[i].state_interfaces[j].name, linear_slider_.state.limit_switches[i]
+            ));
+        }
+    }
+    // state_interfaces.emplace_back(hardware_interface::StateInterface(
+    //     info_.sensors
+    // ));
     return state_interfaces;
 }
 
@@ -197,7 +213,7 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_deactivate(co
     // Send hardware to standby mode, set velocity to 0.
     linear_slider_.command.system_status = slidersystem::SYSTEM_STANDBY;
     linear_slider_.command.rpm = 0.0;
-    write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
+    this->write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
 
     RCLCPP_INFO(_LOGGER, "Successfully deactivated.");
     return hardware_interface::CallbackReturn::SUCCESS;
@@ -205,7 +221,6 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_deactivate(co
 
 hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::Time& time, const rclcpp::Duration& period) {
     /* Read data from the linear slider. Message formatted as JSON string. Converts RPM speeds to linear velocities */
-
     char* msg = comms_.read_data();
 
     // RCLCPP_WARN(_LOGGER, "Read time: %f", time.nanoseconds() / 1e9);
@@ -227,8 +242,8 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
         // Get motor RPM, convert to float velocity, store in linear_slider_.rpm_state. Additionally, update linear_slider_.vel_state
         linear_slider_.state.rpm = msg_json["servo_rpm"].asInt();
         linear_slider_.state.vel = linear_slider_.rpm_to_vel(linear_slider_.state.rpm); // TODO: this should probably either be completely internal, or completely external, but not both.
-        linear_slider_.lim_switch_pos = msg_json["lim_switch_pos"].asBool();
-        linear_slider_.lim_switch_neg = msg_json["lim_switch_neg"].asBool();
+        linear_slider_.state.lim_switch_neg = msg_json["lim_switch_neg"].asBool();
+        linear_slider_.state.lim_switch_pos = msg_json["lim_switch_pos"].asBool();
 
         // rclcpp::Duration last_read_duration = time - last_read_time;
         linear_slider_.state.pos += period.nanoseconds() / 1e9 * linear_slider_.state.vel;
