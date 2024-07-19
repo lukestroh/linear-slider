@@ -108,14 +108,9 @@ std::vector<hardware_interface::CommandInterface> LinearSliderSystemInterface::e
 
 std::vector<hardware_interface::StateInterface> LinearSliderSystemInterface::export_state_interfaces() {
     /* Tells the rest of ros2_control which state interfaces are accessible.
-       Linear slide contains a single joint and two limit switches.
+       Linear slider contains a single joint and two limit switches.
     */
     std::vector<hardware_interface::StateInterface> state_interfaces;
-    // for (std::size_t i = 0; i<info_.joints.size(); ++i) {
-    //     state_interfaces.emplace_back(hardware_interface::StateInterface(
-    //         info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_states_velocities_[i]
-    //     ));
-    // }
 
     // Export joint state interface. We have just one joint, so no for loop needed
     state_interfaces.emplace_back(hardware_interface::StateInterface(
@@ -133,9 +128,6 @@ std::vector<hardware_interface::StateInterface> LinearSliderSystemInterface::exp
             ));
         }
     }
-    // state_interfaces.emplace_back(hardware_interface::StateInterface(
-    //     info_.sensors
-    // ));
     return state_interfaces;
 }
 
@@ -219,7 +211,7 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_deactivate(co
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::Time& time, const rclcpp::Duration& period) {
+hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
     /* Read data from the linear slider. Message formatted as JSON string. Converts RPM speeds to linear velocities */
     char* msg = comms_.read_data();
 
@@ -246,7 +238,7 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
         linear_slider_.state.lim_switch_pos = msg_json["lim_switch_pos"].asBool();
 
         // rclcpp::Duration last_read_duration = time - last_read_time;
-        linear_slider_.state.pos += period.nanoseconds() / 1e9 * linear_slider_.state.vel;
+        // linear_slider_.state.pos += period.nanoseconds() / 1e9 * linear_slider_.state.vel;
          
         // RCLCPP_INFO(_LOGGER, "State Position: %f, Velocity: %f, Duration: %f", linear_slider_.state.pos, linear_slider_.state.vel, period.nanoseconds() / 1e9);
         // RCLCPP_INFO(_LOGGER, "Command Position: %f, Velocity: %f", linear_slider_.command.pos, linear_slider_.command.vel);
@@ -255,7 +247,7 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
     return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp::Time& time, const rclcpp::Duration& period) {
+hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
     /* Write data to the linear slider. Converts linear velocities to RPM speeds */
 
     // convert linear_slider_.vel_cmd to linear_slider_.rpm_cmd. Convert this value to str, send via comms_
