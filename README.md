@@ -1,13 +1,18 @@
 # TODO:
 
 1. Detect if slider starts up on limit switch. Otherwise calibration violates safety.
-2. Allow for backwards movement after limit switch hit.
+2. ~~Allow for backwards movement after limit switch hit.~~
 3. If program is restart while ClearCore controller is not, it accelerates off in the wrong direction of calibration.
 4. Add limit switches to URDF system state. Update Hardware Interface to reflect these values.
 5. Allow for calibration at any point.<br>
     a. Calibration on either side?
 6. Get X-box controller to move slider with L2/R2
 7. Check if `on_deactivate()` runs for linear_slider_hardware when control-c is hit.
+8. Refactor linear slider bringup to take a robot arm as launch argument, build subsequent launch files and URDFs from there.
+9. Refactor all of the MoveIt stuff, it's a mess. (Maybe check out Jazzy? Looks like the MoveItConfigsBuilder is what they're working towards...)
+10. Let the high-level launch pass the URDF to the MoveIt launch....
+11. Add polling for E-stop for reset-detection.
+12. Create centralized velocity and position limits. Make sure each interface receives them.
 
 # Linear Slider Drivers
 
