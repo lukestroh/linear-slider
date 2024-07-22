@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, RegisterEventHandler, IncludeLaunchDescription, TimerAction, LogInfo
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler, IncludeLaunchDescription, TimerAction
 from launch.conditions import UnlessCondition, IfCondition
 from launch.event_handlers import OnProcessExit, OnProcessStart, OnExecutionComplete
 from launch.launch_description_sources import AnyLaunchDescriptionSource, PythonLaunchDescriptionSource
@@ -64,7 +64,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "prefix",
             default_value="linear_slider__",
-            description="Prefix of the joint names, useful for multi-robot setup. If changed, then you need to update the joint names in the controllers' description.",
+            description="Prefix of the joint names, useful for multi-robot setup. Joint name parameters should be updated in URDF and YAML files.",
         )
     )
     declared_args.append(
@@ -141,13 +141,6 @@ def generate_launch_description():
     robot_controllers = PathJoinSubstitution([FindPackageShare(runtime_config_package), "config", controllers_file])
 
     rviz_config_file = PathJoinSubstitution([FindPackageShare(description_package), "rviz", "linear_slider.rviz"])
-
-    node_sim_time_publisher = Node(
-        package=runtime_config_package,
-        executable="sim_time_publisher.py",
-        output="screen",
-        condition=IfCondition(use_sim_time)
-    )
 
     node_controller_manager = Node(
         package="controller_manager",
@@ -230,7 +223,7 @@ def generate_launch_description():
         ],
         condition=IfCondition(use_moveit)
     )
-    
+
 
     # Delay loading and activation of robot_controller after 'joint_state_broadcaster'
     delay_robot_controller_spawners_after_joint_state_broadcaster_spawner = []

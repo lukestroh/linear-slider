@@ -22,7 +22,7 @@
             <joint name="${prefix}joint1" value="0.0"/>
         </group_state>
 
-        <virtual_joint name="$(arg prefix)base_joint" type="fixed"  parent_frame="world" child_link="${prefix}base"/>
+        <virtual_joint name="${prefix}base_joint" type="fixed"  parent_frame="world" child_link="${prefix}base"/>
 
 
         <!-- DISABLE COLLISIONS -->

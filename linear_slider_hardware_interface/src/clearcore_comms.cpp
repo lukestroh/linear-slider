@@ -1,3 +1,4 @@
+#include "arpa/inet.h"
 #include "linear_slider_hardware_interface/clearcore_comms.hpp"
 #include "rclcpp/rclcpp.hpp"
 
@@ -30,7 +31,8 @@ bool ClearCoreComms::begin() {
     local_svr_addr.sin_addr.s_addr = INADDR_ANY;
 
     // Set client information
-
+    client_addr.sin_addr.s_addr = inet_addr("169.254.57.177"); // TODO: Test if this works. TODO: Dynamicallly configure in YAML file.
+    // client_addr.sin_port = htons(remote_port);
 
     // Bind the socket with the server address
     if (bind(sock, (const struct sockaddr*)&local_svr_addr, sizeof(local_svr_addr)) < 0) {

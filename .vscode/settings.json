@@ -79,5 +79,6 @@
         "future": "cpp",
         "cfenv": "cpp",
         "variant": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": false
 }

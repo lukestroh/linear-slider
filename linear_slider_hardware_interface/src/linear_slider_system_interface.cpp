@@ -152,7 +152,9 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(cons
     while (true) {
         hardware_interface::return_type read_success = read(rclcpp::Clock().now(), rclcpp::Duration(0, 0));
 
-        // RCLCPP_WARN(_LOGGER, "Slider status: %d", linear_slider_.state.system_status);
+        if (!calibration_cmd_sent) {
+            RCLCPP_WARN(_LOGGER, "Slider status: %d", linear_slider_.state.system_status);
+        }
 
         if (read_success == hardware_interface::return_type::OK) {
             // Don't do anything if system is normal
@@ -234,15 +236,21 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
         // Get motor RPM, convert to float velocity, store in linear_slider_.rpm_state. Additionally, update linear_slider_.vel_state
         linear_slider_.state.rpm = msg_json["servo_rpm"].asInt();
         linear_slider_.state.vel = linear_slider_.rpm_to_vel(linear_slider_.state.rpm); // TODO: this should probably either be completely internal, or completely external, but not both.
-        linear_slider_.state.lim_switch_neg = msg_json["lim_switch_neg"].asBool();
-        linear_slider_.state.lim_switch_pos = msg_json["lim_switch_pos"].asBool();
 
-        // rclcpp::Duration last_read_duration = time - last_read_time;
-        // linear_slider_.state.pos += period.nanoseconds() / 1e9 * linear_slider_.state.vel;
-         
-        // RCLCPP_INFO(_LOGGER, "State Position: %f, Velocity: %f, Duration: %f", linear_slider_.state.pos, linear_slider_.state.vel, period.nanoseconds() / 1e9);
-        // RCLCPP_INFO(_LOGGER, "Command Position: %f, Velocity: %f", linear_slider_.command.pos, linear_slider_.command.vel);
 
+        // TODO: Clean up the system_status vs. specific pins ? Or leave the interfaces separate?
+        if (linear_slider_.state.system_status == slidersystem::NEG_LIM) {
+            linear_slider_.state.lim_switch_neg = true;
+        } else {
+            linear_slider_.state.lim_switch_neg = false;
+        }
+        if (linear_slider_.state.system_status == slidersystem::POS_LIM) {
+            linear_slider_.state.lim_switch_pos = true;
+        } else {
+            linear_slider_.state.lim_switch_pos = false;
+        }
+
+        // RCLCPP_INFO(_LOGGER, "State Position: %f, Velocity: %f, Status: %d", linear_slider_.state.pos, linear_slider_.state.vel, linear_slider_.state.system_status);
     }
     return hardware_interface::return_type::OK;
 }
