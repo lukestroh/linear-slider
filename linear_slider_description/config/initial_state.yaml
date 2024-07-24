@@ -1,6 +1,6 @@
 # Default initial positions for linear_slider's ros2_control
 initial_state:
-  joint1_position: -0.4 # (m)
+  joint1_position: 0.0 # (m)
   joint1_velocity: 0.0 # (m/s)
   lim_switch_neg: 0 # boolean values must be integer types
   lim_switch_pos: 0 

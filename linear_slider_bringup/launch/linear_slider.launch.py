@@ -104,17 +104,16 @@ def generate_launch_description():
     )
 
     # Initialize args
-    runtime_config_package = LaunchConfiguration("runtime_config_package")
     controllers_file = LaunchConfiguration("controllers_file")
     description_package = LaunchConfiguration("description_package")
     description_file = LaunchConfiguration("description_file")
-    moveit_config_package = LaunchConfiguration("moveit_config_package")
-    use_moveit = LaunchConfiguration("use_moveit")
-    prefix = LaunchConfiguration("prefix")
-    use_mock_hardware = LaunchConfiguration("use_mock_hardware")
     mock_sensor_commands = LaunchConfiguration("mock_sensor_commands")
+    moveit_config_package = LaunchConfiguration("moveit_config_package")
+    prefix = LaunchConfiguration("prefix")
     robot_controller = LaunchConfiguration("robot_controller")
-
+    runtime_config_package = LaunchConfiguration("runtime_config_package")
+    use_mock_hardware = LaunchConfiguration("use_mock_hardware")
+    use_moveit = LaunchConfiguration("use_moveit")
     use_sim_time = LaunchConfiguration("use_sim_time")
 
     # Get URDF from xacro
@@ -206,16 +205,25 @@ def generate_launch_description():
     )
 
     # Delay rviz start after joint_state_broadcaster to avoid unnecessary warning output
-    delay_rviz_after_joint_state_broadcaster_spawner = RegisterEventHandler(
+    register_event_delay_rviz_after_JSB_spawner = RegisterEventHandler(
         event_handler=OnProcessStart(target_action=joint_state_broadcaster_spawner, on_start=[node_rviz])
     )
 
+    # Delay loading and activation of robot_controller after 'joint_state_broadcaster'
+    register_events_delay_robot_controller_spawners_after_JSB_spawner = []
+    for controller in robot_controller_spawners:
+        register_events_delay_robot_controller_spawners_after_JSB_spawner.append(
+            RegisterEventHandler(
+                event_handler=OnProcessExit(target_action=joint_state_broadcaster_spawner, on_exit=[controller])
+            )
+        )
+        
     # MoveIt launch
-    moveit_config_package_path = PathJoinSubstitution(
+    filepath_moveit_config_package = PathJoinSubstitution(
         [get_package_share_directory("linear_slider_moveit_config"), "launch", "linear_slider_moveit.launch.py"] # TODO: For some reason this wasn't working with FindPackageShare. Why ?
     )
     launch_linear_slider_moveit = IncludeLaunchDescription(
-        AnyLaunchDescriptionSource(moveit_config_package_path),
+        AnyLaunchDescriptionSource(filepath_moveit_config_package),
         launch_arguments=[
             ("use_mock_hardware", use_mock_hardware),
             ("mock_sensor_commands", mock_sensor_commands),
@@ -224,16 +232,6 @@ def generate_launch_description():
         condition=IfCondition(use_moveit)
     )
 
-
-    # Delay loading and activation of robot_controller after 'joint_state_broadcaster'
-    delay_robot_controller_spawners_after_joint_state_broadcaster_spawner = []
-    for controller in robot_controller_spawners:
-        delay_robot_controller_spawners_after_joint_state_broadcaster_spawner.append(
-            RegisterEventHandler(
-                event_handler=OnProcessExit(target_action=joint_state_broadcaster_spawner, on_exit=[controller])
-            )
-        )
-
     return LaunchDescription(
         declared_args
         + [
@@ -241,11 +239,11 @@ def generate_launch_description():
             lifecycle_node_delay_jsb,
             node_controller_manager,
             node_robot_state_pub,
-            delay_rviz_after_joint_state_broadcaster_spawner,
+            register_event_delay_rviz_after_JSB_spawner,
             register_event_for_slider_on_activate,
             launch_linear_slider_moveit,
         ]
-        + delay_robot_controller_spawners_after_joint_state_broadcaster_spawner
+        + register_events_delay_robot_controller_spawners_after_JSB_spawner
     )
 
 

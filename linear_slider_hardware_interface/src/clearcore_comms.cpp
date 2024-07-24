@@ -36,22 +36,19 @@ bool ClearCoreComms::begin() {
 
     // Bind the socket with the server address
     if (bind(sock, (const struct sockaddr*)&local_svr_addr, sizeof(local_svr_addr)) < 0) {
-        RCLCPP_FATAL(
-            _LOGGER,
-            "Socket bind failed."
-        );
+        RCLCPP_FATAL(_LOGGER, "Socket bind failed.");
         return false;
     }
 
-    RCLCPP_INFO(
-        _LOGGER,
-        "ClearCoreComms setup complete."
-    );
+    RCLCPP_INFO(_LOGGER, "ClearCoreComms setup complete.");
 
     return true;
 }
 
 char* ClearCoreComms::read_data() {
+    /* Read the data from the socket into the read_buffer, store client data
+    TODO: Store client data in temp struct, keep a constant client for send data
+    */
     int msg_size;
     msg_size = recvfrom(sock, (char*)read_buffer, BUF_LEN_MAX, MSG_WAITALL, (struct sockaddr*)&client_addr, &client_addr_len);
     read_buffer[msg_size] = '\0';
@@ -59,15 +56,15 @@ char* ClearCoreComms::read_data() {
 }
 
 void ClearCoreComms::construct_send_msg(const char* data) {
-    /* Fill the send_buffer with data */
-    // Empty the send_buffer
+    /* Reset and fill the send_buffer with data */
     memset(&send_buffer[0], 0, sizeof(send_buffer));
     strcpy(send_buffer, data);
     return;
 }
 
 void ClearCoreComms::send_data(const char* data) {
+    /* Send data to the ClearCore microcontroller via UDP */
     construct_send_msg(data);
-    sendto(sock, (const char*)send_buffer, strlen(send_buffer), MSG_CONFIRM, (const struct sockaddr*) &client_addr, client_addr_len);
+    sendto(sock, (const char*)send_buffer, strlen(send_buffer), MSG_CONFIRM, (const struct sockaddr*)&client_addr, client_addr_len);
     return;
 }

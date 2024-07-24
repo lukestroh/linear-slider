@@ -16,7 +16,7 @@
 
 #define _LOGGER rclcpp::get_logger("LinearSliderSystemHardware")
 
-namespace linear_slider_system_interface 
+namespace linear_slider_system_interface
 {
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const hardware_interface::HardwareInfo& info) {
@@ -36,9 +36,13 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
     // hw_commands_velocities_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
 
     // Set hardware configs from the linear_slider.ros2_control.xacro file
+    // TODO: Begin Comms_ using this information
+    // Comms -- TODO: remove config, only do comms/hardware?
     config_.device_name = info_.hardware_parameters["device_name"];
     config_.ip_addr = info_.hardware_parameters["device_ip"];
-    config_.port = info_.hardware_parameters["device_port"];
+    config_.port = std::stoi(info_.hardware_parameters["device_port"]);
+    linear_slider_.pos_min = std::stod(info_.hardware_parameters["pos_min"]);
+    linear_slider_.pos_max = std::stod(info_.hardware_parameters["pos_max"]);
 
     for (const hardware_interface::ComponentInfo& joint : info_.joints) {
         // The linear slider has one state and one command interface on the single prismatic joint, make sure they exist
@@ -97,7 +101,7 @@ std::vector<hardware_interface::CommandInterface> LinearSliderSystemInterface::e
     std::vector<hardware_interface::CommandInterface> command_interfaces;
     // for (std::size_t i = 0; i < info_.joints.size(); ++i) {
     //     command_interfaces.emplace_back(hardware_interface::CommandInterface(
-    //         info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_velocities_[i] 
+    //         info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_velocities_[i]
     //     ));
     // }
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
@@ -142,7 +146,7 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_configure(con
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_cleanup(const rclcpp_lifecycle::State& /*previous_state*/) {
     /* Close comms connection */
     RCLCPP_INFO(_LOGGER, "Cleaning up, please wait...");
-    
+
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
@@ -223,7 +227,7 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
         const std::unique_ptr<Json::CharReader> reader(Json::CharReaderBuilder().newCharReader());
         Json::Value msg_json;
         const std::unique_ptr<std::string> errors;
-        
+
         bool parsingSuccessful = reader->parse(msg, msg + strlen(msg), &msg_json, errors.get());
 
         if (!parsingSuccessful) {
@@ -270,7 +274,7 @@ hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp:
     // RCLCPP_WARN(_LOGGER, "Write rpm: %s", (status_cmd + "," + rpm_cmd).c_str());
     // RCLCPP_WARN(_LOGGER, "Write period: %f", period.nanoseconds() / 1e9);
 
-    return hardware_interface::return_type::OK; 
+    return hardware_interface::return_type::OK;
 }
 
 } // namespace linear_slider_system_interface
