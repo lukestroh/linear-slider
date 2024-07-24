@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ur_with_linear_slider">
+    <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
+
+    <!-- Import ur_with_linear_slider urdf file -->
+    <xacro:include filename="$(find ur_with_linear_slider_bringup)/urdf/ur_with_linear_slider.urdf.xacro" />
+
+    <!-- Import control_xacro -->
+    <xacro:include filename="ur_with_linear_slider.ros2_control.xacro" />
+
+
+    <xacro:ur_with_linear_slider_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)"/>
+
+</robot>
