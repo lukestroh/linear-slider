@@ -40,9 +40,9 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
     // Comms -- TODO: remove config, only do comms/hardware?
     config_.device_name = info_.hardware_parameters["device_name"];
     config_.ip_addr = info_.hardware_parameters["device_ip"];
-    config_.port = std::stoi(info_.hardware_parameters["device_port"]);
-    linear_slider_.pos_min = std::stod(info_.hardware_parameters["pos_min"]);
-    linear_slider_.pos_max = std::stod(info_.hardware_parameters["pos_max"]);
+    config_.port = atoi(info_.hardware_parameters["device_port"].c_str());
+    linear_slider_.pos_min = atof(info_.hardware_parameters["pos_min"].c_str());
+    linear_slider_.pos_max = atof(info_.hardware_parameters["pos_max"].c_str());
 
     for (const hardware_interface::ComponentInfo& joint : info_.joints) {
         // The linear slider has one state and one command interface on the single prismatic joint, make sure they exist
@@ -156,9 +156,9 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(cons
     while (true) {
         hardware_interface::return_type read_success = read(rclcpp::Clock().now(), rclcpp::Duration(0, 0));
 
-        if (!calibration_cmd_sent) {
-            RCLCPP_WARN(_LOGGER, "Slider status: %d", linear_slider_.state.system_status);
-        }
+        // if (!calibration_cmd_sent) {
+        //     RCLCPP_WARN(_LOGGER, "Slider status: %d", linear_slider_.state.system_status);
+        // }
 
         if (read_success == hardware_interface::return_type::OK) {
             // Don't do anything if system is normal
