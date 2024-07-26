@@ -7,11 +7,11 @@
         sim_gazebo:=^|false
         sim_gazebo_classic:=^|false
         ">
-    
+
 
         <!-- Robot description -->
-        <xacro:include filename="$(find linear_slider_description)/urdf/linear_slider/linear_slider_macro.xacro"/>
-        <xacro:include filename="$(find linear_slider_description)/urdf/linear_slider/linear_slider.ros2_control.xacro"/>
+        <xacro:include filename="$(find linear_slider_description)/urdf/macro/linear_slider_macro.xacro"/>
+        <xacro:include filename="$(find linear_slider_description)/urdf/macro/linear_slider.ros2_control.xacro"/>
 
         <!-- World link -->
         <link name="world" />
@@ -32,10 +32,10 @@
             mock_sensor_commands="${mock_sensor_commands}"
         />
 
-        <xacro:if value="${sim_gazebo_classic}"> 
+        <xacro:if value="${sim_gazebo_classic}">
             <!-- ================== -->
             <!--   Gazebo Classic   -->
-            <!-- ================== -->    
+            <!-- ================== -->
 
             <gazebo reference="${prefix}base_link">
                 <static>true</static>
@@ -46,12 +46,12 @@
                     <robot_param_node>robot_state_publisher</robot_param_node>
                     <parameters>$(find linear_slider_bringup)/config/linear_slider_controllers.yaml</parameters>
                 </plugin>
-                <!-- <sensor name="lim_switch_neg">
+                <sensor name="lim_switch_neg">
                     <always_on>1</always_on>
                 </sensor>
                 <sensor name="lim_switch_pos">
                     <always_on>1</always_on>
-                </sensor> -->
+                </sensor>
             </gazebo>
         </xacro:if>
 

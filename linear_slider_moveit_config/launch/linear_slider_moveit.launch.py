@@ -232,7 +232,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
             warehouse_ros_config,
         ],
     )
-
+ 
     # RViz
     rviz_config_file = PathJoinSubstitution(
         [get_package_share_directory("linear_slider_moveit_config"), "rviz", "linear_slider_moveit.rviz"]

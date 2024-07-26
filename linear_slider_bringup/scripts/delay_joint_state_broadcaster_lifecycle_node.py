@@ -22,7 +22,7 @@ class DelayJointStateBroadcasterNode(LifecycleNode):
             srv_type=ListControllers,
         )
         self.trigger_configure()
-        while not self.client.wait_for_service(timeout_sec=1):
+        while not self.client.wait_for_service(timeout_sec=5):
             self.get_logger().info(f"Service {srv} not available, waiting again...")
         self.trigger_shutdown()
         return

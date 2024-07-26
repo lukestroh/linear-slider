@@ -217,7 +217,7 @@ def generate_launch_description():
                 event_handler=OnProcessExit(target_action=joint_state_broadcaster_spawner, on_exit=[controller])
             )
         )
-        
+
     # MoveIt launch
     filepath_moveit_config_package = PathJoinSubstitution(
         [get_package_share_directory("linear_slider_moveit_config"), "launch", "linear_slider_moveit.launch.py"] # TODO: For some reason this wasn't working with FindPackageShare. Why ?

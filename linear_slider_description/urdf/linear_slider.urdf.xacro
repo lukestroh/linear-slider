@@ -3,8 +3,8 @@
 
 
     <!-- linear slider -->
-    <xacro:include filename="$(find linear_slider_description)/urdf/linear_slider_base.urdf.xacro" />
-    
+    <xacro:include filename="$(find linear_slider_description)/urdf/macro/linear_slider_base.urdf.xacro" />
+
     <xacro:arg name="prefix" default="''" />
     <xacro:arg name="use_mock_hardware" default="false" />
     <xacro:arg name="mock_sensor_commands" default="false" />
