@@ -39,7 +39,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
     prefix = LaunchConfiguration("prefix")
     system_description_file = LaunchConfiguration("system_description_file")
     system_description_package = LaunchConfiguration("system_description_package")
-    system_moveit_joint_limits_file = LaunchConfiguration('system_moveit_joint_limits_file')
+    system_moveit_joint_limits_file = LaunchConfiguration('system_moveit_joint_limits_file') # TODO: change this to the description file, use in urdf
     system_moveit_config_package = LaunchConfiguration("system_moveit_config_package")
     system_semantic_description_file = LaunchConfiguration("system_semantic_description_file")
     use_mock_hardware = LaunchConfiguration("use_mock_hardware")
