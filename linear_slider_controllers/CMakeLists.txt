@@ -34,6 +34,7 @@ find_package(generate_parameter_library REQUIRED)
 find_package(controller_manager REQUIRED)
 find_package(controller_interface REQUIRED)
 find_package(joint_trajectory_controller REQUIRED)
+find_package(linear_slider_msgs REQUIRED)
 
 set(
   THIS_PACKAGE_INCLUDE_DEPENDS
@@ -51,11 +52,13 @@ set(
   controller_manager
   controller_interface
   joint_trajectory_controller
+  linear_slider_msgs
 )
 
 add_library(
   ${PROJECT_NAME}
-  SHARED src/combined_controller.cpp
+  # SHARED src/combined_controller.cpp
+  SHARED src/limit_switch_broadcaster.cpp
 )
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 ament_target_dependencies(

@@ -9,6 +9,9 @@ controller_manager:
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
+    limit_switch_broadcaster:
+      type: std_msgs/Bool
+
 linear_slider_controller:
   ros__parameters:
     joints:
@@ -45,3 +48,9 @@ linear_slider_controller:
         # trajectory: 1.0
 
     allow_nonzero_velocity_at_trajectory_end: false
+
+limit_switch_broadcaster:
+  ros__parameters:
+    state_interfaces:
+      - name: $(var prefix)lim_switch_neg/switch_val
+      - name: $(var prefix)lim_switch_pos/switch_val
