@@ -17,8 +17,8 @@ Author(s): Luke Strohbehn
 Date: 2024-07-26
 */
 
-#ifndef __LINEAR_SLIDER_CONTROLLERS__LIMIT_SWITCH_BROADCASTER__
-#define __LINEAR_SLIDER_CONTROLLERS__LIMIT_SWITCH_BROADCASTER__
+#ifndef __LINEAR_SLIDER_CONTROLLERS__LIMIT_SWITCH_STATE_BROADCASTER__
+#define __LINEAR_SLIDER_CONTROLLERS__LIMIT_SWITCH_STATE_BROADCASTER__
 
 #include <memory>
 #include <string>
@@ -29,24 +29,24 @@ Date: 2024-07-26
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp/time.hpp"
 #include "rclcpp/duration.hpp"
-// #include "std_msgs/msg/bool.hpp"
 #include "linear_slider_msgs/msg/limit_switch_sensors.hpp"
+#include "limit_switch_state_broadcaster_parameters.hpp"
 
 namespace linear_slider_controllers {
 
-class LimitSwitchBroadcaster : public controller_interface::ControllerInterface {
+class LimitSwitchStateBroadcaster : public controller_interface::ControllerInterface {
   public:
-    LimitSwitchBroadcaster();
-    ~LimitSwitchBroadcaster();
+    LimitSwitchStateBroadcaster() = default;
+    ~LimitSwitchStateBroadcaster() override = default;
 
     controller_interface::CallbackReturn on_init() override;
     controller_interface::InterfaceConfiguration command_interface_configuration() const override;
     controller_interface::InterfaceConfiguration state_interface_configuration() const override;
-    controller_interface::return_type update(const rclcpp::Time& /* time */, const rclcpp::Duration& period) override;
+    controller_interface::return_type update(const rclcpp::Time& time, const rclcpp::Duration& period) override;
     controller_interface::CallbackReturn on_configure(const rclcpp_lifecycle::State& /* previous_state */) override;
     controller_interface::CallbackReturn on_activate(const rclcpp_lifecycle::State& /* previous_state */) override;
     controller_interface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State& /* previous_state */) override;
-
+    
   protected:
     std::vector<std::string> sensor_names_;
     double publish_rate_;
@@ -54,7 +54,10 @@ class LimitSwitchBroadcaster : public controller_interface::ControllerInterface 
     std::shared_ptr<rclcpp::Publisher<linear_slider_msgs::msg::LimitSwitchSensors>> limit_switch_state_publisher_;// TODO make custom msg type.
     linear_slider_msgs::msg::LimitSwitchSensors limit_switch_state_msg_;
 
+    // Parameters from ROS (find in CMakeLists file for generated build)
+    std::shared_ptr<limit_switch_state_broadcaster::ParamListener> param_listener_;
+    limit_switch_state_broadcaster::Params params_;
 };
 
 } // namespace linear_slider_controllers
-#endif // __LINEAR_SLIDER_CONTROLLERS__LIMIT_SWITCH_BROADCASTER__
+#endif // __LINEAR_SLIDER_CONTROLLERS__LIMIT_SWITCH_STATE_BROADCASTER__

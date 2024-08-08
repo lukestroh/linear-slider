@@ -177,6 +177,16 @@ def generate_launch_description():
         ],
     )
 
+    limit_switch_state_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "limit_switch_state_broadcaster",
+            "--controller-manager",
+            "/controller_manager",
+        ]
+    )
+
     robot_controllers = [robot_controller]
     robot_controller_spawners = []
     for controller in robot_controllers:
@@ -192,7 +202,7 @@ def generate_launch_description():
         package="controller_manager",
         executable="spawner",
         arguments=[
-            "limit_switch_broadcaster",
+            "limit_switch_state_broadcaster",
             "--controller_manager",
             "/controller_manager"
         ]
@@ -211,7 +221,7 @@ def generate_launch_description():
         OnStateTransition(
             target_lifecycle_node=lifecycle_node_delay_jsb,
             goal_state="finalized",
-            entities=[joint_state_broadcaster_spawner],
+            entities=[joint_state_broadcaster_spawner, limit_switch_state_broadcaster_spawner],
         )
     )
 

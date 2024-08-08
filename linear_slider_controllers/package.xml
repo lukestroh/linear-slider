@@ -18,12 +18,8 @@
   <depend>rclcpp</depend>
   <depend>rclcpp_lifecycle</depend>
   <depend>lifecycle_msgs</depend>
-  <depend>angles</depend>
   <depend>rcutils</depend>
   <depend>realtime_tools</depend>
-  <depend>ur_dashboard_msgs</depend>
-  <depend>ur_msgs</depend>
-  <depend>trajectory_msgs</depend>
   <depend>generate_parameter_library</depend>
   <depend>controller_manager</depend>
   <depend>controller_interface</depend>
@@ -32,7 +28,8 @@
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
-
+    
+  <!-- <pluginlib plugin="~/ros2_ws/install/linear_slider_controllers/share/linear_slider_controllers/plugin_description.xml"/> -->
   <export>
     <build_type>ament_cmake</build_type>
   </export>

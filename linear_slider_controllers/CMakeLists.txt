@@ -16,7 +16,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 # Disable boost/shared_ptr in pluginlib while building on rpi4
-# add_compile_definitions(PLUGINLIB__DISABLE_BOOST_FUNCTIONS)
+add_compile_definitions(PLUGINLIB__DISABLE_BOOST_FUNCTIONS)
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
@@ -27,14 +27,15 @@ find_package(pluginlib REQUIRED)
 find_package(angles REQUIRED)
 find_package(rcutils REQUIRED)
 find_package(realtime_tools REQUIRED)
-find_package(ur_dashboard_msgs REQUIRED)
-find_package(ur_msgs REQUIRED)
+# find_package(ur_dashboard_msgs REQUIRED)
+# find_package(ur_msgs REQUIRED)
 find_package(trajectory_msgs REQUIRED)
 find_package(generate_parameter_library REQUIRED)
 find_package(controller_manager REQUIRED)
 find_package(controller_interface REQUIRED)
 find_package(joint_trajectory_controller REQUIRED)
 find_package(linear_slider_msgs REQUIRED)
+find_package(generate_parameter_library REQUIRED)
 
 set(
   THIS_PACKAGE_INCLUDE_DEPENDS
@@ -42,106 +43,79 @@ set(
   rclcpp_lifecycle
   lifecycle_msgs
   pluginlib
-  angles
+  # angles
   rcutils
   realtime_tools
-  ur_dashboard_msgs
-  ur_msgs
-  trajectory_msgs
+  # ur_dashboard_msgs
+  # ur_msgs
+  # trajectory_msgs
   generate_parameter_library
   controller_manager
   controller_interface
   joint_trajectory_controller
   linear_slider_msgs
+  generate_parameter_library
 )
 
-add_library(
-  ${PROJECT_NAME}
-  # SHARED src/combined_controller.cpp
-  SHARED src/limit_switch_broadcaster.cpp
+include_directories(include)
+link_directories(lib)
+
+generate_parameter_library(
+  limit_switch_state_broadcaster_parameters
+  src/limit_switch_state_broadcaster_parameters.yaml
 )
-target_include_directories(${PROJECT_NAME} PRIVATE include)
-ament_target_dependencies(
-  ${PROJECT_NAME}
+
+add_library(${PROJECT_NAME} SHARED
+  # src/combined_controller.cpp
+  src/limit_switch_state_broadcaster.cpp
+)
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+target_link_libraries(${PROJECT_NAME}
+  limit_switch_state_broadcaster_parameters
+)
+
+ament_target_dependencies(${PROJECT_NAME}
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
 )
-pluginlib_export_plugin_description_file(controller_interface controller_plugins.xml)
 
-install(
-  TARGETS ${PROJECT_NAME}
-  LIBRARY DESTINATION lib
+target_compile_options(${PROJECT_NAME} PRIVATE -Wpedantic -Werror=return-type)
+
+# target_compile_definitions(${PROEJCT_NAME} PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
+pluginlib_export_plugin_description_file(
+  controller_interface
+  controller_plugins.xml
 )
 
+install(TARGETS ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
+
+# Install the plugin XML file
 install(
-  DIRECTORY config launch
+  FILES controller_plugins.xml
   DESTINATION share/${PROJECT_NAME}
 )
 
-# include_directories(include)
+install(DIRECTORY include/
+  DESTINATION include
+)
 
-# # generate_parameter_library()
+ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
 
-# add_library(
-#   ${PROJECT_NAME} SHARED
-#   src/combined_controller.cpp
-# )
-
-# target_include_directories(${PROJECT_NAME} PRIVATE include)
-
-# # target_link_libraries(
-# #   ${PROJECT_NAME}
-# #   scaled_joint_trajectory_controller_parameters
-# # )
-
-# ament_target_dependencies(
-#   ${PROJECT_NAME}
-#   ${THIS_PACKAGE_INCLUDE_DEPENDS}
-# )
-
-# target_compile_options(${PROJECT_NAME} PRIVATE -Wpedantic -Werror=return-type)
-# # prevent pluginlib from using boost
-# target_compile_definitions(${PROJECT_NAME} PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
-# pluginlib_export_plugin_description_file(controller_interface controller_plugins.xml)
-
-# install(TARGETS ${PROJECT_NAME}
-#   ARCHIVE DESTINATION lib
-#   LIBRARY DESTINATION lib
-#   RUNTIME DESTINATION bin
-# )
-
-# install(DIRECTORY include/
-#   DESTINATION include
-# )
-
-# install(FILES controller_plugins.xml
+# install(
+#   DIRECTORY config launch
 #   DESTINATION share/${PROJECT_NAME}
 # )
-
-# ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
-# ament_export_include_directories(include)
-# ament_export_libraries(${PROJECT_NAME})
-
-# ament_export_include_directories(
-#   include
-# )
-
-# ament_export_libraries(
-#   ${PROJECT_NAME}
-# )
-
-# # add_executable(linear_slider_control_node src/linear_slider_control_node.cpp)
-
-# # ament_target_dependencies(
-# #   # linear_slider_control_node
-# #   # rclcpp
-# #   # controller_manager
-
-# # )
-
-# # install(TARGETS
-# #   # linear_slider_control_node
-# #   DESTINATION lib/${PROJECT_NAME}
-# # )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

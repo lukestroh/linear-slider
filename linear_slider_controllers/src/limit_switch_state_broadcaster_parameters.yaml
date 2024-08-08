@@ -1,4 +1,4 @@
-limit_switch_broadcaster:
+limit_switch_state_broadcaster: # TODO: should this file be in config? Should it be populated, will it be overridden by the launch file?
   prefix:
     {
       type: string,

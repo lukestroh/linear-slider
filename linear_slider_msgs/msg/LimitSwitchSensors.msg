@@ -1,2 +1,3 @@
-bool neg_limit
-bool pos_limit
+std_msgs/Header header
+string name
+bool state
