@@ -23,9 +23,11 @@ class ClearCoreComms {
         int sock;
         struct sockaddr_in local_svr_addr;
         struct sockaddr_in client_addr;
+        struct sockaddr_in tmp_addr;
         char read_buffer[BUF_LEN_MAX];
         char send_buffer[BUF_LEN_MAX];
         socklen_t client_addr_len = sizeof(client_addr);
+        socklen_t tmp_addr_len = sizeof(tmp_addr);
 
         void construct_send_msg(const char* data);
         

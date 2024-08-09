@@ -25,6 +25,7 @@ bool ClearCoreComms::begin() {
     // Reset addresses
     memset(&local_svr_addr, 0, sizeof(local_svr_addr));
     memset(&client_addr, 0, sizeof(client_addr));
+    memset(&tmp_addr, 0, sizeof(tmp_addr));
 
     // Set server information
     local_svr_addr.sin_port = htons(local_port);
@@ -50,7 +51,7 @@ char* ClearCoreComms::read_data() {
     TODO: Store client data in temp struct, keep a constant client for send data
     */
     int msg_size;
-    msg_size = recvfrom(sock, (char*)read_buffer, BUF_LEN_MAX, MSG_WAITALL, (struct sockaddr*)&client_addr, &client_addr_len);
+    msg_size = recvfrom(sock, (char*)read_buffer, BUF_LEN_MAX, MSG_WAITALL, (struct sockaddr*)&tmp_addr, &tmp_addr_len);
     read_buffer[msg_size] = '\0';
     return read_buffer;
 }
