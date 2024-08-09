@@ -36,16 +36,16 @@ linear_slider_controller:
         # i_clamp: 1.0
 
     state_publish_rate: 100.0 # defaults to 50
-    action_monitor_rate: 30.0 # defaults to 20
+    action_monitor_rate: 50.0 # defaults to 20
 
     allow_partial_joints_goal: false # defaults to false
     # stop_trajectory_duration: 0.1
     constraints:
-      goal_time: 10.0 # defaults to 0.0 (start immediately)
+      goal_time: 20.0 # defaults to 0.0 (start immediately)
       stopped_velocity_tolerance: 0.01 # Defaults to 0.01
       $(var prefix)joint1:
         goal: 0.05 # position tolerace (m)
-        # trajectory: 1.0
+        trajectory: 0.20
 
     allow_nonzero_velocity_at_trajectory_end: false
 

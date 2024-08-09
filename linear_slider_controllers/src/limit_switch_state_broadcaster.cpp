@@ -100,10 +100,7 @@ controller_interface::CallbackReturn LimitSwitchStateBroadcaster::on_activate(co
 controller_interface::CallbackReturn LimitSwitchStateBroadcaster::on_deactivate(const rclcpp_lifecycle::State& /* previous_state */) {
     RCLCPP_INFO(_LOGGER, "Deactivating LimitSwitchStateBroadcaster");
     return controller_interface::CallbackReturn::SUCCESS;
-}p"
-
-PLUGINLIB_EXPORT_CLASS(linear_slider_controllers::LimitSwitchStateBroadcaster, controller_interface::ControllerInterface)
-
+}
 
 controller_interface::return_type LimitSwitchStateBroadcaster::update(const rclcpp::Time& time, const rclcpp::Duration& period) {
     if (publish_rate_ > 0 && period > rclcpp::Duration(1.0 / publish_rate_, 0.0)) {
