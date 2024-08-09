@@ -198,16 +198,16 @@ def generate_launch_description():
             )
         )
 
-    node_lim_switch_broadcaster = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=[
-            "limit_switch_state_broadcaster",
-            "--controller_manager",
-            "/controller_manager"
-        ]
-    )
-    robot_controller_spawners.append(node_lim_switch_broadcaster)
+    # node_lim_switch_broadcaster = Node(
+    #     package="controller_manager",
+    #     executable="spawner",
+    #     arguments=[
+    #         "limit_switch_state_broadcaster",
+    #         "--controller_manager",
+    #         "/controller_manager"
+    #     ]
+    # )
+    # robot_controller_spawners.append(node_lim_switch_broadcaster)
 
     lifecycle_node_delay_jsb = LifecycleNode(
         name="delay_jsb_node_spawner",

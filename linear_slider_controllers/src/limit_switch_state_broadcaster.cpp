@@ -110,7 +110,7 @@ controller_interface::return_type LimitSwitchStateBroadcaster::update(const rclc
             limit_switch_state_msg_.header.stamp.sec = time.seconds();
             limit_switch_state_msg_.header.stamp.nanosec = time.nanoseconds();
             limit_switch_state_msg_.header.frame_id = state.get_name();
-            
+            // Publish limit switch state
             limit_switch_state_publisher_->publish(limit_switch_state_msg_);
 
         }
