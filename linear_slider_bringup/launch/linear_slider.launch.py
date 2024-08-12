@@ -22,9 +22,16 @@ def generate_launch_description():
     declared_args = []
     declared_args.append(
         DeclareLaunchArgument(
-            "runtime_config_package",
+            "linear_slider_bringup_package",
             default_value="linear_slider_bringup",
-            description='Package with the controller\'s configuration in the "config" folder. Usually, the argument is not set; it enables the use of a custom setup.',
+            description='Package with the controller\'s configuration in the "config" folder. Usually, the argument is not set; it enables the use of a custom setup.'
+        )
+    )
+    declared_args.append(
+        DeclareLaunchArgument(
+            "linear_slider_controllers_package",
+            default_value="linear_slider_controllers",
+            description="Package with the controller\'s configuration in the 'config' folder. Usually, the argument is not set; it enables the use of a custom setup."
         )
     )
     declared_args.append(
@@ -111,7 +118,8 @@ def generate_launch_description():
     moveit_config_package = LaunchConfiguration("moveit_config_package")
     prefix = LaunchConfiguration("prefix")
     robot_controller = LaunchConfiguration("robot_controller")
-    runtime_config_package = LaunchConfiguration("runtime_config_package")
+    linear_slider_bringup_package = LaunchConfiguration("linear_slider_bringup_package")
+    linear_slider_controllers_package = LaunchConfiguration("linear_slider_controllers_package")
     use_mock_hardware = LaunchConfiguration("use_mock_hardware")
     use_moveit = LaunchConfiguration("use_moveit")
     use_sim_time = LaunchConfiguration("use_sim_time")
@@ -137,7 +145,7 @@ def generate_launch_description():
 
     robot_description = {"robot_description": robot_description_content}
 
-    robot_controllers = PathJoinSubstitution([FindPackageShare(runtime_config_package), "config", controllers_file])
+    robot_controllers = PathJoinSubstitution([FindPackageShare(linear_slider_controllers_package), "config", controllers_file])
 
     rviz_config_file = PathJoinSubstitution([FindPackageShare(description_package), "rviz", "linear_slider.rviz"])
 

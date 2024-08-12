@@ -27,9 +27,16 @@ def generate_launch_description():
     declared_args = []
     declared_args.append(
         DeclareLaunchArgument(
-            "runtime_config_package",
+            "linear_slider_bringup_package",
             default_value="linear_slider_bringup",
             description='Package with the controller\'s configuration in the "config" folder. Usually, the argument is not set; it enables the use of a custom setup.',
+        )
+    )
+    declared_args.append(
+        DeclareLaunchArgument(
+            "linear_slider_controllers_package",
+            default_value="linear_slider_controllers",
+            description="Package with the controller\'s configuration in the "config" folder. Usually, the argument is not set; it enables the use of a custom setup."
         )
     )
     declared_args.append(
@@ -98,7 +105,7 @@ def generate_launch_description():
     )
 
     # Initialize args
-    runtime_config_package = LaunchConfiguration("runtime_config_package")
+    linear_slider_bringup_package = LaunchConfiguration("linear_slider_bringup_package")
     controllers_file = LaunchConfiguration("controllers_file")
     description_package = LaunchConfiguration("description_package")
     description_file = LaunchConfiguration("description_file")

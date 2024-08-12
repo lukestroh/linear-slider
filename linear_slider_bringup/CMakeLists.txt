@@ -25,7 +25,7 @@ install(
 install(
   PROGRAMS
   scripts/delay_joint_state_broadcaster_lifecycle_node.py
-  scripts/sim_time_publisher.py
+  scripts/mock_hardware_limit_switch_state_publisher.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
