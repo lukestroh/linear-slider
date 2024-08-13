@@ -1,9 +1,13 @@
 # Linear Slider Bringup
 
+## TODO:
+
+1. Add lifecycle node that triggers limit switch states if using mock hardware.
+
 This package defines initial configuration settings and launch files to allow the running of the linear slider in multiple environments. These environments include real-world implementation, a mock hardware system, and interfaces hosted by Gazebo.
 
 ## Controller definition
-Controller implementations and their parameters for the linear slider are defined in `linear_slider_bringup/config/linear_slider_controllers`. Currently, the linear slider only works with the JointTrajectoryController using position for both state and command interfaces.
+Controller implementations and their parameters for the linear slider are defined in `linear_slider_controllers/config/linear_slider_controllers`. Currently, the linear slider only works with the JointTrajectoryController using position for both state and command interfaces.
 
 ## Mock hardware
 Mock hardware is a system hosted by the ros2_control framework, extending fake interfaces to the /controller_manager. This allows developers to quickly debug their systems before moving on to more complex environments such as Gazebo or the real world.

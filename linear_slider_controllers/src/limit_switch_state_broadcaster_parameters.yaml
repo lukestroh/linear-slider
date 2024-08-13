@@ -1,0 +1,13 @@
+limit_switch_state_broadcaster: # TODO: should this file be in config? Should it be populated, will it be overridden by the launch file?
+  prefix:
+    {
+      type: string,
+      default_value: "linear_slider__",
+      description: "Prefix of the joint names. Useful for multi-robot setup. If changed, joint names in the controllers' configuration need to be updated, or dynamically configured in the launch file.",
+    }
+  state_publish_rate:
+    {
+      type: double,
+      default_value: 100.0,
+      description: "Rate at which the limit switch state will be published.",
+    }

@@ -1,12 +1,17 @@
-from launch import LaunchDescription
+from launch import LaunchDescription, LaunchContext
 from launch.actions import DeclareLaunchArgument, RegisterEventHandler, TimerAction, LogInfo
+from launch.actions.timer_action import LaunchContext
 from launch.event_handlers import OnProcessStart
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
+import rclpy.logging
+
+logger = rclpy.logging.get_logger("linear_slider_description.view_robot_launch")
 
 def generate_launch_description():
+    context = LaunchContext()
     # Declare args
     declared_args: list = []
 
@@ -67,8 +72,6 @@ def generate_launch_description():
         ]
     )
 
-    log0 = LogInfo(msg=robot_description_content)
-
     robot_description = {"robot_description": robot_description_content}
 
     rviz_config_file = PathJoinSubstitution(
@@ -90,11 +93,11 @@ def generate_launch_description():
 
     delay_rviz_after_joint_state_publisher_node = RegisterEventHandler(
         event_handler=OnProcessStart(
-            target_action=joint_state_publisher_node, on_start=[TimerAction(period=2.0, actions=[rviz_node])]
+            target_action=joint_state_publisher_node, on_start=[rviz_node]
         )
     )
 
     return LaunchDescription(
         declared_args
-        + [log0, joint_state_publisher_node, robot_state_publisher_node, delay_rviz_after_joint_state_publisher_node]
+        + [joint_state_publisher_node, robot_state_publisher_node, delay_rviz_after_joint_state_publisher_node]
     )

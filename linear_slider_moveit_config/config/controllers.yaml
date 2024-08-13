@@ -2,20 +2,12 @@ controller_names:
   - scaled_joint_trajectory_controller
   - linear_slider_controller
 
-
 scaled_joint_trajectory_controller:
   action_ns: follow_joint_trajectory
   type: FollowJointTrajectory
   default: false
   joints:
     - $(var prefix)joint1
-    # - shoulder_pan_joint
-    # - shoulder_lift_joint
-    # - elbow_joint
-    # - wrist_1_joint
-    # - wrist_2_joint
-    # - wrist_3_joint
-
 
 linear_slider_controller:
   action_ns: follow_joint_trajectory
@@ -23,9 +15,3 @@ linear_slider_controller:
   default: true
   joints:
     - $(var prefix)joint1
-    # - shoulder_pan_joint
-    # - shoulder_lift_joint
-    # - elbow_joint
-    # - wrist_1_joint
-    # - wrist_2_joint
-    # - wrist_3_joint

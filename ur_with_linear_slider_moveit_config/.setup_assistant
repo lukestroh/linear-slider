@@ -1,0 +1,28 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: ur_with_linear_slider_bringup
+    relative_path: urdf/ur_with_linear_slider.urdf.xacro
+    xacro_args: ur_type:=ur5e use_mock_hardware:=true mock_sensor_commands:=true prefix:="linear_slider/" tf_prefix:="ur_robot/"
+  srdf:
+    relative_path: config/ur_with_linear_slider.srdf
+  package_settings:
+    author_name: Luke Strohbehn
+    author_email: luke.strohbehn@gmail.com
+    generated_timestamp: 1715197649
+  control_xacro:
+    command:
+      - position
+      - velocity
+    state:
+      - position
+      - velocity
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+      - velocity
+    state:
+      - position
+      - velocity

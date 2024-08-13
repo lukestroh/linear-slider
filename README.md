@@ -1,13 +1,25 @@
 # TODO:
 
-1. Detect if slider starts up on limit switch. Otherwise calibration violates safety.
-2. Allow for backwards movement after limit switch hit.
-3. If program is restart while ClearCore controller is not, it accelerates off in the wrong direction of calibration.
-4. Add limit switches to URDF system state. Update Hardware Interface to reflect these values.
-5. Allow for calibration at any point.<br>
-    a. Calibration on either side?
-6. Get X-box controller to move slider with L2/R2
-7. Check if `on_deactivate()` runs for linear_slider_hardware when control-c is hit.
+<ol>
+  <li> Detect if slider starts up on limit switch. Otherwise calibration violates safety. </li>
+  <li> <s>Allow for backwards movement after limit switch hit.</s> </li>
+  <li> If program is restart while ClearCore controller is not, it accelerates off in the wrong direction of calibration. </li>
+  <li> <s>Add limit switches to URDF system state.</s> Update Hardware Interface to reflect these values. Find out where they're represented in the global ROS system state </li>
+  <li> Allow for calibration at any point.<br><li>  Calibration on either side? </li>
+  <li> Get X-box controller to move slider with L2/R2 </li>
+  <li> Check if `on_deactivate()` runs for linear_slider_hardware when control-c is hit. </li>
+  <li> Refactor linear slider bringup to take a robot arm as launch argument, build subsequent launch files and URDFs from there. </li>
+  <li> Refactor all of the MoveIt stuff, it's a mess. (Maybe check out Jazzy? Looks like the MoveItConfigsBuilder is what they're working towards...) </li>
+  <li> Let the high-level launch pass the URDF to the MoveIt launch.... </li>
+  <li> Add polling for E-stop for reset-detection. </li>
+  <li> Create centralized velocity and position limits. Make sure each interface receives them. </li>
+  <li> SHUTDOWN SAFTETY </li>
+    <ol>
+      <li> Code shutdown </li>
+      <li> Physical link to UR5 </li>
+    </ol>
+  <li> Merge ur_with_linear_slider into linear_slider as launch option
+</ol>
 
 # Linear Slider Drivers
 
@@ -17,7 +29,7 @@ This is a repository that includes packages for the hardware description, hardwa
 
 `linear_slider_bringup`: Launches all of the interfaces.
 
-`linear_slider_controllers`: Manages the control node for interfacing with ROS2.
+`linear_slider_controllers`: Manages the control node for interfacing with ROS2, hosts custom controller configurations and implementations.
 
 `linear_slider_description`: Defines the geometry and links in a URDF file. Also specifies controller interfaces through `<ros2_control>` tag.
 
@@ -32,7 +44,9 @@ This is a repository that includes packages for the hardware description, hardwa
 ### Simulation
 
 #### Mock Hardware
+
 Build the packages and run the following command:
+
 ```
 ros2 launch linear_slider_bringup linear_slider.launch.py use_mock_hardware:=true mock_sensor_commands:=true
 ```
@@ -40,6 +54,7 @@ ros2 launch linear_slider_bringup linear_slider.launch.py use_mock_hardware:=tru
 This command should load the mock hardware interface and assign a Joint Trajectory Controller to it.
 
 The joint trajectory controller can be tested by running either of the following commands:
+
 ```
 # GUI option
 ros2 run rqt_joint_trajectory_controller rqt_joint_trajectory_controller
@@ -49,27 +64,34 @@ ros2 run linear_slider_test test_joint_trajectory_controller_node
 ```
 
 #### Gazebo Classic Simulation
-Launching the linear slider in Gazebo Classic can be done with the following command.  
+
+Launching the linear slider in Gazebo Classic can be done with the following command.
+
 ```
 ros2 launch linear_slider_bringup linear_slider_sim_gazebo.launch.py sim_gazebo_classic:=true
 ```
 
 #### Gazebo Ignition Simulation
+
 Gazebo Ignition functionality not available at this time. If you wish to view the current bugs with this launch, please run the following command:
+
 ```
 ros2 launch linear_slider_bringup linear_slider_sim_gazebo.launch.py sim_gazebo:=true
 ```
 
 ### Real-world
- - Not available at this time.
+
+- Not available at this time.
 
 Once the hardware interface is properly configured, the system will be able to be launched using the following command:
+
 ```
 ros2 launch linear_slider_bringup linear_slider.launch.py
 ```
 
 #### Actual hardware
-The real-world launch requires a proper hardware setup and safety configuration. 
+
+The real-world launch requires a proper hardware setup and safety configuration.
 
 Communication: The `linear_slider_hardware_interface` communicates with a Teknic ClearCore microcontroller via a UDP Ethernet interface.
 
@@ -86,17 +108,18 @@ Each of the packages has a set of launch files that help guide the creation of y
 ## Linear Slider Description:
 
 An xacro file can be easily checked using the following command line argument:
+
 ```
 xacro model.urdf.xacro > tmp.urdf && check_urdf tmp.urdf
 ```
 
 Default state interface values can be found in `linear_slider_description/config/initial_state.yaml`.
 
-Under the `<ros2_control>` tag, there are two [ros2_control hardware interface types](https://control.ros.org/humble/doc/ros2_control/hardware_interface/doc/hardware_interface_types_userdoc.html), **Joints** and **Sensors**. The `<joint>` tag defines the state and command interfaces for the controllers defined in `linear_slider_bringup/config/linear_slider_controllers.yaml`.
+Under the `<ros2_control>` tag, there are two [ros2_control hardware interface types](https://control.ros.org/humble/doc/ros2_control/hardware_interface/doc/hardware_interface_types_userdoc.html), **Joints** and **Sensors**. The `<joint>` tag defines the state and command interfaces for the controllers defined in `linear_slider_controllers/config/linear_slider_controllers.yaml`.
 
 ## Linear Slider Bringup:
 
-The `linear_slider_bringup` package links together the various `ros2_control` implementations. First, it forms a working URDF generated from the xacro files defined in `linear_slider_description`. Parameters are passed from the bringup launch files to the xacro executable, which allows the correct hardware interface plugin to be selected. 
+The `linear_slider_bringup` package links together the various `ros2_control` implementations. First, it forms a working URDF generated from the xacro files defined in `linear_slider_description`. Parameters are passed from the bringup launch files to the xacro executable, which allows the correct hardware interface plugin to be selected.
 
 ### Linear Slider Description: Defines the physical robot. This includes STL meshes, URDFs, and initial state information.
 
@@ -108,7 +131,7 @@ https://control.ros.org/master/doc/gazebo_ros2_control/doc/index.html
 
 ## Hardware Interface
 
-The hardware interface for the linear slider translates world frame commands into motor commands and sends them via the UDP Ethernet communication interface to the ClearCore Microcontroller. More detail on the package can be found within the package's README. 
+The hardware interface for the linear slider translates world frame commands into motor commands and sends them via the UDP Ethernet communication interface to the ClearCore Microcontroller. More detail on the package can be found within the package's README.
 
 ## Controller Interface
 

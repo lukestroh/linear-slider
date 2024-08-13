@@ -3,7 +3,9 @@
         {
             "includePath": [
                 "${workspaceFolder}/**",
-                "/opt/ros/humble/include/**"
+                "/opt/ros/humble/include/**",
+                "~/ros2_ws/install/*/include/**",
+                "~/ros2_ws/src/linear-slider/linear_slider_controllers/include/**"
             ],
             "intelliSenseMode": "linux-gcc-x64",
             "compilerPath": "/usr/bin/gcc",

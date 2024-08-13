@@ -61,13 +61,13 @@
             
             <!-- Sensors -->
             <sensor name="${prefix}lim_switch_neg">
-                <state_interface name="switch_val">
+                <state_interface name="state">
                     <param name="initial_value">${initial_state['lim_switch_neg']}</param>
                 </state_interface>
                 <param name="frame_id">${prefix}base_link</param>
             </sensor>
             <sensor name="${prefix}lim_switch_pos">
-                <state_interface name="switch_val">
+                <state_interface name="state">
                     <param name="initial_value">${initial_state['lim_switch_pos']}</param>
                 </state_interface>
                 <param name="frame_id">${prefix}base_link</param>

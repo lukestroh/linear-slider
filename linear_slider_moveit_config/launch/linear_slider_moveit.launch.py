@@ -13,7 +13,7 @@ This launch file adapted from: https://github.com/UniversalRobots/Universal_Robo
         # logger.warn(f"{__file}")
 
 """
-from launch import LaunchDescription
+from launch import LaunchDescription, LaunchContext
 from launch.actions import DeclareLaunchArgument, OpaqueFunction, RegisterEventHandler
 from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit, OnProcessStart
@@ -37,22 +37,22 @@ import json
 logger = rclpy.logging.get_logger("linear_slider_moveit_config.launch_logger")
 
 
-def launch_setup(context, *args, **kwargs):
+def launch_setup(context: LaunchContext, *args, **kwargs):
     """Callback function for launch setup using runtime context for evaluation and debugging."""
 
     # Launch configurations
-    moveit_runtime_config_pkg = LaunchConfiguration("moveit_runtime_config_pkg")
-    moveit_config_file = LaunchConfiguration("moveit_config_file")
-    moveit_joint_limits_file = LaunchConfiguration("moveit_joint_limits_file")
-    description_pkg = LaunchConfiguration("description_pkg")
-    description_file = LaunchConfiguration("description_file")
-    prefix = LaunchConfiguration("prefix")
-    use_mock_hardware = LaunchConfiguration("use_mock_hardware")
-    mock_sensor_commands = LaunchConfiguration("mock_sensor_commands")
-    warehouse_sqlite_path = LaunchConfiguration("warehouse_sqlite_path")
-    use_sim_time = LaunchConfiguration("use_sim_time")
     launch_rviz = LaunchConfiguration("launch_rviz")
     launch_servo = LaunchConfiguration("launch_servo")
+    description_file = LaunchConfiguration("description_file")
+    description_pkg = LaunchConfiguration("description_pkg")
+    mock_sensor_commands = LaunchConfiguration("mock_sensor_commands")
+    moveit_semantic_description_file = LaunchConfiguration("moveit_semantic_description_file")
+    moveit_runtime_config_pkg = LaunchConfiguration("moveit_runtime_config_pkg")
+    moveit_joint_limits_file = LaunchConfiguration("moveit_joint_limits_file")
+    prefix = LaunchConfiguration("prefix")
+    use_mock_hardware = LaunchConfiguration("use_mock_hardware")
+    use_sim_time = LaunchConfiguration("use_sim_time")
+    warehouse_sqlite_path = LaunchConfiguration("warehouse_sqlite_path")    
 
     # Get URDF from xacro
     robot_description_content = Command(
@@ -79,7 +79,7 @@ def launch_setup(context, *args, **kwargs):
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
-            PathJoinSubstitution([FindPackageShare(moveit_runtime_config_pkg), "srdf", moveit_config_file]),
+            PathJoinSubstitution([FindPackageShare(moveit_runtime_config_pkg), "srdf", moveit_semantic_description_file]),
             " ",
             "prefix:=",
             prefix,
@@ -129,9 +129,7 @@ def launch_setup(context, *args, **kwargs):
     ompl_planning_pipeline_config = dict(
         move_group=dict(
             planning_plugins=["ompl_interface/OMPLPlanner"],
-            request_adapters= "default_planner_request_adapters/AddRuckigTrajectorySmoothing default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/Empty default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/ResolveConstraintFrames",
-            # """default_planning_request_adapters/ResolveConstraintFrames default_planning_request_adapters/ValidateWorkspaceBounds default_planning_request_adapters/CheckStartStateBounds default_planning_request_adapters/CheckStartStateCollision""",
-            # "default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStatePathConstraints default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/ResolveConstraintFrames default_planner_request_adapters/AddTimeOptimalParameterization",
+            request_adapters= "default_planner_request_adapters/ResolveConstraintFrames default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/AddRuckigTrajectorySmoothing default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/FixStartStatePathConstraints default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/Empty",
             
             response_adapters=[
                 "default_planning_response_adapters/AddTimeOptimalParameterization",
@@ -167,9 +165,10 @@ def launch_setup(context, *args, **kwargs):
         moveit_controller_manager="moveit_simple_controller_manager/MoveItSimpleControllerManager",
     )
 
-    trajectory_execution = {
+    """ The following parameters are used to compute the allowed trajectory execution duration by scaling the expected execution duration and adding the margin afterwards. If this duration is exceeded the trajectory will be cancelled. The controller-specific parameters can be set as follows TODO: put this in a yaml file..."""
+    trajectory_execution = { 
         "moveit_manage_controllers": False,
-        "trajectory_execution.allowed_execution_during_scaling": 1.2,
+        "trajectory_execution.allowed_execution_during_scaling": 10.2,
         "trajectory_execution.allowed_goal_duration_margin": 0.5,
         "trajectory_execution.allowed_start_tolerance": 0.01,
     }
@@ -232,7 +231,7 @@ def launch_setup(context, *args, **kwargs):
             warehouse_ros_config,
         ],
     )
-
+ 
     # RViz
     rviz_config_file = PathJoinSubstitution(
         [get_package_share_directory("linear_slider_moveit_config"), "rviz", "linear_slider_moveit.rviz"]
@@ -283,23 +282,9 @@ def generate_launch_description():
     declared_args = []
     declared_args.append(
         DeclareLaunchArgument(
-            "moveit_runtime_config_pkg",
-            default_value="linear_slider_moveit_config",
-            description="MoveIt config package with robot SRDF/xacro files. Usually, the argument is not set; it enables the use of a custom setup.",
-        )
-    )
-    declared_args.append(
-        DeclareLaunchArgument(
-            "moveit_config_file",
-            default_value="linear_slider.srdf.xacro",  # TODO: Get srdf.xacro like UR drivers
-            description="MoveIt SRDF/xacro description file with the robot.",
-        )
-    )
-    declared_args.append(
-        DeclareLaunchArgument(
-            "moveit_joint_limits_file",
-            default_value="joint_limits.yaml",
-            description="MoveIt joint limits that augment or override the values from the URDF robot description.",
+            "description_file",
+            default_value="linear_slider.urdf.xacro",
+            description="URDF/xacro description file of the robot.",
         )
     )
     declared_args.append(
@@ -311,9 +296,45 @@ def generate_launch_description():
     )
     declared_args.append(
         DeclareLaunchArgument(
-            "description_file",
-            default_value="linear_slider.urdf.xacro",
-            description="URDF/xacro description file of the robot.",
+            "launch_rviz",
+            default_value="true", 
+            description="Launch RViz window."
+        )
+    )
+    declared_args.append(
+        DeclareLaunchArgument(
+            "launch_servo",
+            default_value="true",
+            description="Launch servoing node."
+        )
+    )
+    declared_args.append(
+        DeclareLaunchArgument(
+            "mock_sensor_commands",
+            default_value="false",
+            choices=["true", "false"],
+            description="Enable fake command interfaces for sensors for simple simulation. Use only if `use_mock_hardware` parameter is true.",
+        )
+    )
+    declared_args.append(
+        DeclareLaunchArgument(
+            "moveit_semantic_description_file",
+            default_value="linear_slider.srdf.xacro",  # TODO: Get srdf.xacro like UR drivers
+            description="MoveIt SRDF/xacro description file with the robot.",
+        )
+    )
+    declared_args.append(
+        DeclareLaunchArgument(
+            "moveit_runtime_config_pkg",
+            default_value="linear_slider_moveit_config",
+            description="MoveIt config package with robot SRDF/xacro files. Usually, the argument is not set; it enables the use of a custom setup.",
+        )
+    )
+    declared_args.append(
+        DeclareLaunchArgument(
+            "moveit_joint_limits_file",
+            default_value="joint_limits.yaml",
+            description="MoveIt joint limits that augment or override the values from the URDF robot description.",
         )
     )
     declared_args.append(
@@ -333,10 +354,9 @@ def generate_launch_description():
     )
     declared_args.append(
         DeclareLaunchArgument(
-            "mock_sensor_commands",
+            "use_sim_time",
             default_value="false",
-            choices=["true", "false"],
-            description="Enable fake command interfaces for sensors for simple simulation. Use only if `use_mock_hardware` parameter is true.",
+            description="Make MoveIt to use simulation time. This is needed for the trajectory planing in simulation.",
         )
     )
     declared_args.append(
@@ -345,17 +365,6 @@ def generate_launch_description():
             default_value=os.path.expanduser("~/.ros/warehouse_ros.sqlite"),
             description="Path to where the warehouse database should be stored.",
         )
-    )
-    declared_args.append(
-        DeclareLaunchArgument(
-            "use_sim_time",
-            default_value="false",
-            description="Make MoveIt to use simulation time. This is needed for the trajectory planing in simulation.",
-        )
-    )
-    declared_args.append(DeclareLaunchArgument("launch_rviz", default_value="true", description="Launch RViz window."))
-    declared_args.append(
-        DeclareLaunchArgument("launch_servo", default_value="true", description="Launch servoing node.")
     )
 
     ld = LaunchDescription(declared_args + [OpaqueFunction(function=launch_setup)])
