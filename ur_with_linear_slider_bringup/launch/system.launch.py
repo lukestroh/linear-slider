@@ -41,7 +41,7 @@ def launch_setup(context, *args, **kwargs):
     system_moveit_config_package = LaunchConfiguration("system_moveit_config_package")
 
     # Linear slider config
-    linear_slider_runtime_package = LaunchConfiguration("linear_slider_runtime_package")
+    linear_slider_bringup_package = LaunchConfiguration("linear_slider_bringup_package")
     linear_slider_controllers_package = LaunchConfiguration("linear_slider_controllers_package")
     linear_slider_controllers_file = LaunchConfiguration("linear_slider_controllers_file")
     linear_slider_controller = LaunchConfiguration("linear_slider_controller")
@@ -93,7 +93,7 @@ def launch_setup(context, *args, **kwargs):
     robot_description = {"robot_description": robot_description_content}
 
     filepath_linear_slider_controllers = PathJoinSubstitution([
-        FindPackageShare(linear_slider_runtime_package),
+        FindPackageShare(linear_slider_controllers_package),
         "config",
         linear_slider_controllers_file
     ])
@@ -306,8 +306,8 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "linear_slider_controller",
-            default_value = "joint_trajectory_controller",
-            choices = ["joint_trajectory_controller"], # add another here if we want to switch between different controllers
+            default_value = "linear_slider_controller",
+            choices = ["linear_slider_controller", "joint_trajectory_controller"], # add another here if we want to switch between different controllers
             description = "Linear slider controller"
         )
     )
@@ -328,13 +328,13 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "linear_slider_robot_ip",
-            default_value="169.254.97.177",
+            default_value="169.254.57.177",
             description="IP Address for the linear slider."
         )
     )
     declared_args.append(
         DeclareLaunchArgument(
-            "linear_slider_runtime_package",
+            "linear_slider_bringup_package",
             default_value = "linear_slider_bringup",
             description = 'Package with the controller\'s configuration in the "config" folder. Usually, the argument is not set; it enables the use of a custom setup.'
         )
