@@ -15,5 +15,5 @@ joint_limits:
     max_velocity: 0.50
     has_acceleration_limits: true
     max_acceleration: 0.25
-    # has_jerk_limits: true
-    # max_jerk: 5.0
+    has_jerk_limits: true
+    max_jerk: 100.0

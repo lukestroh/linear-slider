@@ -71,7 +71,7 @@ $(var prefix)manipulator:
   #projection_evaluator: joints(shoulder_pan_joint,shoulder_lift_joint)
   longest_valid_segment_fraction: 0.01
 
-  trajectory_execution:
-    allowed_execution_duration_scaling: 5.0 # Increase this value
-    allowed_goal_duration_margin: 10.0 # Increase this value
-    execution_duration_monitoring: true
+  # trajectory_execution:
+  #   allowed_execution_duration_scaling: 5.0 # Increase this value
+  #   allowed_goal_duration_margin: 10.0 # Increase this value
+  #   execution_duration_monitoring: false

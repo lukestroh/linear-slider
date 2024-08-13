@@ -29,7 +29,7 @@ This is a repository that includes packages for the hardware description, hardwa
 
 `linear_slider_bringup`: Launches all of the interfaces.
 
-`linear_slider_controllers`: Manages the control node for interfacing with ROS2.
+`linear_slider_controllers`: Manages the control node for interfacing with ROS2, hosts custom controller configurations and implementations.
 
 `linear_slider_description`: Defines the geometry and links in a URDF file. Also specifies controller interfaces through `<ros2_control>` tag.
 
@@ -115,7 +115,7 @@ xacro model.urdf.xacro > tmp.urdf && check_urdf tmp.urdf
 
 Default state interface values can be found in `linear_slider_description/config/initial_state.yaml`.
 
-Under the `<ros2_control>` tag, there are two [ros2_control hardware interface types](https://control.ros.org/humble/doc/ros2_control/hardware_interface/doc/hardware_interface_types_userdoc.html), **Joints** and **Sensors**. The `<joint>` tag defines the state and command interfaces for the controllers defined in `linear_slider_bringup/config/linear_slider_controllers.yaml`.
+Under the `<ros2_control>` tag, there are two [ros2_control hardware interface types](https://control.ros.org/humble/doc/ros2_control/hardware_interface/doc/hardware_interface_types_userdoc.html), **Joints** and **Sensors**. The `<joint>` tag defines the state and command interfaces for the controllers defined in `linear_slider_controllers/config/linear_slider_controllers.yaml`.
 
 ## Linear Slider Bringup:
 

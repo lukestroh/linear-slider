@@ -19,3 +19,9 @@ Editing the existing configuration can be easily done by running the following c
 ```
 ros2 launch linear_slider_moveit setup_assistant.launch.py
 ```
+
+## Testing a controller 
+
+```
+ros2 action send_goal /linear_slider_controller/follow_joint_trajectory control_msgs/action/FollowJointTrajectory "{trajectory: {joint_names: ["linear_slider__joint1"], points: [{positions: [0.0]}]}}"
+```

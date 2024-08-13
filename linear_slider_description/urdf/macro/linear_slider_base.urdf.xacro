@@ -44,7 +44,7 @@
                 <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
                     <robot_param>robot_description</robot_param>
                     <robot_param_node>robot_state_publisher</robot_param_node>
-                    <parameters>$(find linear_slider_bringup)/config/linear_slider_controllers.yaml</parameters>
+                    <parameters>$(find linear_slider_controllers)/config/linear_slider_controllers.yaml</parameters>
                 </plugin>
                 <sensor name="lim_switch_neg">
                     <always_on>1</always_on>
@@ -62,7 +62,7 @@
             <gazebo reference="world"/>
             <gazebo>
                 <plugin filename="libign_ros2_control-system.so" name="ign_ros2_control::IgnitionROS2ControlPlugin">
-                    <parameters>$(find linear_slider_bringup)/config/linear_slider_controllers.yaml</parameters>
+                    <parameters>$(find linear_slider_controllers)/config/linear_slider_controllers.yaml</parameters>
                     <controller_manager_node_name>${prefix}controller_manager</controller_manager_node_name>
                 </plugin>
             </gazebo>

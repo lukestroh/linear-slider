@@ -129,9 +129,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
     ompl_planning_pipeline_config = dict(
         move_group=dict(
             planning_plugins=["ompl_interface/OMPLPlanner"],
-            request_adapters= "default_planner_request_adapters/AddRuckigTrajectorySmoothing default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/Empty default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/ResolveConstraintFrames",
-            # """default_planning_request_adapters/ResolveConstraintFrames default_planning_request_adapters/ValidateWorkspaceBounds default_planning_request_adapters/CheckStartStateBounds default_planning_request_adapters/CheckStartStateCollision""",
-            # "default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStatePathConstraints default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/ResolveConstraintFrames default_planner_request_adapters/AddTimeOptimalParameterization",
+            request_adapters= "default_planner_request_adapters/ResolveConstraintFrames default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/AddRuckigTrajectorySmoothing default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/FixStartStatePathConstraints default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/Empty",
             
             response_adapters=[
                 "default_planning_response_adapters/AddTimeOptimalParameterization",
@@ -167,9 +165,10 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
         moveit_controller_manager="moveit_simple_controller_manager/MoveItSimpleControllerManager",
     )
 
-    trajectory_execution = {
+    """ The following parameters are used to compute the allowed trajectory execution duration by scaling the expected execution duration and adding the margin afterwards. If this duration is exceeded the trajectory will be cancelled. The controller-specific parameters can be set as follows TODO: put this in a yaml file..."""
+    trajectory_execution = { 
         "moveit_manage_controllers": False,
-        "trajectory_execution.allowed_execution_during_scaling": 1.2,
+        "trajectory_execution.allowed_execution_during_scaling": 10.2,
         "trajectory_execution.allowed_goal_duration_margin": 0.5,
         "trajectory_execution.allowed_start_tolerance": 0.01,
     }
