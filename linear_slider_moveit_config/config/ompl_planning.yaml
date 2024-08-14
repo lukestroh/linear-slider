@@ -73,5 +73,5 @@ $(var prefix)manipulator:
 
   trajectory_execution:
     allowed_execution_duration_scaling: 5.0 # Increase this value
-    allowed_goal_duration_margin: 10.0 # Increase this value
-    execution_duration_monitoring: true
+    allowed_goal_duration_margin: 20.0 # Increase this value
+    execution_duration_monitoring: false

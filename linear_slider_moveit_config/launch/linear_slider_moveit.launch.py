@@ -129,10 +129,14 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
     ompl_planning_pipeline_config = dict(
         move_group=dict(
             planning_plugins=["ompl_interface/OMPLPlanner"],
-            request_adapters= "default_planner_request_adapters/AddRuckigTrajectorySmoothing default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/Empty default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/ResolveConstraintFrames",
-            # """default_planning_request_adapters/ResolveConstraintFrames default_planning_request_adapters/ValidateWorkspaceBounds default_planning_request_adapters/CheckStartStateBounds default_planning_request_adapters/CheckStartStateCollision""",
-            # "default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStatePathConstraints default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/ResolveConstraintFrames default_planner_request_adapters/AddTimeOptimalParameterization",
-            
+            request_adapters = [ # TODO: this should be a yaml file?
+                "default_planning_request_adapters/CheckForStackedConstraints",
+                "default_planning_request_adapters/CheckStartStateBounds",
+                "default_planning_request_adapters/CheckStartStateCollision",
+                "default_planning_request_adapters/ResolveConstraintFrames",
+                "default_planning_request_adapters/ValidateWorkspaceBounds"
+            ],
+                   
             response_adapters=[
                 "default_planning_response_adapters/AddTimeOptimalParameterization",
                 "default_planning_response_adapters/ValidateSolution",
@@ -172,6 +176,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
         "trajectory_execution.allowed_execution_during_scaling": 1.2,
         "trajectory_execution.allowed_goal_duration_margin": 0.5,
         "trajectory_execution.allowed_start_tolerance": 0.01,
+        "trajectory_execution.execution_duration_monitoring": False
     }
 
     planning_scene_monitor_parameters = dict(
@@ -268,7 +273,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
     servo_params = dict(moveit_servo=servo_yaml_content)
     node_servo = Node(
         package="moveit_servo",
-        executable="servo_node_main",
+        executable="servo_node",
         output="screen",
         parameters=[servo_params, robot_description, robot_description_semantic, moveit_config.robot_description_kinematics],
         condition=IfCondition(launch_servo)
