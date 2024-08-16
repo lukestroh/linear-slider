@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="linear_slider">
 
-    <xacro:macro name="linear_slider_macro" params="prefix parent *origin">
-        
+    <xacro:macro name="linear_slider_macro" params="joint_limits_file prefix parent *origin">
+
         <!-- ================== -->
         <!--     Properties     -->
         <!-- ================== -->
@@ -30,6 +30,15 @@
 
         <!-- tool0 / flange properties -->
         <xacro:property name="moving_base__flange_offset" value="0.05" />
+
+        <!-- Joint limits -->
+        <!-- Yaml file is dynamically built which xacro doesn't handle well, so key is split up and combined as raw string -->
+        <xacro:property name="prefix_part1" value="&#36;"/> <!-- '$' character -->
+        <xacro:property name="prefix_part2" value="(var "/>
+        <xacro:property name="prefix_part3" value="prefix"/>
+        <xacro:property name="prefix_part4" value=")"/>
+        <xacro:property name="joint_name" value="${prefix_part1}${prefix_part2}${prefix_part3}${prefix_part4}joint1"/>
+        <xacro:property name="joint_limits" value="${xacro.load_yaml(joint_limits_file)['joint_limits'][joint_name]}"/>
 
         <!-- ================== -->
         <!--     Materials      -->
@@ -121,7 +130,7 @@
         <link name="${prefix}base" />
         <!-- Frame for mounting EEF models to a manipulator. x+ axis points forward (REP 103). -->
         <link name="${prefix}flange" />
-        
+
 
         <!-- ================== -->
         <!--       Joints       -->
@@ -142,23 +151,23 @@
             <parent link="${prefix}base_link"/>
             <child link="${prefix}moving_base"/>
             <axis xyz="1 0 0"/>
-            <limit 
-                effort="${slider_effort_limit}"
-                lower="${slider_limit_min}"
-                upper="${slider_limit_max}"
-                velocity="${slider_velocity_limit}"
-            /> <!-- effort is attribute for enforcing maximum joint effort, between 0 and 100% -->
+            <limit
+                lower="${joint_limits['min_position']}"
+                upper="${joint_limits['max_position']}"
+                velocity="${joint_limits['max_velocity']}"
+                effort="${joint_limits['max_acceleration']}" />
+            <!-- effort is attribute for enforcing maximum joint effort, between 0 and 100% -->
             <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Define where the joint will be located, defined in terms of parent's reference frame -->
         </joint>
-        
+
 
         <!-- Extra joints for ros-industrial standard compatability -->
         <!-- tool frame to fixed frame -->
         <joint name="${prefix}moving_base__flange_joint" type="fixed">
             <parent link="${prefix}moving_base"/>
             <child link="${prefix}flange"/>
-            <origin xyz="0 0 ${moving_base__flange_offset}" rpy="0 0 0" />   
-        </joint>    
+            <origin xyz="0 0 ${moving_base__flange_offset}" rpy="0 0 0" />
+        </joint>
         <joint name="${prefix}flange__tool0_joint" type="fixed">
             <parent link="${prefix}flange" />
             <child link="${prefix}tool0" />

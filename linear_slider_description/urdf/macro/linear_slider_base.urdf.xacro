@@ -17,7 +17,10 @@
         <link name="world" />
 
         <!-- Macro information -->
-        <xacro:linear_slider_macro prefix="${prefix}" parent="world">
+        <xacro:linear_slider_macro 
+            joint_limits_file="$(find linear_slider_description)/config/joint_limits.yaml"
+            prefix="${prefix}"
+            parent="world">
             <origin xyz="0 0 0" rpy="0 0 0"/>
         </xacro:linear_slider_macro>
 

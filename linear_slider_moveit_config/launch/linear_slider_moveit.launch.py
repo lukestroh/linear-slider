@@ -55,12 +55,12 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
     launch_servo = LaunchConfiguration("launch_servo")
     description_file = LaunchConfiguration("description_file")
     description_pkg = LaunchConfiguration("description_pkg")
+    joint_limits_file = LaunchConfiguration("joint_limits_file")
     mock_sensor_commands = LaunchConfiguration("mock_sensor_commands")
     moveit_semantic_description_file = LaunchConfiguration(
         "moveit_semantic_description_file"
     )
     moveit_runtime_config_pkg = LaunchConfiguration("moveit_runtime_config_pkg")
-    moveit_joint_limits_file = LaunchConfiguration("moveit_joint_limits_file")
     prefix = LaunchConfiguration("prefix")
     use_mock_hardware = LaunchConfiguration("use_mock_hardware")
     use_sim_time = LaunchConfiguration("use_sim_time")
@@ -82,9 +82,9 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
     # MoveIt Joint Limits
     moveit_joint_limits_path = PathJoinSubstitution(
         [
-            FindPackageShare(moveit_runtime_config_pkg),
+            FindPackageShare(description_pkg),
             "config",
-            moveit_joint_limits_file,
+            joint_limits_file,
         ]
     )
     moveit_joint_limits_evaluated_file = ParameterFile(
@@ -212,6 +212,9 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
             moveit_config.planning_scene_monitor,
             warehouse_ros_config,
         ],
+        # remappings=[
+        #     ("joint_states", f"{prefix.perform(context)}joint_states")
+        # ],
     )
 
     # RViz
@@ -332,9 +335,9 @@ def generate_launch_description():
     )
     declared_args.append(
         DeclareLaunchArgument(
-            "moveit_joint_limits_file",
+            "joint_limits_file",
             default_value="joint_limits.yaml",
-            description="MoveIt joint limits that augment or override the values from the URDF robot description.",
+            description="Joint limits that augment URDF robot description.",
         )
     )
     declared_args.append(
