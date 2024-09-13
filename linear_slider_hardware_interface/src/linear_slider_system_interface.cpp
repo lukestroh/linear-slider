@@ -153,12 +153,9 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_cleanup(const
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(const rclcpp_lifecycle::State& /*previous_state*/) {
     /* Activate the hardware by sending a calibration request if the system is in standby. */
     RCLCPP_INFO(_LOGGER, "Activating hardware, please wait...");
+    // rclcpp::Clock().sleep_for(rclcpp::Duration(1, 0));
     while (true) {
         hardware_interface::return_type read_success = read(rclcpp::Clock().now(), rclcpp::Duration(0, 0));
-
-        // if (!calibration_cmd_sent) {
-        //     RCLCPP_WARN(_LOGGER, "Slider status: %d", linear_slider_.state.system_status);
-        // }
 
         if (read_success == hardware_interface::return_type::OK) {
             // Don't do anything if system is normal
@@ -168,8 +165,12 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(cons
             }
             // If in standby, calibrate
             else if (linear_slider_.state.system_status == slidersystem::SYSTEM_STANDBY) {
+
                 // make sure this message only gets sent once...
                 if (!calibration_cmd_sent) {
+                                
+                    RCLCPP_INFO(_LOGGER, "System status: %d. System is in standby.", linear_slider_.state.system_status);
+
                     linear_slider_.command.system_status = slidersystem::SYSTEM_CALIBRATING;
                     this->write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
                     calibration_cmd_sent = true;
@@ -187,16 +188,21 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(cons
             }
             // If at the switches, update position and return to normal operation
             else if (linear_slider_.state.system_status == slidersystem::NEG_LIM) {
-                linear_slider_.state.pos = linear_slider_.pos_min; // TODO: remove hardcode
-                linear_slider_.command.system_status = slidersystem::SYSTEM_OK;
+                linear_slider_.state.pos = -0.25; // TODO: Get limits from yaml file.
+                // linear_slider_.command.system_status = slidersystem::SYSTEM_OK;
+                
                 linear_slider_.command.vel = linear_slider_.start_velocity;
+                RCLCPP_WARN(_LOGGER, "linear_slider_pos_min: %f", linear_slider_.pos_min);
                 this->write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
+                break;
             }
             else if (linear_slider_.state.system_status == slidersystem::POS_LIM) {
-                linear_slider_.state.pos = linear_slider_.pos_max; // TODO: remove hardcode
-                linear_slider_.command.system_status = slidersystem::SYSTEM_OK;
+                linear_slider_.state.pos = linear_slider_.pos_max;
+                // linear_slider_.command.system_status = slidersystem::SYSTEM_OK;
                 linear_slider_.command.vel = linear_slider_.start_velocity;
+
                 this->write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
+                // break;  // TODO: break if calibration added to both sides
             }
         }
     }
@@ -271,7 +277,7 @@ hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp:
 
     comms_.send_data((status_cmd + "," + rpm_cmd).c_str());
 
-    // RCLCPP_WARN(_LOGGER, "Write rpm: %s", (status_cmd + "," + rpm_cmd).c_str());
+    // RCLCPP_WARN(_LOGGER, "Write cmd: %s", (status_cmd + "," + rpm_cmd).c_str());
     // RCLCPP_WARN(_LOGGER, "Write period: %f", period.nanoseconds() / 1e9);
 
     return hardware_interface::return_type::OK;

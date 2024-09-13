@@ -261,6 +261,9 @@ def generate_launch_description():
         ],
         condition=IfCondition(use_moveit)
     )
+    register_event_delay_moveit_after_JSB_spawner = RegisterEventHandler(
+        event_handler=OnProcessStart(target_action=joint_state_broadcaster_spawner, on_start=launch_linear_slider_moveit)
+    )
 
     return LaunchDescription(
         declared_args
@@ -271,7 +274,8 @@ def generate_launch_description():
             node_robot_state_pub,
             register_event_delay_rviz_after_JSB_spawner,
             register_event_for_slider_on_activate,
-            launch_linear_slider_moveit,
+            # launch_linear_slider_moveit,
+            register_event_delay_moveit_after_JSB_spawner
         ]
         + register_events_delay_robot_controller_spawners_after_JSB_spawner
     )

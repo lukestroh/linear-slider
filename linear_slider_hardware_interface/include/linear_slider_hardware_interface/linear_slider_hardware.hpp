@@ -8,7 +8,7 @@
 
 struct Interface{
     slidersystem::SystemStatus system_status = slidersystem::SYSTEM_STANDBY;
-    double pos = 0.0;
+    double pos = 0.0; // TODO: get from initial_positions file?
     double vel = 0.0;
     int rpm = 0;
     double lim_switch_neg {false}; // hardware_interface::StateInterface only accepts double as a value, not bool. TODO: Switch to GPIO??
@@ -23,7 +23,7 @@ class LinearSliderHardware {
         Interface command;
         std::vector<std::string> joint_names = {"joint1"};
 
-        double pos_min = -0.4;
+        double pos_min = -0.4; // TODO: get these limits from yaml file
         double pos_max = 0.4;
         double start_velocity = 0.0;
 
