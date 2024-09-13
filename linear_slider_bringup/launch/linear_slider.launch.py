@@ -155,6 +155,7 @@ def generate_launch_description():
         output="both",
         parameters=[
             ParameterFile(robot_controllers, allow_substs=True),
+            # ("~/robot_description", "/robot_description"),
             robot_description,  # Says it's deprecated, but only works if this is provided!
         ],
     )

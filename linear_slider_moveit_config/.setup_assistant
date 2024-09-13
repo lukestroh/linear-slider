@@ -18,9 +18,3 @@ moveit_setup_assistant_config:
   modified_urdf:
     xacros:
       - control_xacro
-  control_xacro:
-    command:
-      - velocity
-    state:
-      - position
-      - velocity

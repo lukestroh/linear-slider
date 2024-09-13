@@ -61,6 +61,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
         "moveit_semantic_description_file"
     )
     moveit_runtime_config_pkg = LaunchConfiguration("moveit_runtime_config_pkg")
+    parent = LaunchConfiguration("parent")
     prefix = LaunchConfiguration("prefix")
     use_mock_hardware = LaunchConfiguration("use_mock_hardware")
     use_sim_time = LaunchConfiguration("use_sim_time")
@@ -156,7 +157,15 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
             get_package_share_directory("linear_slider_description"),
             "urdf/linear_slider.urdf.xacro",
         ),
-        mappings={"use_mock_hardware": use_mock_hardware, "prefix": prefix},
+        mappings={
+            "mock_sensor_commands": mock_sensor_commands,
+            "parent": parent,
+            "prefix": prefix,
+            "use_mock_hardware": use_mock_hardware,
+            # "sim_gazebo": sim_gazebo,
+            # "sim_gazebo_classic": sim_gazebo_classic,
+        },
+
     )
     mcb.robot_description_semantic(
         file_path=os.path.join(
@@ -338,6 +347,13 @@ def generate_launch_description():
             "joint_limits_file",
             default_value="joint_limits.yaml",
             description="Joint limits that augment URDF robot description.",
+        )
+    )
+    declared_args.append(
+        DeclareLaunchArgument(
+            "parent",
+            default_value="world",
+            description="Parent joint of the robot. Typically the world, unless mounting to a mobile platform."
         )
     )
     declared_args.append(
