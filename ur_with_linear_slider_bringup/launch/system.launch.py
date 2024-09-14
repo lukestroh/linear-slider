@@ -300,7 +300,8 @@ def launch_setup(context, *args, **kwargs):
     return nodes_to_start
 
 
-def generate_launch_description():
+def generate_launch_description
+():
     # Declare arguments
     declared_args = []
     declared_args.append(

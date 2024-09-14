@@ -6,7 +6,7 @@
   <description>
      A description package for the linear slider.
   </description>
-  <maintainer email="strohbel@oregonstate.edu">Luke Strohbehn</maintainer>
+  <maintainer email="luke.strohbehn@gmail.com">Luke Strohbehn</maintainer>
 
   <license>BSD-3-Clause</license>
 
@@ -14,10 +14,10 @@
   <url type="repository">https://github.com/lukestroh/linear-slider</url>
   <url type="bugtracker">https://github.com/lukestroh/linear-slider/issues</url>
 
-  <author email="strohbel@oregonstate.edu">Luke Strohbehn</author>
+  <author email="luke.strohbehn@gmail.com">Luke Strohbehn</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-  
+
   <exec_depend>joint_state_publisher</exec_depend>
   <exec_depend>joint_state_publisher_gui</exec_depend>
   <exec_depend>tf2_ros</exec_depend>

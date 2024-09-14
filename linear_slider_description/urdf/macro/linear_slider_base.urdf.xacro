@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro" name="linear_slider">
     <xacro:macro name="linear_slider" params="
+        parent:='world'
         prefix:=''
         use_mock_hardware:=^|false
         mock_sensor_commands:=^|false
@@ -13,11 +14,11 @@
         <xacro:include filename="$(find linear_slider_description)/urdf/macro/linear_slider_macro.xacro"/>
         <xacro:include filename="$(find linear_slider_description)/urdf/macro/linear_slider.ros2_control.xacro"/>
 
-        <!-- World link -->
-        <link name="world" />
-
         <!-- Macro information -->
-        <xacro:linear_slider_macro prefix="${prefix}" parent="world">
+        <xacro:linear_slider_macro
+            joint_limits_file="$(find linear_slider_description)/config/joint_limits.yaml"
+            prefix="${prefix}"
+            parent="${parent}">
             <origin xyz="0 0 0" rpy="0 0 0"/>
         </xacro:linear_slider_macro>
 
