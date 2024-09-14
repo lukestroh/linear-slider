@@ -23,9 +23,9 @@ class LinearSliderHardware {
         Interface command;
         std::vector<std::string> joint_names = {"joint1"};
 
-        double pos_min = -0.4; // TODO: get these limits from yaml file
-        double pos_max = 0.4;
-        double start_velocity = 0.0;
+        const double pos_min = -0.4; // TODO: get these limits from yaml file
+        const double pos_max = 0.4;
+        const double start_velocity = 0.0;
 
         LinearSliderHardware();
         LinearSliderHardware(const std::string& system_name);
