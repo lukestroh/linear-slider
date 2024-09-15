@@ -161,7 +161,14 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(cons
         if (read_success == hardware_interface::return_type::OK) {
             // Don't do anything if system is normal
             if (linear_slider_.state.system_status == slidersystem::SYSTEM_OK) {
-                linear_slider_.command.system_status = slidersystem::SYSTEM_OK;
+                // If the system is reporting SYSTEM_OK but we are just starting the program, we unfortunately do
+                // not know where the motor position is. Therefore we must force calibration.
+                // TODO: Figure out a way to store position? Would probably have to design a request to the MCU
+                // and store in EEPROM.
+                linear_slider_.command.system_status = slidersystem::SYSTEM_CALIBRATING;
+                linear_slider_.command.rpm = 0;
+                linear_slider_.command.vel = 0;
+                this->write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
                 break;
             }
             // If in standby, calibrate
@@ -244,13 +251,13 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
             return hardware_interface::return_type::ERROR;
         }
 
-        // Get system status and store in linear_slider_.system_status
+        // Get system status and store in linear_slider_.state.system_status
         linear_slider_.state.system_status = static_cast<slidersystem::SystemStatus>(msg_json["status"].asInt());
         // Get motor RPM, convert to float velocity, store in linear_slider_.state.rpm. Additionally, update linear_slider_.state.vel
         linear_slider_.state.rpm = msg_json["servo_rpm"].asInt();
         linear_slider_.state.vel = linear_slider_.rpm_to_vel(linear_slider_.state.rpm); // TODO: this should probably either be completely internal, or completely external, but not both.
         // Update position
-        RCLCPP_WARN(_LOGGER, "%f", period.seconds());
+        // RCLCPP_WARN(_LOGGER, "%f", period.seconds());
         linear_slider_.state.pos += period.seconds() * linear_slider_.state.vel;
 
         // TODO: Clean up the system_status vs. specific pins ? Or leave the interfaces separate?
@@ -265,7 +272,7 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
             linear_slider_.state.lim_switch_pos = false;
         }
 
-        RCLCPP_INFO(_LOGGER, "State Position: %f, Velocity: %f, Status: %d", linear_slider_.state.pos, linear_slider_.state.vel, linear_slider_.state.system_status);
+        // RCLCPP_INFO(_LOGGER, "State Position: %f, Velocity: %f, Status: %d", linear_slider_.state.pos, linear_slider_.state.vel, linear_slider_.state.system_status);
     }
     return hardware_interface::return_type::OK;
 }

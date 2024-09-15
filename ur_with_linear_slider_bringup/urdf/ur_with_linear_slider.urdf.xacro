@@ -5,18 +5,23 @@
     <!-- linear slider -->
     <xacro:include filename="$(find linear_slider_description)/urdf/macro/linear_slider_base.urdf.xacro" />
 
+    <xacro:arg name="linear_slider_parent" default="world"/>
+    <xacro:arg name="linear_slider_robot_ip" default="169.254.57.177"/> <!-- TODO: add this into the macro, but instead get from yaml file-->
     <xacro:arg name="prefix" default="''" />
     <xacro:arg name="use_mock_hardware" default="false" />
     <xacro:arg name="mock_sensor_commands" default="false" />
     <xacro:arg name="sim_gazebo" default="false" />
     <xacro:arg name="sim_gazebo_classic" default="false"/>
 
+    <link name="world"/>
+
     <xacro:linear_slider
-            prefix="$(arg prefix)"
-            sim_gazebo="$(arg sim_gazebo)"
-            sim_gazebo_classic="$(arg sim_gazebo_classic)"
-            use_mock_hardware="$(arg use_mock_hardware)"
-            mock_sensor_commands="$(arg mock_sensor_commands)"
+        parent="$(arg linear_slider_parent)"
+        prefix="$(arg prefix)"
+        sim_gazebo="$(arg sim_gazebo)"
+        sim_gazebo_classic="$(arg sim_gazebo_classic)"
+        use_mock_hardware="$(arg use_mock_hardware)"
+        mock_sensor_commands="$(arg mock_sensor_commands)"
     />
 
 
@@ -39,7 +44,7 @@
     <xacro:arg name="safety_k_position" default="20"/>
     <!-- ros2_control related parameters -->
     <xacro:arg name="headless_mode" default="false" />
-    <xacro:arg name="robot_ip" default="0.0.0.0" />
+    <xacro:arg name="ur_robot_ip" default="0.0.0.0" /> <!-- edited by Luke -->
     <xacro:arg name="script_filename" default=""/>
     <xacro:arg name="output_recipe_filename" default=""/>
     <xacro:arg name="input_recipe_filename" default=""/>
@@ -98,7 +103,7 @@
         tool_tx_idle_chars="$(arg tool_tx_idle_chars)"
         tool_device_name="$(arg tool_device_name)"
         tool_tcp_port="$(arg tool_tcp_port)"
-        robot_ip="$(arg robot_ip)"
+        robot_ip="$(arg ur_robot_ip)"
         script_filename="$(arg script_filename)"
         output_recipe_filename="$(arg output_recipe_filename)"
         input_recipe_filename="$(arg input_recipe_filename)"

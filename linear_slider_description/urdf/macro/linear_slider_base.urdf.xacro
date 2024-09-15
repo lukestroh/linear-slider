@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro" name="linear_slider">
     <xacro:macro name="linear_slider" params="
-        parent:='world'
-        prefix:=''
+        parent:=^|'world'
+        prefix:=^|''
         use_mock_hardware:=^|false
         mock_sensor_commands:=^|false
         sim_gazebo:=^|false

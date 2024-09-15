@@ -112,13 +112,11 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
     ompl_planning_pipeline_config["move_group"].update(ompl_planning_content)
 
     # Controller configuration
-    controllers_file = PathJoinSubstitution(
-        [
-            FindPackageShare(moveit_runtime_config_pkg),
-            "config",
-            "controllers.yaml",
-        ]
-    )
+    controllers_file = PathJoinSubstitution([
+        FindPackageShare(moveit_runtime_config_pkg),
+        "config",
+        "controllers.yaml",
+    ])
     controllers_yaml_evaluated_file = ParameterFile(
         controllers_file, allow_substs=True
     )
@@ -172,7 +170,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
             get_package_share_directory("linear_slider_moveit_config"),
             "srdf/linear_slider.srdf.xacro",
         ),
-        mappings={"use_mock_hardware": use_mock_hardware, "prefix": prefix},
+        mappings={"prefix": prefix},
     )
     mcb.robot_description_kinematics(
         file_path=robot_description_kinematics_evaluated_file.param_file

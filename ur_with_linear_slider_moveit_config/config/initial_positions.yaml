@@ -1,7 +1,7 @@
 # Default initial positions for ur_with_linear_slider's ros2_control fake system
 
 initial_positions:
-  $(var prefix)joint1: 0
+  $(var prefix)joint1: -0.4
   $(var tf_prefix)elbow_joint: 0
   $(var tf_prefix)shoulder_lift_joint: 0
   $(var tf_prefix)shoulder_pan_joint: 0

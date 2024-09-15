@@ -22,6 +22,7 @@
                 <xacro:if value="${use_mock_hardware}">
                     <plugin>mock_components/GenericSystem</plugin>
                     <param name="mock_sensor_commands">${mock_sensor_commands}</param>
+                    <param name="calculate_dynamics">true</param>
                 </xacro:if>
                 <xacro:if value="${sim_gazebo_classic}">
                     <plugin>gazebo_ros2_control/GazeboSystem</plugin>
