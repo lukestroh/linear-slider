@@ -201,7 +201,7 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(cons
                 linear_slider_.command.system_status = slidersystem::SYSTEM_OK;
                 
                 linear_slider_.command.vel = linear_slider_.start_velocity;
-                RCLCPP_WARN(_LOGGER, "linear_slider_pos_min: %f", linear_slider_.pos_min);
+                // RCLCPP_WARN(_LOGGER, "linear_slider_pos_min: %f", linear_slider_.pos_min);
                 this->write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
                 break;
             }

@@ -26,11 +26,14 @@ from launch_ros.substitutions import FindPackageShare
 
 from linear_slider_moveit_config.launch_common import load_yaml
 
+from moveit_configs_utils import MoveItConfigsBuilder
+
+
 import rclpy.logging
 
 import os
 
-logger = rclpy.logging.get_logger("ur_with_linear_slider_bringup.system_launch")
+logger = rclpy.logging.get_logger("ur_with_linear_slider_bringup.launch")
 
 def launch_setup(context, *args, **kwargs):
     # Launch configurations
@@ -45,6 +48,7 @@ def launch_setup(context, *args, **kwargs):
     linear_slider_controllers_package = LaunchConfiguration("linear_slider_controllers_package")
     linear_slider_controllers_file = LaunchConfiguration("linear_slider_controllers_file")
     linear_slider_controller = LaunchConfiguration("linear_slider_controller")
+    linear_slider_parent = LaunchConfiguration("linear_slider_parent")
     linear_slider_robot_ip = LaunchConfiguration("linear_slider_robot_ip")
     prefix = LaunchConfiguration("prefix")
 
@@ -62,47 +66,56 @@ def launch_setup(context, *args, **kwargs):
     mock_sensor_commands = LaunchConfiguration("mock_sensor_commands")
     use_moveit = LaunchConfiguration("use_moveit")
 
-    # Get URDF from xacro
-    robot_description_content = Command([
-        PathJoinSubstitution([FindExecutable(name="xacro")]),
-        " ",
-        PathJoinSubstitution(
-            [FindPackageShare(system_runtime_package), "urdf", system_description_file]
-        ),
-        " ",
-        "prefix:=",
-        prefix,
-        " ",
-        "tf_prefix:=",
-        tf_prefix,
-        " ",
-        "use_mock_hardware:=",
-        use_mock_hardware,
-        " ",
-        "mock_sensor_commands:=",
-        mock_sensor_commands,
-        " ",
-        "ur_type:=",
-        ur_type,
-        " ",
-        "ur_parent:=",
-        ur_parent,
-        " ",
-    ])
+    # # Get URDF from xacro
+    # robot_description_content = Command([
+    #     PathJoinSubstitution([FindExecutable(name="xacro")]),
+    #     " ",
+    #     PathJoinSubstitution(
+    #         [FindPackageShare(system_runtime_package), "urdf", system_description_file]
+    #     ),
+    #     " ",
+    #     "linear_slider_parent:=",
+    #     linear_slider_parent,
+    #     " ",
+    #     "linear_slider_robot_ip:=",
+    #     linear_slider_robot_ip,
+    #     " ",
+    #     "prefix:=",
+    #     prefix,
+    #     " ",
+    #     "tf_prefix:=",
+    #     tf_prefix,
+    #     " ",
+    #     "use_mock_hardware:=",
+    #     use_mock_hardware,
+    #     " ",
+    #     "mock_sensor_commands:=",
+    #     mock_sensor_commands,
+    #     " ",
+    #     "ur_robot_ip:=",
+    #     ur_robot_ip,
+    #     " ",
+    #     "ur_type:=",
+    #     ur_type,
+    #     " ",
+    #     "ur_parent:=",
+    #     ur_parent,
+    #     " ",
+    # ])
 
-    robot_description = {"robot_description": robot_description_content}
+    # robot_description = {"robot_description": robot_description_content}
 
-    filepath_linear_slider_controllers = PathJoinSubstitution([
-        FindPackageShare(linear_slider_controllers_package),
-        "config",
-        linear_slider_controllers_file
-    ])
+    # filepath_linear_slider_controllers = PathJoinSubstitution([
+    #     FindPackageShare(linear_slider_controllers_package),
+    #     "config",
+    #     linear_slider_controllers_file
+    # ])
 
-    filepath_ur_controllers = PathJoinSubstitution([
-        FindPackageShare(ur_runtime_package),
-        "config",
-        ur_controllers_file
-    ])
+    # filepath_ur_controllers = PathJoinSubstitution([
+    #     FindPackageShare(ur_runtime_package),
+    #     "config",
+    #     ur_controllers_file
+    # ])
 
     filepath_system_controllers = PathJoinSubstitution([
         FindPackageShare(system_runtime_package), # TODO: refactor as system_bringup_package
@@ -118,13 +131,47 @@ def launch_setup(context, *args, **kwargs):
             ur_type.perform(context=context) + "_update_rate.yaml"
         ]
     )
+    
+    
+    mcb = MoveItConfigsBuilder(robot_name="ur_with_linear_slider", package_name="ur_with_linear_slider_moveit_config")
+    mcb.robot_description(
+        file_path=os.path.join(
+            get_package_share_directory("ur_with_linear_slider_bringup"),
+            "urdf",
+            system_description_file.perform(context=context)
+        ),
+        mappings={
+            "mock_sensor_commands": mock_sensor_commands,
+            "linear_slider_parent": linear_slider_parent,
+            "linear_slider_robot_ip": linear_slider_robot_ip,
+            "prefix": prefix, # TODO: Change system launch to linear_slider_prefix
+            "tf_prefix": tf_prefix, # TODO: change to ur_prefix
+            "ur_parent": ur_parent,
+            "ur_robot_ip": ur_robot_ip,
+            "ur_type": ur_type,
+            "use_mock_hardware": use_mock_hardware
+        }
+    )
+    mcb.robot_description_semantic(
+        file_path=os.path.join(
+            get_package_share_directory("ur_with_linear_slider_moveit_config"),
+            "srdf",
+            "ur_with_linear_slider.srdf.xacro"
+        ),
+        mappings={
+            "prefix": prefix,
+            "tf_prefix": tf_prefix
+        }
+    )
+    moveit_configs = mcb.to_moveit_configs()
+    # logger.warn(f"{moveit_configs.robot_description['robot_description'].value[0].perform(context)}")
 
     node_mock_hardware_control = Node(
         package = "controller_manager",
         executable = "ros2_control_node",
         output = "screen",
         parameters = [
-            robot_description, # Says it's deprecated, but only works if this is provided!
+            moveit_configs.robot_description, # Says it's deprecated, but only works if this is provided!
             filepath_update_rate_config,
             # ParameterFile(filepath_ur_controllers, allow_substs=True), # substitute joint names with prefix values
             # ParameterFile(filepath_linear_slider_controllers, allow_substs=True),
@@ -142,7 +189,7 @@ def launch_setup(context, *args, **kwargs):
         package="ur_robot_driver",
         executable="ur_ros2_control_node",
         parameters=[
-            robot_description,
+            moveit_configs.robot_description,
             filepath_update_rate_config,
             # ParameterFile(filepath_ur_controllers, allow_substs=True), # TODO: try this method out. Reduces the need for a custom one.
             # ParameterFile(filepath_linear_slider_controllers, allow_substs=True)
@@ -156,7 +203,7 @@ def launch_setup(context, *args, **kwargs):
         package = "robot_state_publisher",
         executable = "robot_state_publisher",
         output = "both",
-        parameters = [robot_description]
+        parameters = [moveit_configs.robot_description]
     )
 
     filepath_rviz_config = PathJoinSubstitution([
@@ -250,9 +297,10 @@ def launch_setup(context, *args, **kwargs):
         )
     controller_spawner_names = [
         'linear_slider_controller',
+        'scaled_joint_trajectory_controller',
         'joint_trajectory_controller'
     ]
-    controller_spawner_inactive_names = ["forward_position_controller", "scaled_joint_trajectory_controller"]
+    controller_spawner_inactive_names = ["forward_position_controller"]
     controller_spawners = [controller_spawner(name) for name in controller_spawner_names] + [
         controller_spawner(name, active=False) for name in controller_spawner_inactive_names
     ]
@@ -279,21 +327,29 @@ def launch_setup(context, *args, **kwargs):
         AnyLaunchDescriptionSource(filepath_system_moveit_config),
         launch_arguments=[
             ('use_mock_hardware', use_mock_hardware),
+            ('ur_parent', ur_parent),
+            ('ur_robot_ip', ur_robot_ip),
+            ('ur_type', ur_type),
             ("mock_sensor_commands", mock_sensor_commands),
             # ("use_sim_time", use_sim_time),
         ],
         condition=IfCondition(use_moveit)
     )
 
+    register_event_delay_moveit_after_JSB_spawner = RegisterEventHandler(
+        event_handler=OnProcessStart(target_action=node_joint_state_broadcaster_spawner, on_start=launch_system_moveit)
+    )
+
 
     nodes_to_start = [
             node_mock_hardware_control,
-            # node_ur_control,
+            node_ur_control,
             node_robot_state_pub,
             lifecyclenode_delay_jsb_lifecycle,
             register_event_for_slider_on_activate,
             register_event_delay_rviz_after_JSB_spawner,
-            launch_system_moveit,
+            # launch_system_moveit,
+            register_event_delay_moveit_after_JSB_spawner,
             # linear_slider_launch,
             # ur_launch,
         ] + controller_spawners
@@ -323,6 +379,13 @@ def generate_launch_description():
             "linear_slider_controllers_package",
             default_value="linear_slider_controllers",
             description="Package for the controllers for the UR/linear slider combination."
+        )
+    )
+    declared_args.append(
+        DeclareLaunchArgument(
+            "linear_slider_parent",
+            default_value="world",
+            description="Parent link for the linear_slider base. Default is 'world'."
         )
     )
     declared_args.append(
@@ -405,7 +468,7 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "ur_robot_ip",
-            default_value="169.254.174.50",
+            default_value="169.254.177.232", # Cindy's UR5e
             description="IP Address for the UR robot."
         )
     )

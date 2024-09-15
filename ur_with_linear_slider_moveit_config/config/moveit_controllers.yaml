@@ -11,7 +11,7 @@ controller_names:
 linear_slider_controller:
   type: FollowJointTrajectory
   action_ns: follow_joint_trajectory
-  default: true
+  default: false
   joints:
     - $(var prefix)joint1
 

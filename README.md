@@ -21,6 +21,11 @@
   <li> Merge ur_with_linear_slider into linear_slider as launch option
 </ol>
 
+# UR Launch arguments
+```
+https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver/blob/64d44d4c345ceaaa4e02fa4baa21c80d1a5fbce7/ur_robot_driver/src/hardware_interface.cpp#L309
+```
+
 # Linear Slider Drivers
 
 This is a repository that includes packages for the hardware description, hardware interface, and controller interface for the linear slider. Each package within this repository includes their own README for more detailed explanations.

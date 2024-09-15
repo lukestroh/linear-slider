@@ -72,6 +72,13 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
     )
     parameterfile_moveit_joint_limits = ParameterFile(filepath_moveit_joint_limits, allow_substs=True)
     parameterfile_moveit_joint_limits.evaluate(context=context)
+    # yamlcontent_joint_limits = load_yaml(
+    #     package_name=str(system_moveit_config_package.perform(context=context)),
+    #         file_path=os.path.join(
+    #             "config", str(parameterfile_moveit_joint_limits.param_file))
+    # )
+    # logger.warn(f"{yamlcontent_joint_limits}")
+    # logger.warn(f"{parameterfile_moveit_joint_limits}")
 
     # Planning configuration
     ompl_planning_pipeline_config = dict(
@@ -116,6 +123,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
     if change_controllers.lower() == "true":
         yamlcontent_moveit_controllers["scaled_joint_trajectory_controller"]["default"] = False
         yamlcontent_moveit_controllers["joint_trajectory_controller"]["default"] = True
+        # logger.warn(f"{yamlcontent_moveit_controllers}")
 
     moveit_controllers = dict(
         moveit_simple_controller_manager=yamlcontent_moveit_controllers,
@@ -136,6 +144,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
         mappings={
             "mock_sensor_commands": mock_sensor_commands,
             "linear_slider_parent": linear_slider_parent,
+            "linear_slider_robot_ip": linear_slider_robot_ip,
             "prefix": prefix, # TODO: Change system launch to linear_slider_prefix
             "tf_prefix": tf_prefix, # TODO: change to ur_prefix
             "ur_parent": ur_parent,
