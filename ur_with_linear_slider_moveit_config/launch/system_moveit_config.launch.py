@@ -123,7 +123,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
     if change_controllers.lower() == "true":
         yamlcontent_moveit_controllers["scaled_joint_trajectory_controller"]["default"] = False
         yamlcontent_moveit_controllers["joint_trajectory_controller"]["default"] = True
-        # logger.warn(f"{yamlcontent_moveit_controllers}")
+        logger.warn(f"SWITCHING CONTROLLERS")
 
     moveit_controllers = dict(
         moveit_simple_controller_manager=yamlcontent_moveit_controllers,

@@ -1,10 +1,11 @@
 # TODO:
 
 <ol>
+  <li> Add Isaac Sim instead of Gazebo: [DIRECTIONS HERE](https://moveit.picknik.ai/main/doc/how_to_guides/isaac_panda/isaac_panda_tutorial.html). </li>
   <li> Detect if slider starts up on limit switch. Otherwise calibration violates safety. </li>
   <li> <s>Allow for backwards movement after limit switch hit.</s> </li>
-  <li> If program is restart while ClearCore controller is not, it accelerates off in the wrong direction of calibration. </li>
-  <li> <s>Add limit switches to URDF system state.</s> Update Hardware Interface to reflect these values. Find out where they're represented in the global ROS system state </li>
+  <li> <s> If program is restart while ClearCore controller is not, it accelerates off in the wrong direction of calibration. </s> </li>
+  <li> <s>Add limit switches to URDF system state. Update Hardware Interface to reflect these values. Find out where they're represented in the global ROS system state </s> </li>
   <li> Allow for calibration at any point.<br><li>  Calibration on either side? </li>
   <li> Get X-box controller to move slider with L2/R2 </li>
   <li> Check if `on_deactivate()` runs for linear_slider_hardware when control-c is hit. </li>

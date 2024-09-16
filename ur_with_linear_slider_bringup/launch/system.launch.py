@@ -316,9 +316,8 @@ def launch_setup(context, *args, **kwargs):
     controller_spawner_names = [
         'linear_slider_controller',
         'scaled_joint_trajectory_controller',
-        'joint_trajectory_controller'
     ]
-    controller_spawner_inactive_names = ["forward_position_controller"]
+    controller_spawner_inactive_names = ["forward_position_controller", 'joint_trajectory_controller']
     controller_spawners = [controller_spawner(name) for name in controller_spawner_names] + [
         controller_spawner(name, active=False) for name in controller_spawner_inactive_names
     ]

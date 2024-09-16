@@ -70,3 +70,8 @@ $(var tf_prefix)$(var prefix)manipulator:
   ##Note: commenting the following line lets moveit chose RRTConnect as default planner rather than LBKPIECE
   #projection_evaluator: joints(shoulder_pan_joint,shoulder_lift_joint)
   longest_valid_segment_fraction: 0.01
+
+  # trajectory_execution:
+  #   allowed_execution_duration_scaling: 5.0 # Increase this value
+  #   allowed_goal_duration_margin: 10.0 # Increase this value
+  #   execution_duration_monitoring: true
