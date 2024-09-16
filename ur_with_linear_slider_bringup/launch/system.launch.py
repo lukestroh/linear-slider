@@ -133,10 +133,24 @@ def launch_setup(context, *args, **kwargs):
     )
     
     
+    script_filename = PathJoinSubstitution(
+        [
+            FindPackageShare("ur_client_library"),
+            "resources",
+            "external_control.urscript",
+        ]
+    )
+    input_recipe_filename = PathJoinSubstitution(
+        [FindPackageShare("ur_robot_driver"), "resources", "rtde_input_recipe.txt"]
+    )
+    output_recipe_filename = PathJoinSubstitution(
+        [FindPackageShare("ur_robot_driver"), "resources", "rtde_output_recipe.txt"]
+    )
+
     mcb = MoveItConfigsBuilder(robot_name="ur_with_linear_slider", package_name="ur_with_linear_slider_moveit_config")
     mcb.robot_description(
         file_path=os.path.join(
-            get_package_share_directory("ur_with_linear_slider_bringup"),
+            FindPackageShare(system_runtime_package).perform(context=context),
             "urdf",
             system_description_file.perform(context=context)
         ),
@@ -149,7 +163,11 @@ def launch_setup(context, *args, **kwargs):
             "ur_parent": ur_parent,
             "ur_robot_ip": ur_robot_ip,
             "ur_type": ur_type,
-            "use_mock_hardware": use_mock_hardware
+            "use_mock_hardware": use_mock_hardware,
+
+            "script_filename": script_filename,
+            "input_recipe_filename": input_recipe_filename,
+            "output_recipe_filename": output_recipe_filename,
         }
     )
     mcb.robot_description_semantic(
@@ -323,6 +341,7 @@ def launch_setup(context, *args, **kwargs):
         FindPackageShare(system_moveit_config_package), "launch", "system_moveit_config.launch.py"
     ]) # TODO: For some reason this wasn't working with FindPackageShare. Why ?
 
+
     launch_system_moveit = IncludeLaunchDescription(
         AnyLaunchDescriptionSource(filepath_system_moveit_config),
         launch_arguments=[
@@ -363,7 +382,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "linear_slider_controller",
             default_value = "linear_slider_controller",
-            choices = ["linear_slider_controller", "joint_trajectory_controller"], # add another here if we want to switch between different controllers
+            choices = ["linear_slider_controller", "scaled_joint_trajectory_controller"], # add another here if we want to switch between different controllers
             description = "Linear slider controller"
         )
     )

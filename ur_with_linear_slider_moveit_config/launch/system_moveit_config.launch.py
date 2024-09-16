@@ -134,6 +134,20 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
         warehouse_plugin="warehouse_ros_sqlite::DatabaseConnection", warehouse_host=warehouse_sqlite_path
     )
 
+    script_filename = PathJoinSubstitution(
+        [
+            FindPackageShare("ur_client_library"),
+            "resources",
+            "external_control.urscript",
+        ]
+    )
+    input_recipe_filename = PathJoinSubstitution(
+        [FindPackageShare("ur_robot_driver"), "resources", "rtde_input_recipe.txt"]
+    )
+    output_recipe_filename = PathJoinSubstitution(
+        [FindPackageShare("ur_robot_driver"), "resources", "rtde_output_recipe.txt"]
+    )
+
     mcb = MoveItConfigsBuilder(robot_name="ur_with_linear_slider", package_name="ur_with_linear_slider_moveit_config")
     mcb.robot_description(
         file_path=os.path.join(
@@ -150,7 +164,11 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
             "ur_parent": ur_parent,
             "ur_robot_ip": ur_robot_ip,
             "ur_type": ur_type,
-            "use_mock_hardware": use_mock_hardware
+            "use_mock_hardware": use_mock_hardware,
+
+            "script_filename": script_filename,
+            "input_recipe_filename": input_recipe_filename,
+            "output_recipe_filename": output_recipe_filename,
         }
     )
     mcb.robot_description_semantic(
