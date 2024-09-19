@@ -53,6 +53,7 @@ def launch_setup(context, *args, **kwargs):
     prefix = LaunchConfiguration("prefix")
 
     # UR robot config
+    headless_mode = LaunchConfiguration("headless_mode")
     ur_type = LaunchConfiguration("ur_type")
     tf_prefix = LaunchConfiguration("tf_prefix")
     ur_parent = LaunchConfiguration("ur_parent")
@@ -155,6 +156,7 @@ def launch_setup(context, *args, **kwargs):
             system_description_file.perform(context=context)
         ),
         mappings={
+            "headless_mode": headless_mode,
             "mock_sensor_commands": mock_sensor_commands,
             "linear_slider_parent": linear_slider_parent,
             "linear_slider_robot_ip": linear_slider_robot_ip,
@@ -377,6 +379,13 @@ def launch_setup(context, *args, **kwargs):
 def generate_launch_description():
     # Declare arguments
     declared_args = []
+    declared_args.append(
+        DeclareLaunchArgument(
+            "headless_mode"
+            default_value="true",
+            description="Run the UR robot in headless mode. Default true, as we typically want to run algorithms from host computer rather than UR pendant."
+        )
+    )
     declared_args.append(
         DeclareLaunchArgument(
             "linear_slider_controller",

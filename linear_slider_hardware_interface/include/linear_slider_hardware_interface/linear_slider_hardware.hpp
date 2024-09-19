@@ -21,7 +21,7 @@ class LinearSliderHardware {
         std::string name;
         Interface state;
         Interface command;
-        std::vector<std::string> joint_names = {"joint1"};
+        std::vector<std::string> joint_names = {"joint1"}; // TODO: prefix namespace
 
         const double pos_min = -0.4; // TODO: get these limits from yaml file
         const double pos_max = 0.4;

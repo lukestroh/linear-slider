@@ -12,7 +12,7 @@ joint_limits:
         max_position: 0.4
         min_position: -0.4
         has_velocity_limits: true
-        max_velocity: 0.5
+        max_velocity: 0.08333333333333334 # 1000 rpm for the servo motor. See ClearPath datasheet for speed limits.
         has_acceleration_limits: true
         max_acceleration: 0.2
         has_jerk_limits: true

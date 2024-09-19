@@ -29,7 +29,8 @@ from launch.substitutions import (
     TextSubstitution,
 )
 from launch.utilities import perform_substitutions
-from launch_ros.actions import Node
+from launch_ros.actions import Node, ComposableNodeContainer
+from launch_ros.descriptions import ComposableNode
 from launch_ros.parameter_descriptions import ParameterFile
 from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
@@ -163,7 +164,6 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
             # "sim_gazebo": sim_gazebo,
             # "sim_gazebo_classic": sim_gazebo_classic,
         },
-
     )
     mcb.robot_description_semantic(
         file_path=os.path.join(
@@ -197,6 +197,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
 
     moveit_config = mcb.to_moveit_configs()
     # logger.warn(f"{moveit_config.planning_scene_monitor}")
+    logger.warn(f"{moveit_config.robot_description['robot_description'].value[0].perform(context)}")
 
     # Start the actual move_group node/action server
     node_move_group = Node(
@@ -279,9 +280,39 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
             moveit_config.robot_description,
             moveit_config.robot_description_semantic,
             moveit_config.robot_description_kinematics,
+            moveit_config.joint_limits
         ],
         condition=IfCondition(launch_servo),
     )
+
+    # https://github.com/moveit/moveit2/blob/main/moveit_ros/moveit_servo/launch/demo_ros_api.launch.py
+    # node_servo = ComposableNodeContainer(
+    #     name="servo_node_container",
+    #     namespace='/',
+    #     package='rclcpp_components',
+    #     executable='component_container_mt',
+    #     composable_node_descriptions=[
+    #         ComposableNode(
+    #             package='moveit_servo',
+    #             plugin="moveit_servo::ServoNode",
+    #             name="servo_node",
+    #             parameters=[
+    #                 servo_params,
+    #                 moveit_config.robot_description,
+    #                 moveit_config.robot_description_semantic,
+    #                 moveit_config.robot_description_kinematics,
+    #                 moveit_config.joint_limits,
+    #                 {"reliability": "reliable", "history": 'keep_last', "history_depth": 1}
+    #             ],
+    #             extra_arguments=[{'use_intra_process_comms': True}]
+    #         ),
+    #         # ComposableNode(
+    #         #     package="joy",
+    #         #     plugin="joy::Joy",
+    #         #     name="joy_node",
+    #         # ),
+    #     ]
+    # )
 
     nodes_to_start = [node_move_group, node_servo, node_rviz]
 

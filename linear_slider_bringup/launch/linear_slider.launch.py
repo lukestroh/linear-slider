@@ -22,6 +22,14 @@ def generate_launch_description():
     declared_args = []
     declared_args.append(
         DeclareLaunchArgument(
+            "joystick_type",
+            default_value="xbox",
+            choices=["xbox", "nswitch", "playstation"],
+            description="Game controller type. Default is Xbox Series X type."
+        )
+    )
+    declared_args.append(
+        DeclareLaunchArgument(
             "linear_slider_bringup_package",
             default_value="linear_slider_bringup",
             description='Package with the controller\'s configuration in the "config" folder. Usually, the argument is not set; it enables the use of a custom setup.'
@@ -76,6 +84,14 @@ def generate_launch_description():
     )
     declared_args.append(
         DeclareLaunchArgument(
+            "use_joystick",
+            default_value="true",
+            choices=["true", "false"],
+            description="Use the joystick node to control the linear slider using the trigger buttons."
+        )
+    )
+    declared_args.append(
+        DeclareLaunchArgument(
             "use_mock_hardware",
             default_value="false",
             choices=["true", "false"],
@@ -114,12 +130,14 @@ def generate_launch_description():
     controllers_file = LaunchConfiguration("controllers_file")
     description_package = LaunchConfiguration("description_package")
     description_file = LaunchConfiguration("description_file")
+    joystick_type = LaunchConfiguration("joystick_type")
     mock_sensor_commands = LaunchConfiguration("mock_sensor_commands")
     moveit_config_package = LaunchConfiguration("moveit_config_package")
     prefix = LaunchConfiguration("prefix")
     robot_controller = LaunchConfiguration("robot_controller")
     linear_slider_bringup_package = LaunchConfiguration("linear_slider_bringup_package")
     linear_slider_controllers_package = LaunchConfiguration("linear_slider_controllers_package")
+    use_joystick = LaunchConfiguration("use_joystick")
     use_mock_hardware = LaunchConfiguration("use_mock_hardware")
     use_moveit = LaunchConfiguration("use_moveit")
     use_sim_time = LaunchConfiguration("use_sim_time")
@@ -265,6 +283,33 @@ def generate_launch_description():
         event_handler=OnProcessStart(target_action=joint_state_broadcaster_spawner, on_start=launch_linear_slider_moveit)
     )
 
+    node_joystick = Node(
+        package="joy",
+        executable="joy_node",
+        name="joystick_node",
+        condition=IfCondition(use_joystick)
+    )
+
+    node_io_manager = Node(
+        package="linear_slider_bringup",
+        executable="io_manager_node.py",
+        name="io_manager",
+        condition=IfCondition(use_joystick)
+    )
+
+    # paramfile_joint_limits
+
+    node_user_control = Node(
+        package="linear_slider_bringup",
+        executable="user_control_node.py",
+        name="user_control",
+        parameters=[
+            {"prefix": prefix},
+
+        ],
+        condition=IfCondition(use_joystick)
+    )
+
     return LaunchDescription(
         declared_args
         + [
@@ -275,7 +320,10 @@ def generate_launch_description():
             register_event_delay_rviz_after_JSB_spawner,
             register_event_for_slider_on_activate,
             # launch_linear_slider_moveit,
-            register_event_delay_moveit_after_JSB_spawner
+            register_event_delay_moveit_after_JSB_spawner,
+            node_joystick,
+            # node_io_manager,
+            node_user_control
         ]
         + register_events_delay_robot_controller_spawners_after_JSB_spawner
     )
