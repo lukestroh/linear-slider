@@ -381,7 +381,7 @@ def generate_launch_description():
     declared_args = []
     declared_args.append(
         DeclareLaunchArgument(
-            "headless_mode"
+            "headless_mode",
             default_value="true",
             description="Run the UR robot in headless mode. Default true, as we typically want to run algorithms from host computer rather than UR pendant."
         )

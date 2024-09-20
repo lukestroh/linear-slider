@@ -32,14 +32,14 @@ linear_slider_controller:
                 # i: 0.0
                 # d: 0.0
                 # MOCK HARDWARE  --   TODO: Is this different because of the lack of a transmission interface? The mass of the moving base becomes less significant with our ball screw, which isn't modeled in the URDF.
-                p: 1000.0
-                i: 10.0
-                d: 1.0
+                # p: 1000.0
+                # i: 10.0
+                # d: 1.0
 
                 # REAL HARDWARE
-                # p: 6.0
-                # i: 2.0
-                # d: 2.0
+                p: 6.0
+                i: 2.0
+                d: 2.0
 
                 # p: 10.0
                 # i: 2.0

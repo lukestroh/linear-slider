@@ -197,7 +197,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
 
     moveit_config = mcb.to_moveit_configs()
     # logger.warn(f"{moveit_config.planning_scene_monitor}")
-    logger.warn(f"{moveit_config.robot_description['robot_description'].value[0].perform(context)}")
+    # logger.warn(f"{moveit_config.robot_description['robot_description'].value[0].perform(context)}")
 
     # Start the actual move_group node/action server
     node_move_group = Node(
