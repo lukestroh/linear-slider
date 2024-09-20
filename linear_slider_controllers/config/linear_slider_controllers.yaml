@@ -37,13 +37,13 @@ linear_slider_controller:
                 # d: 1.0
 
                 # REAL HARDWARE
-                p: 6.0
-                i: 2.0
-                d: 2.0
-
-                # p: 10.0
+                # p: 6.0
                 # i: 2.0
-                # d: 5.0
+                # d: 2.0
+
+                p: 400.0
+                i: 2.0
+                d: 70.0
                 # i_clamp: 1.0
                 
 

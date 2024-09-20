@@ -19,7 +19,7 @@ import os
 import yaml
 
 
-class UserControlNode(LifecycleNode):
+class UserControlNode(Node):
     def __init__(self):
         super().__init__(node_name="user_control_node")
         # Loggers

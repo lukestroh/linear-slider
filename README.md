@@ -1,6 +1,10 @@
 # TODO:
 
 1.  fix limit switch broadcaster (doesn't publish 1 to 1). 
+1. **Servoing**
+    1. slider ran into the neg limit switch and succesfully stopped. MoveIt Servo halted movement as well, but not before hitting the switch. Then, the `ros2_control_node` died. Why???
+    1. servoing to a point works, but then oscillations gorw and grow and grow. Eventually, they stop and it moves full speed toward neg limit switch? WHYYY?? (Answer -> It looks like the ros2_contol_node dies, as above. The mcu then moves at the last commanded speed, which was the max speed.)
+        1. Therefore, it seems like if the max speed is hit during oscillations, the control node dies?
 1. When starting program on lim switch, sometimes initial burst of movement off the switch. Why??
 1. Remove /tmp/ folder stuff for kinematics launch file stuff (remove old way, moveitconfigsbuilder is better)
 1. Refactor all of the MoveIt stuff, it's a mess. (Maybe check out Jazzy? Looks like the MoveItConfigsBuilder is what they're working towards...)
@@ -13,14 +17,14 @@
 1.  Allow for calibration at any point.
     1. Calibration on either side? 
 1.  Get X-box controller to move slider with L2/R2 
-1.  Check if `on_deactivate()` runs for linear_slider_hardware when control-c is hit. 
 1.  Refactor linear slider bringup to take a robot arm as launch argument, build subsequent launch files and URDFs from there.  
 1.  Let the high-level launch pass the URDF to the MoveIt launch.... 
 1.  Add polling for E-stop for reset-detection (i.e. can we un-set the estop and resume operation without restarting the controller?). 
 1.  Create centralized velocity and position limits. Make sure each interface receives them. 
 1.  SHUTDOWN SAFTETY
-    1.  Code shutdown 
-    1.  Physical link to UR5 (can be wired in --> Jostan)   
+    1.  Code shutdown
+        1.  Check if `on_deactivate()` runs for linear_slider_hardware when control-c is hit. Doesn't appear to run.
+    1.  Estop physical link to UR5 (can be wired in --> Jostan)   
 1.  Merge ur_with_linear_slider into linear_slider as launch option
 
 
