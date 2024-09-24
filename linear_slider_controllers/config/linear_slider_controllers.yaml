@@ -26,7 +26,7 @@ linear_slider_controller:
 
         gains: # required for velocity interface
             $(var prefix)joint1:
-                ff_velocity_scale: 1.0
+                ff_velocity_scale: 0.1
                 # # Mock hardware + UR5e
                 # p: 100.0
                 # i: 0.0
@@ -37,13 +37,17 @@ linear_slider_controller:
                 # d: 1.0
 
                 # REAL HARDWARE
-                # p: 6.0
-                # i: 2.0
-                # d: 2.0
+                # p: 200.0
+                # i: 0.0
+                # d: 10.0
 
-                p: 400.0
-                i: 2.0
-                d: 70.0
+                p: 100.0
+                i: 0.0
+                d: 0.0
+
+                # p: 400.0
+                # i: 2.0
+                # d: 70.0
                 # i_clamp: 1.0
                 
 

@@ -269,7 +269,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
             "config", str(servo_yaml_evaluated_file.param_file)
         ),
     )
-    # logger.warn(f"{servo_yaml_content}")
+    logger.warn(f"{servo_yaml_content}")
     servo_params = dict(moveit_servo=servo_yaml_content)
     node_servo = Node(
         package="moveit_servo",

@@ -51,11 +51,19 @@ class UserControlNode(Node):
             qos_profile=10,
         )
 
+        #Timers
+        self._filtered_timer = self.create_timer(
+            timer_period_sec=0.005,
+            callback=self._timer_cb
+        )
+
         self.axes = {
             "LT": 2,
             "RT": 5
         }
         self.remapped_vals = [0, 0]
+
+        self.data: TwistStamped = None
         return
     
     def _sub_cb_joy_state(self, msg: Joy):
@@ -78,14 +86,21 @@ class UserControlNode(Node):
         twist.header.frame_id = f'{self.linear_slider_prefix}base_link'
         twist.header.stamp = self.get_clock().now().to_msg()
         twist.twist.linear.x = vel_cmd
-        self._pub_slider_servo.publish(twist)
+        self.data = twist
+        # self._pub_slider_servo.publish(twist)
 
         return 
-
-    def process_axis(self, axes_states):
-        """TODO: replace the for loop above (similar to alex's?)"""
-        
+    
+    def _timer_cb(self):
+        if self.data is not None:
+            self._pub_slider_servo.publish(self.data)
+            pass
         return
+
+    # def process_axis(self, axes_states):
+    #     """TODO: replace the for loop above (similar to alex's?)"""
+        
+    #     return
     
     def _scale(self, val, amin, amax, bmin, bmax):
         """Scale a value from one range to a another"""
