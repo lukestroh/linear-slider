@@ -2,15 +2,28 @@ controller_manager:
     ros__parameters:
         update_rate: 2000 # hz
 
-        linear_slider_controller:
-            type: joint_trajectory_controller/JointTrajectoryController
-            # TODO: Therefore if the hardware provides only acceleration or velocity states they have to be integrated in the hardware-interface implementation of velocity and position to use these controllers.
-
         joint_state_broadcaster:
             type: joint_state_broadcaster/JointStateBroadcaster
 
         limit_switch_state_broadcaster:
             type: linear_slider_controllers/LimitSwitchStateBroadcaster
+
+        linear_slider_controller:
+            type: joint_trajectory_controller/JointTrajectoryController
+            # TODO: Therefore if the hardware provides only acceleration or velocity states they have to be integrated in the hardware-interface implementation of velocity and position to use these controllers.
+
+        linear_slider_forward_velocity_controller:
+            type: velocity_controllers/JointGroupVelocityController
+
+
+        # TODO: Perhaps this isn't what I want. I think this should go into the other package
+        # multi_interface_forward_command_controller:
+        #     type: multi_interface_forward_command_controller/MultiInterfaceForwardCommandController
+
+        # forward_position_controller:
+        #     type: position_controllers/JointGroupPositionController
+
+        # TODO: Look into multi_interface_forward_command_controller for UR+slider:  https://control.ros.org/master/doc/ros2_controllers/forward_command_controller/doc/userdoc.html
 
 linear_slider_controller:
     ros__parameters:
@@ -53,13 +66,19 @@ linear_slider_controller:
         allow_partial_joints_goal: false # defaults to false
         # stop_trajectory_duration: 0.1
         constraints:
-            goal_time: 20.0 # defaults to 0.0 (start immediately)
+            goal_time: 20.0 # defaults to 0.0 (start immediately) # TODO: clean these values up.
             stopped_velocity_tolerance: 0.01 # Defaults to 0.01
             $(var prefix)joint1:
                 goal: 0.05 # position tolerace (m)
                 trajectory: 0.20
 
-        allow_nonzero_velocity_at_trajectory_end: true
+        allow_nonzero_velocity_at_trajectory_end: true # This must be true for servoing to work with this controller. It's not like I was getting zero commands at the end of my planned trajectories anyways...
+
+linear_slider_forward_velocity_controller:
+    ros__parameters:
+        joints:
+            - $(var prefix)joint1
+        
 
 limit_switch_state_broadcaster:
     ros__parameters:

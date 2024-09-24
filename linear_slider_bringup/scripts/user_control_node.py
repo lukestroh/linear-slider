@@ -8,9 +8,7 @@ from rclpy.node import Node
 from rclpy.parameter import Parameter
 
 from geometry_msgs.msg import TwistStamped
-from std_msgs.msg import Int16
 from sensor_msgs.msg import Joy
-from sensor_msgs.msg import JointState
 
 
 
@@ -73,13 +71,12 @@ class UserControlNode(LifecycleNode):
         # sum both trigger values
         vel_cmd = sum(self.remapped_vals)
 
-        # publish twist message
+        # publish twist message, movement in base_link's x-axis
         twist = TwistStamped()
         twist.header.frame_id = f'{self.linear_slider_prefix}base_link'
         twist.header.stamp = self.get_clock().now().to_msg()
         twist.twist.linear.x = vel_cmd
         self._pub_slider_servo.publish(twist)
-
         return 
 
     def process_axis(self, axes_states):

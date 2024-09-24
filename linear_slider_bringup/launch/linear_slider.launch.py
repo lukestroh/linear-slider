@@ -214,27 +214,24 @@ def generate_launch_description():
         ]
     )
 
-    robot_controllers = [robot_controller]
-    robot_controller_spawners = []
-    for controller in robot_controllers:
-        robot_controller_spawners.append(
-            Node(
-                package="controller_manager",
-                executable="spawner",
-                arguments=[controller, "-c", "/controller_manager"]
-            )
+    # Spawn controllers
+    def controller_spawner(name, active=True):
+        inactive_flags = ["--inactive"] if not active else []
+        return Node(
+            package="controller_manager",
+            executable="spawner",
+            arguments=[
+                name,
+                "--controller-manager",
+                "/controller_manager",
+                "--controller-manager-timeout",
+                "120", # TODO: Find optimal timeout param? Ideally shouldn't matter, we should be launching stuff in the correct order.
+            ]
+              + inactive_flags,
         )
-
-    # node_lim_switch_broadcaster = Node(
-    #     package="controller_manager",
-    #     executable="spawner",
-    #     arguments=[
-    #         "limit_switch_state_broadcaster",
-    #         "--controller_manager",
-    #         "/controller_manager"
-    #     ]
-    # )
-    # robot_controller_spawners.append(node_lim_switch_broadcaster)
+    robot_active_controllers = [robot_controller] # TODO: not needed as a launch argument?
+    robot_inactive_controllers = ["linear_slider_forward_velocity_controller"]
+    robot_controller_spawners = [controller_spawner(controller) for controller in robot_active_controllers] + [controller_spawner(controller, active=False) for controller in robot_inactive_controllers]    
 
     lifecycle_node_delay_jsb = LifecycleNode(
         name="delay_jsb_node_spawner",
@@ -290,22 +287,12 @@ def generate_launch_description():
         condition=IfCondition(use_joystick)
     )
 
-    node_io_manager = Node(
-        package="linear_slider_bringup",
-        executable="io_manager_node.py",
-        name="io_manager",
-        condition=IfCondition(use_joystick)
-    )
-
-    # paramfile_joint_limits
-
     node_user_control = Node(
         package="linear_slider_bringup",
         executable="user_control_node.py",
         name="user_control",
         parameters=[
             {"prefix": prefix},
-
         ],
         condition=IfCondition(use_joystick)
     )
@@ -322,7 +309,6 @@ def generate_launch_description():
             # launch_linear_slider_moveit,
             register_event_delay_moveit_after_JSB_spawner,
             node_joystick,
-            # node_io_manager,
             node_user_control
         ]
         + register_events_delay_robot_controller_spawners_after_JSB_spawner

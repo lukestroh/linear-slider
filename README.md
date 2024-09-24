@@ -13,6 +13,7 @@
 1.  Allow for calibration at any point.
     1. Calibration on either side? 
 1.  Get X-box controller to move slider with L2/R2 
+1.  Figure out general speed of `action_monitor_rate` of linear_slider_controller. 
 1.  Check if `on_deactivate()` runs for linear_slider_hardware when control-c is hit. 
 1.  Refactor linear slider bringup to take a robot arm as launch argument, build subsequent launch files and URDFs from there.  
 1.  Let the high-level launch pass the URDF to the MoveIt launch.... 
@@ -22,6 +23,9 @@
     1.  Code shutdown 
     1.  Physical link to UR5 (can be wired in --> Jostan)   
 1.  Merge ur_with_linear_slider into linear_slider as launch option
+1. Clean up each launch file omg they're messy.
+1. Including launch files, clear TODOs in code (I'm so sorry future me / future undergrad).
+    1. (I'm not that sorry).
 
 
 # UR Launch arguments
@@ -37,13 +41,13 @@ This is a repository that includes packages for the hardware description, hardwa
 
 `linear_slider_bringup`: Launches all of the interfaces.
 
-`linear_slider_controllers`: Manages the control node for interfacing with ROS2, hosts custom controller configurations and implementations.
+`linear_slider_controllers`: ~~Manages the control node for interfacing with ROS2,~~ hosts custom controller configurations and implementations.
 
 `linear_slider_description`: Defines the geometry and links in a URDF file. Also specifies controller interfaces through `<ros2_control>` tag.
 
 `linear_slider_hardware_interface`: Defines the hardware and controller interfaces for the linear slider
 
-`linear_slider_moveit`: Defines the interface by assigning it to a MoveIt controller "Group" so that path motion planning can easily be done in RViz. This package was generated using the MoveIt Setup Assistant and should not be edited directly.
+`linear_slider_moveit_config`: Defines the interface by assigning it to a MoveIt controller "Group" so that path motion planning can easily be done in RViz. This package was generated using the MoveIt Setup Assistant and should not be edited directly.
 
 `linear_slider_test`: Provides an ament_python environment for writing simple scripts to test the functionality of all linear slider packages.
 

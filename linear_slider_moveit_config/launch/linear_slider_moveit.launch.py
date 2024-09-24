@@ -129,7 +129,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
         ),
     )
 
-    # The scaled_joint_trajectory_controller does not work on mock_hardware, switch to regular joint_trajectory_controller
+    # The scaled_joint_trajectory_controller does not work on mock_hardware, switch to regular joint_trajectory_controller TODO: don't need all of this for the slider, just the UR
     change_controllers = context.perform_substitution(use_mock_hardware)
     if change_controllers.lower() == "true":
         if controllers_content is not None:
@@ -186,7 +186,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
     mcb.planning_pipelines(
         default_planning_pipeline="ompl",
         pipelines=["ompl", "pilz_industrial_motion_planner", "chomp"],
-    )
+    ) 
     mcb.planning_scene_monitor()
     mcb.pilz_cartesian_limits(
         file_path=os.path.join(
