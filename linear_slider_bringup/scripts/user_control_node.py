@@ -49,11 +49,18 @@ class UserControlNode(LifecycleNode):
             qos_profile=10,
         )
 
+        # Timers
+        self._timer_pub_servo = self.create_timer(
+            timer_period_sec=0.005,
+            callback=self._timer_cb_pub_servo
+        )
+
         self.axes = {
             "LT": 2,
             "RT": 5
         }
         self.remapped_vals = [0, 0]
+        self.servo_msg = TwistStamped()
         return
     
     def _sub_cb_joy_state(self, msg: Joy):
@@ -72,17 +79,23 @@ class UserControlNode(LifecycleNode):
         vel_cmd = sum(self.remapped_vals)
 
         # publish twist message, movement in base_link's x-axis
-        twist = TwistStamped()
-        twist.header.frame_id = f'{self.linear_slider_prefix}base_link'
-        twist.header.stamp = self.get_clock().now().to_msg()
-        twist.twist.linear.x = vel_cmd
-        self._pub_slider_servo.publish(twist)
-        return 
-
-    def process_axis(self, axes_states):
-        """TODO: replace the for loop above (similar to alex's?)"""
+        self.servo_msg.header.frame_id = f'{self.linear_slider_prefix}base_link'
+        self.servo_msg.header.stamp = self.get_clock().now().to_msg()
+        self.servo_msg.twist.linear.x = vel_cmd
         
+        # self._pub_slider_servo.publish(twist)
+        # self.servo_msg = twist
+        return 
+    
+    def _timer_cb_pub_servo(self):
+        # if self.servo_msg is not None:
+        self._pub_slider_servo.publish(self.servo_msg)
         return
+
+    # def process_axis(self, axes_states):
+    #     """TODO: replace the for loop above (similar to alex's?)"""
+        
+    #     return
     
     def _scale(self, val, amin, amax, bmin, bmax):
         """Scale a value from one range to a another"""
