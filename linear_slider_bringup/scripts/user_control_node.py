@@ -66,7 +66,7 @@ class UserControlNode(LifecycleNode):
     def _sub_cb_joy_state(self, msg: Joy):
 
         axes_states = msg.axes
-
+ 
         # Remap the trigger values to positive and negative velocities. Unpressed triggers should have a velocity of 0. 
         for i, (key, value) in enumerate(self.axes.items()):
             _scaled = self._scale(axes_states[value], 1, -1, 0, 0.08333333333333334) # joy input range [1,-1] TODO: get max vel from param file
