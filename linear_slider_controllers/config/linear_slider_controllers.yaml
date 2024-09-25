@@ -1,6 +1,6 @@
 controller_manager:
     ros__parameters:
-        update_rate: 2000 # hz
+        update_rate: 1500 # hz
 
         linear_slider_controller:
             type: joint_trajectory_controller/JointTrajectoryController
@@ -26,28 +26,29 @@ linear_slider_controller:
 
         gains: # required for velocity interface
             $(var prefix)joint1:
-                ff_velocity_scale: 0.1
-                # # Mock hardware + UR5e
-                # p: 100.0
-                # i: 0.0
-                # d: 0.0
                 # MOCK HARDWARE  --   TODO: Is this different because of the lack of a transmission interface? The mass of the moving base becomes less significant with our ball screw, which isn't modeled in the URDF.
+                # ff_velocity_scale: 0.0 # This throws a warning, ignore it.
+                # p: 1000.0
+                # i: 10.0
+                # d: 1.0
+
+                
                 # p: 1000.0
                 # i: 10.0
                 # d: 1.0
 
                 # REAL HARDWARE
-                # p: 200.0
-                # i: 0.0
-                # d: 10.0
+                p: 200.0
+                i: 0.0
+                d: 10.0
 
                 # p: 100.0
                 # i: 0.0
                 # d: 0.0
 
-                p: 400.0
-                i: 2.0
-                d: 70.0
+                # p: 400.0
+                # i: 2.0
+                # d: 70.0
                 # i_clamp: 1.0
                 
 
