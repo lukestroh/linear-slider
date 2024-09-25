@@ -6,6 +6,7 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.lifecycle import LifecycleNode
 from rclpy.node import Node
 from rclpy.parameter import Parameter
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 
 from geometry_msgs.msg import TwistStamped
 from std_msgs.msg import Int16
@@ -48,13 +49,7 @@ class UserControlNode(Node):
         self._pub_slider_servo = self.create_publisher(
             msg_type=TwistStamped,
             topic="/servo_node/delta_twist_cmds",
-            qos_profile=10,
-        )
-
-        #Timers
-        self._filtered_timer = self.create_timer(
-            timer_period_sec=0.005,
-            callback=self._timer_cb
+            qos_profile=QoSProfile(depth=10, reliability=QoSReliabilityPolicy.RELIABLE, history=QoSHistoryPolicy.KEEP_LAST),
         )
 
         self.axes = {
@@ -63,7 +58,14 @@ class UserControlNode(Node):
         }
         self.remapped_vals = [0, 0]
 
-        self.data: TwistStamped = None
+        self.servo_msg = TwistStamped()
+        self.servo_msg.header.frame_id = f'{self.linear_slider_prefix}base_link'
+
+        #Timers
+        self._timer_pub_servo = self.create_timer(
+            timer_period_sec=0.004,
+            callback=self._timer_cb_pub_servo
+        )
         return
     
     def _sub_cb_joy_state(self, msg: Joy):
@@ -82,19 +84,15 @@ class UserControlNode(Node):
         vel_cmd = sum(self.remapped_vals)
 
         # publish twist message
-        twist = TwistStamped()
-        twist.header.frame_id = f'{self.linear_slider_prefix}base_link'
-        twist.header.stamp = self.get_clock().now().to_msg()
-        twist.twist.linear.x = vel_cmd
-        self.data = twist
+        self.servo_msg.header.stamp = self.get_clock().now().to_msg()
+        self.servo_msg.twist.linear.x = vel_cmd
+
         # self._pub_slider_servo.publish(twist)
 
         return 
     
-    def _timer_cb(self):
-        if self.data is not None:
-            self._pub_slider_servo.publish(self.data)
-            pass
+    def _timer_cb_pub_servo(self):
+        self._pub_slider_servo.publish(self.servo_msg)
         return
 
     # def process_axis(self, axes_states):
