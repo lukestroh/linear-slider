@@ -14,11 +14,11 @@ scale:
 # This is a fudge factor to account for any latency in the system, e.g. network latency or poor low-level
 # controller performance. It essentially increases the timestep when calculating the target pose, to move the target
 # pose farther away. [seconds]
-system_latency_compensation: 0.04
+system_latency_compensation: 0.04 # TODO: figure out latency
 
 ## Properties of outgoing commands
 publish_period: 0.004 # 1/Nominal publish rate [seconds]
-low_latency_mode: false # Set this to true to publish as soon as an incoming Twist command is received (publish_period is ignored)
+low_latency_mode: true # Set this to true to publish as soon as an incoming Twist command is received (publish_period is ignored)
 
 # What type of topic does your robot driver expect?
 # Currently supported are std_msgs/Float64MultiArray or trajectory_msgs/JointTrajectory
@@ -26,7 +26,7 @@ low_latency_mode: false # Set this to true to publish as soon as an incoming Twi
 command_out_type: trajectory_msgs/JointTrajectory
 
 # What to publish? Can save some bandwidth as most robots only require positions or velocities
-publish_joint_positions: false
+publish_joint_positions: true
 publish_joint_velocities: true
 publish_joint_accelerations: false
 
@@ -72,8 +72,8 @@ collision_check_rate: 20.0 # [Hz] Collision-checking can easily bog down a CPU i
 # "stop_distance" stops if a collision is nearer than the worst-case stopping distance and the distance is decreasing. Requires joint acceleration limits
 collision_check_type: threshold_distance
 # Parameters for "threshold_distance"-type collision checking
-self_collision_proximity_threshold: 0.01 # Start decelerating when a self-collision is this far [m]
-scene_collision_proximity_threshold: 0.02 # Start decelerating when a scene collision is this far [m]
+self_collision_proximity_threshold: 0.05 # Start decelerating when a self-collision is this far [m]
+scene_collision_proximity_threshold: 0.05 # Start decelerating when a scene collision is this far [m]
 # Parameters for "stop_distance"-type collision checking
 collision_distance_safety_factor: 1000.0 # Must be >= 1. A large safety factor is recommended to account for latency
 min_allowable_collision_distance: 0.01 # Stop if a collision is closer than this [m]
