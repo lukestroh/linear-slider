@@ -1,6 +1,8 @@
 # TODO:
 
-1. Safety test suite:
+1. **Safety test suite**:
+    1. Shutdown
+        1. Last commanded value is often 1 RPM to the motor, it MUST be 0. Check if `on_deactivate()` runs for linear_slider_hardware when control-c is hit. Doesn't appear to run.
     1. Limit switch tests
     1. E-stop tests
         1. Does e-stop always work
@@ -15,12 +17,10 @@
         1. After calibration, do joint states always report initial state? (Spoiler: it does not)
             1. When starting program on lim switch, sometimes initial burst of movement off the switch. Why??
             1. If program is restart while ClearCore controller is not, it accelerates off in the wrong direction of calibration.
-
-    1. Shutdown
-        1. Check if `on_deactivate()` runs for linear_slider_hardware when control-c is hit. Doesn't appear to run.
 1.  fix limit switch broadcaster (doesn't publish 1 to 1).
 1. NEGATIVE MAX VELOCITY MAKES ros2_control_node die. WHYYYYYY
 1. **Servoing**
+    1. Why does servoing not reach maximum speed?
     1.  ~~Get X-box controller to move slider with L2/R2~~
     1. slider ran into the neg limit switch and succesfully stopped. MoveIt Servo halted movement as well, but not before hitting the switch. Then, the `ros2_control_node` died. Why???
     1. servoing to a point works, but then oscillations gorw and grow and grow. Eventually, they stop and it moves full speed toward neg limit switch? WHYYY?? (Answer -> It looks like the ros2_contol_node dies, as above. The mcu then moves at the last commanded speed, which was the max speed.)

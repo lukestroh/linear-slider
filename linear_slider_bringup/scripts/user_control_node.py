@@ -13,11 +13,8 @@ from std_msgs.msg import Int16
 from sensor_msgs.msg import Joy
 from sensor_msgs.msg import JointState
 
-
-
-from functools import partial
-import os
-import yaml
+from collections import deque
+import numpy as np
 
 
 class UserControlNode(Node):
@@ -61,11 +58,14 @@ class UserControlNode(Node):
         self.servo_msg = TwistStamped()
         self.servo_msg.header.frame_id = f'{self.linear_slider_prefix}base_link'
 
-        #Timers
+        # Timers
         self._timer_pub_servo = self.create_timer(
             timer_period_sec=0.004,
             callback=self._timer_cb_pub_servo
         )
+
+        # Moving average filter
+        self.cmd_vel_values = deque(np.zeros(15))
         return
     
     def _sub_cb_joy_state(self, msg: Joy):
@@ -83,11 +83,14 @@ class UserControlNode(Node):
         # sum both trigger values
         vel_cmd = sum(self.remapped_vals)
 
+        self.cmd_vel_values.popleft()
+        self.cmd_vel_values.append(vel_cmd)
+        
         # publish twist message
         self.servo_msg.header.stamp = self.get_clock().now().to_msg()
-        self.servo_msg.twist.linear.x = vel_cmd
+        self.servo_msg.twist.linear.x = np.mean(self.cmd_vel_values)
 
-        # self._pub_slider_servo.publish(twist)
+        # self.warn(np.mean(self.cmd_vel_values))
 
         return 
     
