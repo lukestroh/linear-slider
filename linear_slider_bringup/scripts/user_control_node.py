@@ -85,7 +85,7 @@ class UserControlNode(Node):
 
         # publish twist message
         self.servo_msg.header.stamp = self.get_clock().now().to_msg()
-        # self.servo_msg.twist.linear.x = vel_cmd
+        self.servo_msg.twist.linear.x = vel_cmd
 
         # self._pub_slider_servo.publish(twist)
 

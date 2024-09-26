@@ -1,30 +1,44 @@
 # TODO:
 
-1.  fix limit switch broadcaster (doesn't publish 1 to 1). 
+1. Safety test suite:
+    1. Limit switch tests
+    1. E-stop tests
+        1. Does e-stop always work
+        1. Does e-stop always take priority?
+        1. Does the program ever resume after e-stop has been triggered?
+    1. Lifetime test
+        1. How long can we run servo mode
+        1. How long can we run trajectory mode?
+        1. What causes these nodes to fail?
+    1. Program startup.
+        1. Does the program always start the same way?
+        1. After calibration, do joint states always report initial state? (Spoiler: it does not)
+            1. When starting program on lim switch, sometimes initial burst of movement off the switch. Why??
+            1. If program is restart while ClearCore controller is not, it accelerates off in the wrong direction of calibration.
+
+    1. Shutdown
+        1. Check if `on_deactivate()` runs for linear_slider_hardware when control-c is hit. Doesn't appear to run.
+1.  fix limit switch broadcaster (doesn't publish 1 to 1).
+1. NEGATIVE MAX VELOCITY MAKES ros2_control_node die. WHYYYYYY
 1. **Servoing**
+    1.  ~~Get X-box controller to move slider with L2/R2~~
     1. slider ran into the neg limit switch and succesfully stopped. MoveIt Servo halted movement as well, but not before hitting the switch. Then, the `ros2_control_node` died. Why???
     1. servoing to a point works, but then oscillations gorw and grow and grow. Eventually, they stop and it moves full speed toward neg limit switch? WHYYY?? (Answer -> It looks like the ros2_contol_node dies, as above. The mcu then moves at the last commanded speed, which was the max speed.)
         1. Therefore, it seems like if the max speed is hit during oscillations, the control node dies?
-1. When starting program on lim switch, sometimes initial burst of movement off the switch. Why??
 1. Remove /tmp/ folder stuff for kinematics launch file stuff (remove old way, moveitconfigsbuilder is better)
 1. Refactor all of the MoveIt stuff, it's a mess. (Maybe check out Jazzy? Looks like the MoveItConfigsBuilder is what they're working towards...)
 1.  Add Isaac Sim instead of Gazebo: [DIRECTIONS HERE](https://moveit.picknik.ai/main/doc/how_to_guides/isaac_panda/isaac_panda_tutorial.html). 
 1.  Detect if slider starts up on limit switch. Otherwise calibration violates safety.
     1. Check why accelerates away from switch sometimes
 1.  ~~Allow for backwards movement after limit switch hit.~~
-1.  ~~If program is restart while ClearCore controller is not, it accelerates off in the wrong direction of calibration.~~
 1.  ~~Add limit switches to URDF system state. Update Hardware Interface to reflect these values. Find out where they're represented in the global ROS system state~~ 
 1.  Allow for calibration at any point.
-    1. Calibration on either side? 
-1.  Get X-box controller to move slider with L2/R2 
+    1. Calibration on either side?
 1.  Refactor linear slider bringup to take a robot arm as launch argument, build subsequent launch files and URDFs from there.  
 1.  Let the high-level launch pass the URDF to the MoveIt launch.... 
-1.  Add polling for E-stop for reset-detection (i.e. can we un-set the estop and resume operation without restarting the controller?). 
+1.  Add polling for E-stop for reset-detection (i.e. can we un-set the estop and resume operation without restarting the controller? Is that safe?). 
 1.  Create centralized velocity and position limits. Make sure each interface receives them. 
-1.  SHUTDOWN SAFTETY
-    1.  Code shutdown
-        1.  Check if `on_deactivate()` runs for linear_slider_hardware when control-c is hit. Doesn't appear to run.
-    1.  Estop physical link to UR5 (can be wired in --> Jostan)   
+1.  Estop physical link to UR5 (can be wired in --> Jostan)   
 1.  Merge ur_with_linear_slider into linear_slider as launch option
 
 
