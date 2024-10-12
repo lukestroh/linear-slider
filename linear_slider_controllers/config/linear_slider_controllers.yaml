@@ -1,5 +1,6 @@
 controller_manager:
     ros__parameters:
+
         update_rate: 1600 # hz
 
         linear_slider_controller:

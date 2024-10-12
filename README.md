@@ -19,6 +19,9 @@
             1. If program is restart while ClearCore controller is not, it accelerates off in the wrong direction of calibration.
 1.  fix limit switch broadcaster (doesn't publish 1 to 1).
 1. NEGATIVE MAX VELOCITY MAKES ros2_control_node die. WHYYYYYY
+1. ClearCore controller: make the construction of the send message while the system is waiting. Use a flag to trigger a "wait called" in case it doesn't happen.
+1. Fix/accurately measure the masses of the links for the robot description. Double check the moments of inertia
+1. fix limit switch broadcaster (doesn't publish 1 to 1). 
 1. **Servoing**
     1. Why does servoing not reach maximum speed?
     1.  ~~Get X-box controller to move slider with L2/R2~~
