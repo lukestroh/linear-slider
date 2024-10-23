@@ -129,7 +129,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
         ),
     )
 
-    # The scaled_joint_trajectory_controller does not work on mock_hardware, switch to regular joint_trajectory_controller
+    # The scaled_joint_trajectory_controller does not work on mock_hardware, switch to regular joint_trajectory_controller TODO: remove from this, only keep in UR stuff
     change_controllers = context.perform_substitution(use_mock_hardware)
     if change_controllers.lower() == "true":
         if controllers_content is not None:

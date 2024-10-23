@@ -85,7 +85,7 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "use_joystick",
-            default_value="true",
+            default_value="false",
             choices=["true", "false"],
             description="Use the joystick node to control the linear slider using the trigger buttons."
         )
@@ -290,12 +290,12 @@ def generate_launch_description():
         condition=IfCondition(use_joystick)
     )
 
-    node_io_manager = Node(
-        package="linear_slider_bringup",
-        executable="io_manager_node.py",
-        name="io_manager",
-        condition=IfCondition(use_joystick)
-    )
+    # node_io_manager = Node(
+    #     package="linear_slider_bringup",
+    #     executable="io_manager_node.py",
+    #     name="io_manager",
+    #     condition=IfCondition(use_joystick)
+    # )
 
     # paramfile_joint_limits
 
