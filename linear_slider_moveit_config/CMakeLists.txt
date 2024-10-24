@@ -13,6 +13,6 @@ install(DIRECTORY launch DESTINATION share/${PROJECT_NAME}
   PATTERN "setup_assistant.launch" EXCLUDE)
 install(DIRECTORY rviz DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
-install(DIRECTORY config/tmp DESTINATION share/config/${PROJECT_NAME})
+# install(DIRECTORY config/tmp DESTINATION share/config/${PROJECT_NAME})
 install(DIRECTORY srdf DESTINATION share/${PROJECT_NAME})
 install(FILES .setup_assistant DESTINATION share/${PROJECT_NAME})

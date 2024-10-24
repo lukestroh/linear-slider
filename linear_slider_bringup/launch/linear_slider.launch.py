@@ -162,7 +162,7 @@ def generate_launch_description():
     )
 
     robot_description = {"robot_description": robot_description_content}
-
+    
     robot_controllers = PathJoinSubstitution([FindPackageShare(linear_slider_controllers_package), "config", controllers_file])
 
     rviz_config_file = PathJoinSubstitution([FindPackageShare(description_package), "rviz", "linear_slider.rviz"])

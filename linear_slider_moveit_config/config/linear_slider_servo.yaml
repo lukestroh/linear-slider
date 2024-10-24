@@ -33,6 +33,12 @@ publish_joint_accelerations: false
 ## Plugins for smoothing outgoing commands
 smoothing_filter_plugin_name: "online_signal_smoothing::ButterworthFilterPlugin"
 
+# If is_primary_planning_scene_monitor is set to true, the Servo server's PlanningScene advertises the /get_planning_scene service,
+# which other nodes can use as a source for information about the planning environment.
+# NOTE: If a different node in your system is responsible for the "primary" planning scene instance (e.g. the MoveGroup node),
+# then is_primary_planning_scene_monitor needs to be set to false.
+is_primary_planning_scene_monitor: false
+
 ## Incoming Joint State properties
 low_pass_filter_coeff: 0.1 # Larger --> trust the filtered data more, trust the measurements less.
 
@@ -43,7 +49,7 @@ planning_frame: $(var prefix)base_link # The MoveIt planning frame. Often 'base_
 
 ## Other frames
 ee_frame_name: $(var prefix)tool0 # The name of the end effector link, used to return the EE pose
-robot_link_command_frame: $(var prefix)base_link     # commands must be given in the frame of a robot link. Usually either the base or end effector
+robot_link_command_frame: $(var prefix)tool0 # commands must be given in the frame of a robot link. Usually either the base or end effector
 
 ## Stopping behaviour
 incoming_command_timeout: 0.1 # Stop servoing if X seconds elapse without a new command

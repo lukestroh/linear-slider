@@ -9,7 +9,7 @@
     <xacro:arg name="name" default="ur_with_linear_slider"/>
 
     <xacro:include filename="$(find ur_with_linear_slider_moveit_config)/srdf/system_macro.srdf.xacro"/>
-    <xacro:ur_with_linear_slider_srdf name="$(arg name)" prefix="$(arg prefix)" tf_prefix="$(arg tf_prefix)"/>
+    <xacro:system_macro name="$(arg name)" prefix="$(arg prefix)" tf_prefix="$(arg tf_prefix)"/>
 
 
 </robot>

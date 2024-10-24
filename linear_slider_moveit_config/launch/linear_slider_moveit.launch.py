@@ -252,25 +252,25 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
     )
 
     # MoveIt Servo
-    servo_yaml_path = PathJoinSubstitution(
+    filepath_servo_config = PathJoinSubstitution(
         [
             FindPackageShare(moveit_runtime_config_pkg),
             "config",
             "linear_slider_servo.yaml",
         ]
     )
-    servo_yaml_evaluated_file = ParameterFile(
-        servo_yaml_path, allow_substs=True
+    parameterfile_servo_config = ParameterFile(
+        filepath_servo_config, allow_substs=True
     )
-    servo_yaml_evaluated_file.evaluate(context=context)
-    servo_yaml_content = load_yaml(
+    parameterfile_servo_config.evaluate(context=context)
+    yamlcontent_servo_config = load_yaml(
         package_name=str(moveit_runtime_config_pkg.perform(context=context)),
         file_path=os.path.join(
-            "config", str(servo_yaml_evaluated_file.param_file)
+            "config", str(parameterfile_servo_config.param_file)
         ),
     )
     # logger.warn(f"{servo_yaml_content}")
-    servo_params = dict(moveit_servo=servo_yaml_content)
+    servo_params = dict(moveit_servo=yamlcontent_servo_config)
     node_servo = Node(
         package="moveit_servo",
         executable="servo_node_main",

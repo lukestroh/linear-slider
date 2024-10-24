@@ -62,61 +62,12 @@ def launch_setup(context, *args, **kwargs):
     ur_controllers_file = LaunchConfiguration("ur_controllers_file")
 
     # General parameters
+    use_joystick = LaunchConfiguration("use_joystick")
     use_sim = LaunchConfiguration("use_sim")
     use_mock_hardware = LaunchConfiguration("use_mock_hardware")
     mock_sensor_commands = LaunchConfiguration("mock_sensor_commands")
     use_moveit = LaunchConfiguration("use_moveit")
 
-    # # Get URDF from xacro
-    # robot_description_content = Command([
-    #     PathJoinSubstitution([FindExecutable(name="xacro")]),
-    #     " ",
-    #     PathJoinSubstitution(
-    #         [FindPackageShare(system_runtime_package), "urdf", system_description_file]
-    #     ),
-    #     " ",
-    #     "linear_slider_parent:=",
-    #     linear_slider_parent,
-    #     " ",
-    #     "linear_slider_robot_ip:=",
-    #     linear_slider_robot_ip,
-    #     " ",
-    #     "prefix:=",
-    #     prefix,
-    #     " ",
-    #     "tf_prefix:=",
-    #     tf_prefix,
-    #     " ",
-    #     "use_mock_hardware:=",
-    #     use_mock_hardware,
-    #     " ",
-    #     "mock_sensor_commands:=",
-    #     mock_sensor_commands,
-    #     " ",
-    #     "ur_robot_ip:=",
-    #     ur_robot_ip,
-    #     " ",
-    #     "ur_type:=",
-    #     ur_type,
-    #     " ",
-    #     "ur_parent:=",
-    #     ur_parent,
-    #     " ",
-    # ])
-
-    # robot_description = {"robot_description": robot_description_content}
-
-    # filepath_linear_slider_controllers = PathJoinSubstitution([
-    #     FindPackageShare(linear_slider_controllers_package),
-    #     "config",
-    #     linear_slider_controllers_file
-    # ])
-
-    # filepath_ur_controllers = PathJoinSubstitution([
-    #     FindPackageShare(ur_runtime_package),
-    #     "config",
-    #     ur_controllers_file
-    # ])
 
     filepath_system_controllers = PathJoinSubstitution([
         FindPackageShare(system_runtime_package), # TODO: refactor as system_bringup_package
@@ -132,8 +83,8 @@ def launch_setup(context, *args, **kwargs):
             ur_type.perform(context=context) + "_update_rate.yaml"
         ]
     )
-    
-    
+
+
     script_filename = PathJoinSubstitution(
         [
             FindPackageShare("ur_client_library"),
@@ -185,6 +136,15 @@ def launch_setup(context, *args, **kwargs):
     )
     moveit_configs = mcb.to_moveit_configs()
     # logger.warn(f"{moveit_configs.robot_description['robot_description'].value[0].perform(context)}")
+
+    # filepath_initial_positions = get_package_share_directory("ur_with_linear_slider_moveit_config") + "/config/initial_positions.yaml"
+    # parameterfile_initial_positions = ParameterFile(filepath_initial_positions, allow_substs=True)
+    # parameterfile_initial_positions.evaluate(context=context)
+    # yamlcontent_initial_positions = load_yaml(
+    #     package_name = str(system_moveit_config_package.perform(context=context)),
+    #     file_path = os.path.join('config', parameterfile_initial_positions.param_file)
+    # )
+
 
     node_mock_hardware_control = Node(
         package = "controller_manager",
@@ -248,7 +208,8 @@ def launch_setup(context, *args, **kwargs):
             "joint_state_broadcaster",
             "--controller-manager",
             "/controller_manager",
-        ]
+        ],
+
     )
 
     # Detect when controller manager has published all services by utilizing a lifecycle node.
@@ -317,12 +278,13 @@ def launch_setup(context, *args, **kwargs):
         )
     controller_spawner_names = [
         'linear_slider_controller',
-        'scaled_joint_trajectory_controller',
+        'joint_trajectory_controller',
     ]
-    controller_spawner_inactive_names = ["forward_position_controller", 'joint_trajectory_controller']
+    controller_spawner_inactive_names = ["forward_position_controller", 'scaled_joint_trajectory_controller']
     controller_spawners = [controller_spawner(name) for name in controller_spawner_names] + [
         controller_spawner(name, active=False) for name in controller_spawner_inactive_names
     ]
+
 
 
 
@@ -360,6 +322,24 @@ def launch_setup(context, *args, **kwargs):
         event_handler=OnProcessStart(target_action=node_joint_state_broadcaster_spawner, on_start=launch_system_moveit)
     )
 
+    node_joystick = Node(
+        package="joy",
+        executable="joy_node",
+        name="joystick_node",
+        condition=IfCondition(use_joystick)
+    )
+
+    node_user_control = Node(
+        package="ur_with_linear_slider_bringup", # TODO: change to system bringup
+        executable="user_control_node.py",
+        name="user_control",
+        parameters=[
+            {"prefix": prefix},
+            {"tf_prefix": tf_prefix},
+        ],
+        condition=IfCondition(use_joystick)
+    )
+
 
     nodes_to_start = [
             node_mock_hardware_control,
@@ -372,6 +352,8 @@ def launch_setup(context, *args, **kwargs):
             register_event_delay_moveit_after_JSB_spawner,
             # linear_slider_launch,
             # ur_launch,
+            node_joystick,
+            node_user_control,
         ] + controller_spawners
     return nodes_to_start
 
@@ -488,7 +470,7 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "ur_parent",
-            default_value="linear_slider__tool0",
+            default_value="linear_slider__tool0", # TODO: can we dynamically get this from 'prefix' or no?
             description="Parent link of the linear slider for joint attachment. Requires changing the URDF of the UR5 to accept a parent command. Otherwise, the UR5 gets fixed to the world by default."
         )
     )
@@ -516,10 +498,18 @@ def generate_launch_description():
     )
     declared_args.append(
         DeclareLaunchArgument(
+            "use_joystick",
+            default_value="false",
+            choices=["true", "false"],
+            description="Use the joystick node to control the robot system."
+        )
+    )
+    declared_args.append(
+        DeclareLaunchArgument(
             "use_mock_hardware",
             default_value = "false",
             choices=['true', 'false'],
-            description = "Start robot with fake hardware mirroring command to its states."
+            description = "Start robot with fake hardware mirroring commands to its states."
         )
     )
     declared_args.append(

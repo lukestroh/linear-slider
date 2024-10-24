@@ -124,7 +124,6 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
     if change_controllers.lower() == "true":
         yamlcontent_moveit_controllers["scaled_joint_trajectory_controller"]["default"] = False
         yamlcontent_moveit_controllers["joint_trajectory_controller"]["default"] = True
-        logger.warn(f"SWITCHING CONTROLLERS")
 
     moveit_controllers = dict(
         moveit_simple_controller_manager=yamlcontent_moveit_controllers,
@@ -266,6 +265,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
         file_path=os.path.join("config", str(parameterfile_servo_config.param_file)),
     )
     servo_params = dict(moveit_servo=yamlcontent_servo_config)
+    logger.warn(f"servo_params: {servo_params}")
     node_servo = Node(
         package="moveit_servo",
         executable="servo_node_main",
@@ -288,7 +288,7 @@ def generate_launch_description():
     declared_args = []
     declared_args.append(
         DeclareLaunchArgument(
-            "headless_mode"
+            "headless_mode",
             default_value="true",
             description="Run the UR robot in headless mode. Default true, as we typically want to run algorithms from host computer rather than UR pendant."
         )
@@ -367,7 +367,7 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "system_semantic_description_file",
-            default_value="ur_with_linear_slider.srdf.xacro",  # TODO: Get srdf.xacro like UR drivers
+            default_value="system.srdf.xacro",  # TODO: Get srdf.xacro like UR drivers
             description="MoveIt SRDF/xacro description file with the robot.",
         )
     )

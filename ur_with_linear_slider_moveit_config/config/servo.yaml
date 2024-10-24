@@ -10,7 +10,7 @@ scale:
   linear: 0.6  # Max linear velocity. Meters per publish_period. Unit is [m/s]. Only used for Cartesian commands.
   rotational: 0.3  # Max angular velocity. Rads per publish_period. Unit is [rad/s]. Only used for Cartesian commands.
   # Max joint angular/linear velocity. Rads or Meters per publish period. Only used for joint commands on joint_command_in_topic.
-  joint: 0.01
+  joint: 0.5
 # This is a fudge factor to account for any latency in the system, e.g. network latency or poor low-level
 # controller performance. It essentially increases the timestep when calculating the target pose, to move the target
 # pose farther away. [seconds]
@@ -18,15 +18,16 @@ system_latency_compensation: 0.04
 
 ## Properties of outgoing commands
 publish_period: 0.004  # 1/Nominal publish rate [seconds]
-low_latency_mode: false  # Set this to true to publish as soon as an incoming Twist command is received (publish_period is ignored)
+low_latency_mode: true  # Set this to true to publish as soon as an incoming Twist command is received (publish_period is ignored)
 
 # What type of topic does your robot driver expect?
 # Currently supported are std_msgs/Float64MultiArray or trajectory_msgs/JointTrajectory
-command_out_type: std_msgs/Float64MultiArray
+# command_out_type: std_msgs/Float64MultiArray
+command_out_type: trajectory_msgs/JointTrajectory
 
-# What to publish? Can save some bandwidth as most robots only require positions or velocities
+# What to publish? Can save some bandwidth as mos   t robots only require positions or velocities
 publish_joint_positions: true
-publish_joint_velocities: false
+publish_joint_velocities: true
 publish_joint_accelerations: false
 
 ## Plugins for smoothing outgoing commands
@@ -39,14 +40,15 @@ smoothing_filter_plugin_name: "online_signal_smoothing::ButterworthFilterPlugin"
 is_primary_planning_scene_monitor: false
 
 ## Incoming Joint State properties
-low_pass_filter_coeff: 10.0  # Larger --> trust the filtered data more, trust the measurements less.
+low_pass_filter_coeff: 0.1 # Larger --> trust the filtered data more, trust the measurements less.
 
 ## MoveIt properties
 move_group_name: $(var tf_prefix)$(var prefix)manipulator  # Often 'manipulator' or 'arm'
 planning_frame: $(var prefix)base_link  # The MoveIt planning frame. Often 'base_link' or 'world'
 
 ## Other frames
-ee_frame: $(var tf_prefix)tool0  # The name of the end effector link, used to return the EE pose
+# NOTE: This key by default was `ee_frame`, but https://github.com/moveit/moveit2/issues/2792#issuecomment-2094645375 shows that it should be `ee_frame_name`
+ee_frame_name: $(var tf_prefix)tool0  # The name of the end effector link, used to return the EE pose
 robot_link_command_frame: $(var tf_prefix)tool0  # commands must be given in the frame of a robot link. Usually either the base or end effector
 
 ## Stopping behaviour
@@ -60,14 +62,15 @@ lower_singularity_threshold: 100.0  # Start decelerating when the condition numb
 hard_stop_singularity_threshold: 200.0  # Stop when the condition number hits this
 
 # added as a buffer to joint limits [radians]. If moving quickly, make this larger.
-joint_limit_margins: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+joint_limit_margins: [0,02, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
 ## Topic names
 cartesian_command_in_topic: ~/delta_twist_cmds  # Topic for incoming Cartesian twist commands
 joint_command_in_topic: ~/delta_joint_cmds  # Topic for incoming joint angle commands
 joint_topic: /joint_states
 status_topic: ~/status  # Publish status to this topic
-command_out_topic: /forward_position_controller/commands  # Publish outgoing commands here
+# command_out_topic: /forward_position_controller/commands  # Publish outgoing commands here
+command_out_topic: /system_controller/joint_trajectory  # Publish outgoing commands here
 
 ## Collision checking for the entire robot body
 check_collisions: true  # Check collisions?
