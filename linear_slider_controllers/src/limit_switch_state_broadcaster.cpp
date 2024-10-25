@@ -84,7 +84,7 @@ controller_interface::CallbackReturn LimitSwitchStateBroadcaster::on_configure(c
 
     // Create the publisher
     try {
-        limit_switch_state_publisher_ = this->get_node()->create_publisher<linear_slider_msgs::msg::LimitSwitchSensors>("~/sensor_states", rclcpp::SystemDefaultsQoS());
+        limit_switch_state_publisher_ = this->get_node()->create_publisher<linear_slider_msgs::msg::LimitSwitchStateStamped>("~/sensor_states", rclcpp::SystemDefaultsQoS());
     } catch (const std::exception& e) {
         fprintf(stderr, "Exception thrown during configuration state with message: %s \n", e.what());
         return controller_interface::CallbackReturn::ERROR;
@@ -104,15 +104,18 @@ controller_interface::CallbackReturn LimitSwitchStateBroadcaster::on_deactivate(
 
 controller_interface::return_type LimitSwitchStateBroadcaster::update(const rclcpp::Time& time, const rclcpp::Duration& period) {
     if (publish_rate_ > 0 && period > rclcpp::Duration(1.0 / publish_rate_, 0.0)) {
+         // RCLCPP_WARN(_LOGGER, "size: %d", this->state_interfaces_.size()); 
         for (const hardware_interface::LoanedStateInterface& state : this->state_interfaces_) {
             limit_switch_state_msg_.state = state.get_value();
             limit_switch_state_msg_.name = state.get_name();
+            // RCLCPP_WARN(_LOGGER, "Limit switch name: %s", limit_switch_state_msg_.name.c_str());
+           
             limit_switch_state_msg_.header.stamp.sec = time.seconds();
             limit_switch_state_msg_.header.stamp.nanosec = time.nanoseconds();
-            limit_switch_state_msg_.header.frame_id = state.get_name();
+            limit_switch_state_msg_.header.frame_id = state.get_name().substr(0, state.get_name().find("/"));
+            // RCLCPP_ERROR(_LOGGER, "Limit switch frame id: %s", limit_switch_state_msg_.header.frame_id.c_str());
             // Publish limit switch state
             limit_switch_state_publisher_->publish(limit_switch_state_msg_);
-
         }
         // limit_switch_state_msg_.pos_limit = this->state_interfaces_[1].get_value();
 

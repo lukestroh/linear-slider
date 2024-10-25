@@ -29,7 +29,7 @@ Date: 2024-07-26
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp/time.hpp"
 #include "rclcpp/duration.hpp"
-#include "linear_slider_msgs/msg/limit_switch_sensors.hpp"
+#include "linear_slider_msgs/msg/limit_switch_state_stamped.hpp"
 #include "limit_switch_state_broadcaster_parameters.hpp"
 
 namespace linear_slider_controllers {
@@ -51,8 +51,8 @@ class LimitSwitchStateBroadcaster : public controller_interface::ControllerInter
     std::vector<std::string> sensor_names_;
     double publish_rate_;
 
-    std::shared_ptr<rclcpp::Publisher<linear_slider_msgs::msg::LimitSwitchSensors>> limit_switch_state_publisher_;// TODO make custom msg type.
-    linear_slider_msgs::msg::LimitSwitchSensors limit_switch_state_msg_;
+    std::shared_ptr<rclcpp::Publisher<linear_slider_msgs::msg::LimitSwitchStateStamped>> limit_switch_state_publisher_;
+    linear_slider_msgs::msg::LimitSwitchStateStamped limit_switch_state_msg_;
 
     // Parameters from ROS (find in CMakeLists file for generated build)
     std::shared_ptr<limit_switch_state_broadcaster::ParamListener> param_listener_;
