@@ -1,6 +1,6 @@
 controller_manager:
     ros__parameters:
-        update_rate: 2000 # hz
+        update_rate: 1600 # hz
 
         limit_switch_state_broadcaster:
             type: linear_slider_controllers/LimitSwitchStateBroadcaster

@@ -209,7 +209,16 @@ def launch_setup(context, *args, **kwargs):
             "--controller-manager",
             "/controller_manager",
         ],
-
+    )
+    
+    node_limit_switch_state_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "limit_switch_state_broadcaster",
+            "--controller-manager",
+            "/controller_manager",
+        ]
     )
 
     # Detect when controller manager has published all services by utilizing a lifecycle node.
@@ -227,7 +236,8 @@ def launch_setup(context, *args, **kwargs):
             target_lifecycle_node=lifecyclenode_delay_jsb_lifecycle,
             goal_state="finalized",
             entities=[
-                node_joint_state_broadcaster_spawner
+                node_joint_state_broadcaster_spawner,
+                node_limit_switch_state_broadcaster_spawner
             ]
         )
     )
@@ -280,7 +290,7 @@ def launch_setup(context, *args, **kwargs):
         'linear_slider_controller',
         'joint_trajectory_controller',
     ]
-    controller_spawner_inactive_names = ["forward_position_controller", 'scaled_joint_trajectory_controller']
+    controller_spawner_inactive_names = ["forward_position_controller", "forward_velocity_controller", 'scaled_joint_trajectory_controller']
     controller_spawners = [controller_spawner(name) for name in controller_spawner_names] + [
         controller_spawner(name, active=False) for name in controller_spawner_inactive_names
     ]

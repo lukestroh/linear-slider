@@ -7,10 +7,11 @@ controller_names:
   - linear_slider_controller
   - scaled_joint_trajectory_controller
   - joint_trajectory_controller
+  - forward_position_controller
 
 linear_slider_controller:
-  type: FollowJointTrajectory
   action_ns: follow_joint_trajectory
+  type: FollowJointTrajectory
   default: false
   joints:
     - $(var prefix)joint1

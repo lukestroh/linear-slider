@@ -49,18 +49,20 @@ class UserControlNode(Node):
             msg_type=TwistStamped,
             topic="/servo_node/delta_twist_cmds",
             qos_profile=QoSProfile(depth=10, reliability=QoSReliabilityPolicy.RELIABLE, history=QoSHistoryPolicy.KEEP_LAST),
+            callback_group=self.high_priority_cb_group
         )
 
         # Timers
         self._timer_pub_servo = self.create_timer(
             timer_period_sec=0.004,
-            callback=self._timer_cb_pub_servo
+            callback=self._timer_cb_pub_servo,
+            callback_group=self.high_priority_cb_group
         )
 
         # Messages
         self.servo_msg = TwistStamped()
-        self.servo_msg.header.frame_id = f'{self.linear_slider_prefix}base_link'
-        # self.servo_msg.header.frame_id = f'{self.ur_robot_prefix}tool0'
+        # self.servo_msg.header.frame_id = f'{self.linear_slider_prefix}base_link'
+        self.servo_msg.header.frame_id = f'{self.ur_robot_prefix}tool0'
 
         # Joystick mappings (XBox 1 controller)
         self.buttons = {
