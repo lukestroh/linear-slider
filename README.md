@@ -1,6 +1,7 @@
 # TODO:
 
 1. **Safety test suite**:
+    1. Change E-stop interrupt to immediately shut down, don't wait for flag in loop
     1. Shutdown
         1. Last commanded value is often 1 RPM to the motor, it MUST be 0. Check if `on_deactivate()` runs for linear_slider_hardware when control-c is hit. Doesn't appear to run.
     1. Limit switch tests
@@ -19,29 +20,34 @@
             1. If program is restart while ClearCore controller is not, it accelerates off in the wrong direction of calibration.
 1.  fix limit switch broadcaster (doesn't publish 1 to 1).
 1. NEGATIVE MAX VELOCITY MAKES ros2_control_node die. WHYYYYYY
+    - This happens when servoing with bad PID values, but doesn't explain the dying of the node.
 1. ClearCore controller: make the construction of the send message while the system is waiting. Use a flag to trigger a "wait called" in case it doesn't happen.
 1. Fix/accurately measure the masses of the links for the robot description. Double check the moments of inertia
-1. fix limit switch broadcaster (doesn't publish 1 to 1). 
+1. fix limit switch broadcaster (doesn't publish 1 to 1).
 1. **Servoing**
     1. Why does servoing not reach maximum speed?
     1.  ~~Get X-box controller to move slider with L2/R2~~
-    1. slider ran into the neg limit switch and succesfully stopped. MoveIt Servo halted movement as well, but not before hitting the switch. Then, the `ros2_control_node` died. Why???
+    1. SEE ISSUE ON GITHUB: ~~slider ran into the neg limit switch and succesfully stopped. MoveIt Servo halted movement as well, but not before hitting the switch. Then, the `ros2_control_node` died. Why???~~
     1. servoing to a point works, but then oscillations gorw and grow and grow. Eventually, they stop and it moves full speed toward neg limit switch? WHYYY?? (Answer -> It looks like the ros2_contol_node dies, as above. The mcu then moves at the last commanded speed, which was the max speed.)
         1. Therefore, it seems like if the max speed is hit during oscillations, the control node dies?
 1. Remove /tmp/ folder stuff for kinematics launch file stuff (remove old way, moveitconfigsbuilder is better)
 1. Refactor all of the MoveIt stuff, it's a mess. (Maybe check out Jazzy? Looks like the MoveItConfigsBuilder is what they're working towards...)
-1.  Add Isaac Sim instead of Gazebo: [DIRECTIONS HERE](https://moveit.picknik.ai/main/doc/how_to_guides/isaac_panda/isaac_panda_tutorial.html). 
+1.  Add Isaac Sim instead of Gazebo: [DIRECTIONS HERE](https://moveit.picknik.ai/main/doc/how_to_guides/isaac_panda/isaac_panda_tutorial.html).
 1.  Detect if slider starts up on limit switch. Otherwise calibration violates safety.
     1. Check why accelerates away from switch sometimes
 1.  ~~Allow for backwards movement after limit switch hit.~~
-1.  ~~Add limit switches to URDF system state. Update Hardware Interface to reflect these values. Find out where they're represented in the global ROS system state~~ 
-1.  Allow for calibration at any point.
+1.  ~~Add limit switches to URDF system state. Update Hardware Interface to reflect these values. Find out where they're represented in the global ROS system state~~
+1.  Allow for calibration at any point (programmatically).
     1. Calibration on either side?
-1.  Refactor linear slider bringup to take a robot arm as launch argument, build subsequent launch files and URDFs from there.  
-1.  Let the high-level launch pass the URDF to the MoveIt launch.... 
-1.  Add polling for E-stop for reset-detection (i.e. can we un-set the estop and resume operation without restarting the controller? Is that safe?). 
-1.  Create centralized velocity and position limits. Make sure each interface receives them. 
-1.  Estop physical link to UR5 (can be wired in --> Jostan)   
+    1. Likely need to expand command set.
+        - Add e-stop to urdf sensor list
+        - Standardize for ClearCore and hardware interface
+1.  Refactor linear slider bringup to take a robot arm as launch argument, build subsequent launch files and URDFs from there.
+    - Check out future PyBullet class in `OSURobotics/pybullet_tree_sim`.
+1.  Let the high-level launch pass the URDF to the MoveIt launch....
+1.  Add polling for E-stop for reset-detection (i.e. can we un-set the estop and resume operation without restarting the controller? Is that safe?).
+1.  Create centralized velocity and position limits. Make sure each interface receives them.
+1.  Estop physical link to UR5 (can be wired in --> Jostan)
 1.  Merge ur_with_linear_slider into linear_slider as launch option
 
 
@@ -181,3 +187,10 @@ The construction of the MoveIt package is still underway, as the URDF should be 
 ## Test
 
 The `linear_slider_test` package provides an ament_python environemtn for testing various packages of the linear slider. Currently, it features a joint_trajectory_controller interface by sending positional goals for the JointTrajectoryController action interface.
+
+
+## Debugging
+This section defines some common errors encountered when setting up the hardware/software system.
+
+1. `TF NAN_INPUT: Ignoring transform for child_frame_id "<link_name>" from authority "Authority undetectable" because of a nan value in the transform (-nan -nan -nan) (-nan -nan -nan -nan) `
+    - Your PID values are probably incorrect for the relevant link. Incorrect values can cause the joint to move to infinity. Check `/joint_states` to confirm.
