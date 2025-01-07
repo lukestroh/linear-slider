@@ -194,7 +194,7 @@ def generate_launch_description():
         condition=UnlessCondition(use_moveit),
     )
 
-    joint_state_broadcaster_spawner = Node(
+    node_joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
@@ -204,7 +204,7 @@ def generate_launch_description():
         ],
     )
 
-    limit_switch_state_broadcaster_spawner = Node(
+    node_limit_switch_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
@@ -225,17 +225,6 @@ def generate_launch_description():
             )
         )
 
-    # node_lim_switch_broadcaster = Node(
-    #     package="controller_manager",
-    #     executable="spawner",
-    #     arguments=[
-    #         "limit_switch_state_broadcaster",
-    #         "--controller_manager",
-    #         "/controller_manager"
-    #     ]
-    # )
-    # robot_controller_spawners.append(node_lim_switch_broadcaster)
-
     lifecycle_node_delay_jsb = LifecycleNode(
         name="delay_jsb_node_spawner",
         namespace="",
@@ -244,17 +233,17 @@ def generate_launch_description():
         output="both",
     )
 
-    register_event_for_slider_on_activate = RegisterEventHandler(
+    register_event_delay_JSB_for_controller_manager = RegisterEventHandler( # TODO: rename this to something more descriptive
         OnStateTransition(
             target_lifecycle_node=lifecycle_node_delay_jsb,
             goal_state="finalized",
-            entities=[joint_state_broadcaster_spawner, limit_switch_state_broadcaster_spawner],
+            entities=[node_joint_state_broadcaster_spawner, node_limit_switch_state_broadcaster_spawner],
         )
     )
 
     # Delay rviz start after joint_state_broadcaster to avoid unnecessary warning output
     register_event_delay_rviz_after_JSB_spawner = RegisterEventHandler(
-        event_handler=OnProcessStart(target_action=joint_state_broadcaster_spawner, on_start=[node_rviz])
+        event_handler=OnProcessStart(target_action=node_joint_state_broadcaster_spawner, on_start=[node_rviz])
     )
 
     # Delay loading and activation of robot_controller after 'joint_state_broadcaster'
@@ -262,7 +251,7 @@ def generate_launch_description():
     for controller in robot_controller_spawners:
         register_events_delay_robot_controller_spawners_after_JSB_spawner.append(
             RegisterEventHandler(
-                event_handler=OnProcessExit(target_action=joint_state_broadcaster_spawner, on_exit=[controller])
+                event_handler=OnProcessExit(target_action=node_joint_state_broadcaster_spawner, on_exit=[controller])
             )
         )
 
@@ -280,7 +269,7 @@ def generate_launch_description():
         condition=IfCondition(use_moveit)
     )
     register_event_delay_moveit_after_JSB_spawner = RegisterEventHandler(
-        event_handler=OnProcessStart(target_action=joint_state_broadcaster_spawner, on_start=launch_linear_slider_moveit)
+        event_handler=OnProcessStart(target_action=node_joint_state_broadcaster_spawner, on_start=launch_linear_slider_moveit)
     )
 
     node_joystick = Node(
@@ -318,7 +307,7 @@ def generate_launch_description():
             node_controller_manager,
             node_robot_state_pub,
             register_event_delay_rviz_after_JSB_spawner,
-            register_event_for_slider_on_activate,
+            register_event_delay_JSB_for_controller_manager,
             # launch_linear_slider_moveit,
             register_event_delay_moveit_after_JSB_spawner,
             node_joystick,
