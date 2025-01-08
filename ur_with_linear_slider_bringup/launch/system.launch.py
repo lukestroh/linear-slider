@@ -350,7 +350,6 @@ def launch_setup(context, *args, **kwargs):
         condition=IfCondition(use_joystick)
     )
 
-
     nodes_to_start = [
             node_mock_hardware_control,
             node_ur_control,
@@ -466,7 +465,7 @@ def generate_launch_description():
     declared_args.append( # TODO: change variable name to 'ur_tf_prefix' in higher level launch files. Pass to 'tf_prefix'
         DeclareLaunchArgument(
             "tf_prefix",
-            default_value='ur_robot__',
+            default_value='ur5e__',
             description="Prefix of the UR robot joint names. Useful for multi-robot setup. If changed, joint names in the controllers' configuration need to be updated."
         )
     )
@@ -487,7 +486,7 @@ def generate_launch_description():
     declared_args.append(
         DeclareLaunchArgument(
             "ur_robot_ip",
-            default_value="169.254.177.232", # Cindy's UR5e
+            default_value="169.254.177.230", # Cindy's UR5e
             description="IP Address for the UR robot."
         )
     )
