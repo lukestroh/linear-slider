@@ -7,6 +7,9 @@ controller_manager:
             type: joint_trajectory_controller/JointTrajectoryController
             # TODO: Therefore if the hardware provides only acceleration or velocity states they have to be integrated in the hardware-interface implementation of velocity and position to use these controllers.
 
+        # linear_slider_forward_position_controller:
+        #     type: 
+
         joint_state_broadcaster:
             type: joint_state_broadcaster/JointStateBroadcaster
 
