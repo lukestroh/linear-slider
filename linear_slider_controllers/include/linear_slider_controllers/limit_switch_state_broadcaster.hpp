@@ -30,7 +30,7 @@ Date: 2024-07-26
 #include "rclcpp/time.hpp"
 #include "rclcpp/duration.hpp"
 #include "linear_slider_msgs/msg/limit_switch_state_stamped.hpp"
-#include "limit_switch_state_broadcaster_parameters.hpp"
+#include <linear_slider_controllers/limit_switch_state_broadcaster_parameters.hpp>
 
 namespace linear_slider_controllers {
 

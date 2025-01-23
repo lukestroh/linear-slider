@@ -10,6 +10,9 @@ controller_manager:
         # linear_slider_forward_position_controller:
         #     type: 
 
+        forward_velocity_controller:
+            type: velocity_controllers/JointGroupVelocityController
+
         joint_state_broadcaster:
             type: joint_state_broadcaster/JointStateBroadcaster
 
@@ -70,6 +73,13 @@ linear_slider_controller:
                 trajectory: 0.20
 
         allow_nonzero_velocity_at_trajectory_end: true
+
+
+forward_velocity_controller:
+    ros__parameters:
+        joints:
+            - $(var prefix)joint1
+        interface_name: velocity
 
 limit_switch_state_broadcaster:
     ros__parameters:

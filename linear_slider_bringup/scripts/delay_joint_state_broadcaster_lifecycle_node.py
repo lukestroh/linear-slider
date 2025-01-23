@@ -26,7 +26,7 @@ class DelayJointStateBroadcasterNode(LifecycleNode):
         if not self.client.wait_for_service(timeout_sec=0.5):
             self.get_logger().info(f"Service {self.srv} not available, waiting again...")
         else:
-            self.timer_get_service_response.cancel() # cancel the timer so multiple requests aren't sent
+            self._timer_get_service_response.cancel() # cancel the timer so multiple requests aren't sent
             self.get_logger().info(f"Found service {self.srv}.")
             self.trigger_deactivate()
             self.trigger_shutdown()
@@ -43,7 +43,7 @@ class DelayJointStateBroadcasterNode(LifecycleNode):
 
     def on_activate(self, state: LifecycleState) -> TransitionCallbackReturn:
         self.get_logger().info(f"Activating...")
-        self.timer_get_service_response = self.create_timer(timer_period_sec=1.0, callback=self._timer_cb_service_response)
+        self._timer_get_service_response = self.create_timer(timer_period_sec=1.0, callback=self._timer_cb_service_response)
         return super().on_activate(state)
     
     def on_cleanup(self, state: LifecycleState) -> TransitionCallbackReturn:

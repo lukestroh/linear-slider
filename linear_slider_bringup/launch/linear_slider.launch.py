@@ -112,7 +112,8 @@ def generate_launch_description():
             default_value="linear_slider_controller",
             choices=[
                 "linear_slider_controller",
-                "joint_trajectory_controller"
+                "joint_trajectory_controller",
+                "forward_velocity_controller"
             ],  # add another here if we want to switch between different controllers
             description="Robot controller",
         )
