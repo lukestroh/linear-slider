@@ -1,5 +1,6 @@
 #include "linear_slider_hardware_interface/linear_slider_hardware.hpp"
 
+
 LinearSliderHardware::LinearSliderHardware(){
     name = "default";
 }
