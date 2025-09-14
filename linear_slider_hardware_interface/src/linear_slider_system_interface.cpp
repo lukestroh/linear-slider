@@ -1,4 +1,5 @@
-#include "linear_slider_hardware_interface/linear_slider_system_interface.hpp"
+#include <linear_slider_hardware_interface/linear_slider_system_interface.hpp>
+#include <linear_slider_hardware_interface/cpm_mcpv_conversions.h>
 
 #include <chrono>
 #include <memory>
@@ -51,9 +52,20 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
         if (joint.command_interfaces.size() != 1) {
             RCLCPP_FATAL(
                 _LOGGER,
-                "Joint '%s' has %zu command interfaces found. 1 expected.",
+                "Joint '%s' has %zu command interfaces found.",
                 joint.name.c_str(),
                 joint.command_interfaces.size()
+            );
+            return hardware_interface::CallbackReturn::ERROR;
+        }
+
+        if (!(joint.command_interfaces[0].name == hardware_interface::HW_IF_POSITION)) {
+            RCLCPP_FATAL(
+                _LOGGER,
+                "Joint '%s' has %s command interface. Expected %s.",
+                joint.name.c_str(),
+                joint.command_interfaces[0].name.c_str(),
+                hardware_interface::HW_IF_POSITION
             );
             return hardware_interface::CallbackReturn::ERROR;
         }
@@ -106,8 +118,11 @@ std::vector<hardware_interface::CommandInterface> LinearSliderSystemInterface::e
     //     ));
     // }
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
-        info_.joints[0].name, hardware_interface::HW_IF_VELOCITY, &linear_slider_.command.vel
+        info_.joints[0].name, hardware_interface::HW_IF_POSITION, &linear_slider_.command.pos
     ));
+    // command_interfaces.emplace_back(hardware_interface::CommandInterface(
+    //     info_.joints[0].name, hardware_interface::HW_IF_VELOCITY, &linear_slider_.command.vel
+    // ));
     return command_interfaces;
 }
 
@@ -121,9 +136,9 @@ std::vector<hardware_interface::StateInterface> LinearSliderSystemInterface::exp
     state_interfaces.emplace_back(hardware_interface::StateInterface(
         info_.joints[0].name, hardware_interface::HW_IF_POSITION, &linear_slider_.state.pos
     ));
-    state_interfaces.emplace_back(hardware_interface::StateInterface(
-        info_.joints[0].name, hardware_interface::HW_IF_VELOCITY, &linear_slider_.state.vel
-    ));
+    // state_interfaces.emplace_back(hardware_interface::StateInterface(
+    //     info_.joints[0].name, hardware_interface::HW_IF_VELOCITY, &linear_slider_.state.vel
+    // ));
 
     // Export sensor state interface (adding limit switches into the exported state)
     for (std::size_t i=0; i<info_.sensors.size(); ++i) {
@@ -253,12 +268,9 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
 
         // Get system status and store in linear_slider_.state.system_status
         linear_slider_.state.system_status = static_cast<slidersystem::SystemStatus>(msg_json["status"].asInt());
-        // Get motor RPM, convert to float velocity, store in linear_slider_.state.rpm. Additionally, update linear_slider_.state.vel
-        linear_slider_.state.rpm = msg_json["servo_rpm"].asInt();
-        linear_slider_.state.vel = linear_slider_.rpm_to_vel(linear_slider_.state.rpm); // TODO: this should probably either be completely internal, or completely external, but not both.
-        // Update position
-        // RCLCPP_WARN(_LOGGER, "%f", period.seconds());
-        linear_slider_.state.pos += period.seconds() * linear_slider_.state.vel;
+        // Store system position
+        linear_slider_.state.step_state = msg_json["step_state"].asInt();
+        linear_slider_.state.pos = step_to_pos(linear_slider_.state.rpm);
 
         // TODO: Clean up the system_status vs. specific pins ? Or leave the interfaces separate?
         if (linear_slider_.state.system_status == slidersystem::NEG_LIM) {
@@ -282,11 +294,12 @@ hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp:
 
     // convert linear_slider_.vel_cmd to linear_slider_.rpm_cmd. Convert this value to str, send via comms_
     // RCLCPP_WARN(_LOGGER, "Write time: %f", time.nanoseconds() / 1e9);
+    linear_slider_.command.step_state = pos_to_step(linear_slider_.command.pos);
 
-    linear_slider_.command.rpm = linear_slider_.vel_to_rpm(linear_slider_.command.vel); // TODO: this should probably either be completely internal, or completely external, but not both.
+    // linear_slider_.command.rpm = linear_slider_.vel_to_rpm(linear_slider_.command.vel); // TODO: this should probably either be completely internal, or completely external, but not both.
     
     std::string status_cmd = std::to_string(linear_slider_.command.system_status);
-    std::string rpm_cmd = std::to_string(linear_slider_.command.rpm);
+    std::string rpm_cmd = std::to_string(linear_slider_.command.step_state);
 
     comms_.send_data((status_cmd + "," + rpm_cmd).c_str());
 

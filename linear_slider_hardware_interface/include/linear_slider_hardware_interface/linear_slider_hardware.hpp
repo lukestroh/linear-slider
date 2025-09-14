@@ -9,6 +9,7 @@
 struct Interface{
     slidersystem::SystemStatus system_status = slidersystem::SYSTEM_STANDBY;
     double pos = 0.0; // TODO: get from initial_positions file?
+    int step_state = 0;
     double vel = 0.0;
     int rpm = 0;
     double lim_switch_neg {false}; // hardware_interface::StateInterface only accepts double as a value, not bool. TODO: Switch to GPIO??
@@ -32,8 +33,6 @@ class LinearSliderHardware {
         ~LinearSliderHardware();
 
         void begin(const std::string& system_name);
-        double rpm_to_vel(int rpm);
-        int vel_to_rpm(double& vel);
 };
 
 #endif // __LINEAR_SLIDER_HARDWARE_HPP__

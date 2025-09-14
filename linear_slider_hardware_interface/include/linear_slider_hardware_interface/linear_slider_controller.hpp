@@ -20,8 +20,6 @@ namespace LINEAR_SLIDER_HARDWARE_INTERFACE_interface
 
             LINEAR_SLIDER_HARDWARE_INTERFACE_PUBLIC
             controller_interface::InterfaceConfiguration command_interface_configuration() const override;
-
-            
 }
 
 #endif // ___LINEAR_SLIDER__CONTROLLER_INTERFACE_HPP___
