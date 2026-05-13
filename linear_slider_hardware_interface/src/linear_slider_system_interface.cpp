@@ -1,6 +1,7 @@
 #include "linear_slider_hardware_interface/linear_slider_system_interface.hpp"
 
 #include <chrono>
+#include <cstdlib>
 #include <memory>
 #include <cmath>
 #include <limits>
@@ -41,6 +42,9 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
     config_.device_name = info_.hardware_parameters["device_name"];
     config_.ip_addr = info_.hardware_parameters["device_ip"];
     config_.port = atoi(info_.hardware_parameters["device_port"].c_str());
+    if (info_.hardware_parameters.count("steps_per_rev") > 0) {
+        linear_slider_.set_steps_per_rev(atof(info_.hardware_parameters["steps_per_rev"].c_str()));
+    }
     // linear_slider_.pos_min = atof(info_.hardware_parameters["pos_min"].c_str()); // TODO: get the yaml params here
     // linear_slider_.pos_max = atof(info_.hardware_parameters["pos_max"].c_str());
     // linear_slider_.pos_min = info_.hardware_parameters["pos_min"];
@@ -58,13 +62,13 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
             return hardware_interface::CallbackReturn::ERROR;
         }
 
-        if (!(joint.command_interfaces[0].name == hardware_interface::HW_IF_VELOCITY)) {
+        if (!(joint.command_interfaces[0].name == hardware_interface::HW_IF_POSITION)) {
             RCLCPP_FATAL(
                 _LOGGER,
                 "Joint '%s' has %s command interface. Expected %s.",
                 joint.name.c_str(),
                 joint.command_interfaces[0].name.c_str(),
-                hardware_interface::HW_IF_VELOCITY
+                hardware_interface::HW_IF_POSITION
             );
             return hardware_interface::CallbackReturn::ERROR;
         }
@@ -80,13 +84,14 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
             return hardware_interface::CallbackReturn::ERROR;
         }
 
-        for (std::size_t i=0; i > joint.state_interfaces.size(); ++i) {
-            if (!(joint.state_interfaces[i].name == hardware_interface::HW_IF_VELOCITY) || !(joint.state_interfaces[i].name == hardware_interface::HW_IF_POSITION)) {
+        for (std::size_t i=0; i < joint.state_interfaces.size(); ++i) {
+            if (joint.state_interfaces[i].name != hardware_interface::HW_IF_POSITION &&
+                joint.state_interfaces[i].name != hardware_interface::HW_IF_VELOCITY) {
                 RCLCPP_FATAL(
                     _LOGGER,
                     "Joint '%s' has %s state interface. Expected %s. or %s",
                     joint.name.c_str(),
-                    joint.state_interfaces[0].name.c_str(),
+                    joint.state_interfaces[i].name.c_str(),
                     hardware_interface::HW_IF_POSITION,
                     hardware_interface::HW_IF_VELOCITY
                 );
@@ -106,7 +111,7 @@ std::vector<hardware_interface::CommandInterface> LinearSliderSystemInterface::e
     //     ));
     // }
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
-        info_.joints[0].name, hardware_interface::HW_IF_VELOCITY, &linear_slider_.command.vel
+        info_.joints[0].name, hardware_interface::HW_IF_POSITION, &linear_slider_.command.pos
     ));
     return command_interfaces;
 }
@@ -235,23 +240,27 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
     if (msg[0] != '\0'){
         const std::unique_ptr<Json::CharReader> reader(Json::CharReaderBuilder().newCharReader());
         Json::Value msg_json;
-        const std::unique_ptr<std::string> errors;
+        std::string errors;
 
-        bool parsingSuccessful = reader->parse(msg, msg + strlen(msg), &msg_json, errors.get());
+        bool parsingSuccessful = reader->parse(msg, msg + strlen(msg), &msg_json, &errors);
 
         if (!parsingSuccessful) {
-            RCLCPP_ERROR(_LOGGER, "Failed to parse JSON message: %s", (*errors).c_str());
+            RCLCPP_ERROR(_LOGGER, "Failed to parse JSON message: %s", errors.c_str());
             return hardware_interface::return_type::ERROR;
         }
 
         // Get system status and store in linear_slider_.system_status
         linear_slider_.state.system_status = static_cast<slidersystem::SystemStatus>(msg_json["status"].asInt());
-        // Get motor RPM, convert to float velocity, store in linear_slider_.state.rpm. Additionally, update linear_slider_.state.vel
-        linear_slider_.state.rpm = msg_json["servo_rpm"].asInt();
-        linear_slider_.state.vel = linear_slider_.rpm_to_vel(linear_slider_.state.rpm); // TODO: this should probably either be completely internal, or completely external, but not both.
-        // Update position
-        RCLCPP_WARN(_LOGGER, "%f", period.seconds());
-        linear_slider_.state.pos += period.seconds() * linear_slider_.state.vel;
+        if (msg_json.isMember("servo_rpm")) {
+            linear_slider_.state.rpm = msg_json["servo_rpm"].asInt();
+            linear_slider_.state.vel = linear_slider_.rpm_to_vel(linear_slider_.state.rpm);
+        }
+        if (msg_json.isMember("pos_steps")) {
+            linear_slider_.state.pos_steps = msg_json["pos_steps"].asInt();
+            linear_slider_.state.pos = linear_slider_.steps_to_meters(linear_slider_.state.pos_steps);
+        } else {
+            linear_slider_.state.pos += period.seconds() * linear_slider_.state.vel;
+        }
 
         // TODO: Clean up the system_status vs. specific pins ? Or leave the interfaces separate?
         if (linear_slider_.state.system_status == slidersystem::NEG_LIM) {
@@ -276,12 +285,12 @@ hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp:
     // convert linear_slider_.vel_cmd to linear_slider_.rpm_cmd. Convert this value to str, send via comms_
     // RCLCPP_WARN(_LOGGER, "Write time: %f", time.nanoseconds() / 1e9);
 
-    linear_slider_.command.rpm = linear_slider_.vel_to_rpm(linear_slider_.command.vel); // TODO: this should probably either be completely internal, or completely external, but not both.
-    
-    std::string status_cmd = std::to_string(linear_slider_.command.system_status);
-    std::string rpm_cmd = std::to_string(linear_slider_.command.rpm);
+    linear_slider_.command.pos_steps = linear_slider_.meters_to_steps(linear_slider_.command.pos); // TODO: this should probably either be completely internal, or completely external, but not both.
 
-    comms_.send_data((status_cmd + "," + rpm_cmd).c_str());
+    std::string status_cmd = std::to_string(linear_slider_.command.system_status);
+    std::string pos_cmd = std::to_string(linear_slider_.command.pos_steps);
+
+    comms_.send_data((status_cmd + "," + pos_cmd).c_str());
 
     // RCLCPP_WARN(_LOGGER, "Write cmd: %s", (status_cmd + "," + rpm_cmd).c_str());
     // RCLCPP_WARN(_LOGGER, "Write period: %f", period.nanoseconds() / 1e9);
