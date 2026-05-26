@@ -24,6 +24,7 @@
   <depend>controller_manager</depend>
   <depend>controller_interface</depend>
   <depend>joint_trajectory_controller</depend>
+  <depend>linear_slider_msgs</depend>
 
 
   <test_depend>ament_lint_auto</test_depend>

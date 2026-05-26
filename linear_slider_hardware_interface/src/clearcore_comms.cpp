@@ -1,6 +1,9 @@
 #include "arpa/inet.h"
 #include "linear_slider_hardware_interface/clearcore_comms.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include <cerrno>
+#include <cstring>
+#include <sys/time.h>
 
 #define _LOGGER rclcpp::get_logger("LinearSliderCommunicationInterface")
 
@@ -41,6 +44,14 @@ bool ClearCoreComms::begin() {
         return false;
     }
 
+    struct timeval timeout;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 10000;
+    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
+        RCLCPP_FATAL(_LOGGER, "Socket receive timeout configuration failed.");
+        return false;
+    }
+
     RCLCPP_INFO(_LOGGER, "ClearCoreComms setup complete.");
 
     return true;
@@ -51,7 +62,16 @@ char* ClearCoreComms::read_data() {
     TODO: Store client data in temp struct, keep a constant client for send data
     */
     int msg_size;
-    msg_size = recvfrom(sock, (char*)read_buffer, BUF_LEN_MAX, MSG_WAITALL, (struct sockaddr*)&tmp_addr, &tmp_addr_len);
+    msg_size = recvfrom(sock, (char*)read_buffer, BUF_LEN_MAX - 1, 0, (struct sockaddr*)&tmp_addr, &tmp_addr_len);
+    if (msg_size < 0) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            read_buffer[0] = '\0';
+            return read_buffer;
+        }
+        RCLCPP_ERROR(_LOGGER, "UDP recvfrom failed: %s", strerror(errno));
+        read_buffer[0] = '\0';
+        return read_buffer;
+    }
     read_buffer[msg_size] = '\0';
     return read_buffer;
 }

@@ -365,15 +365,19 @@ void ClearPathMC::service_position_move() {
 	}
 	if (negative_limit_active()) {
 		state_.system_status = slidersystem::NEG_LIM;
-		stop_position_move();
 		neg_lim_switch_flag = false;
-		return;
+		if (target_position_steps <= state_.pos_steps) {
+			stop_position_move();
+			return;
+		}
 	}
 	if (positive_limit_active()) {
 		state_.system_status = slidersystem::POS_LIM;
-		stop_position_move();
 		pos_lim_switch_flag = false;
-		return;
+		if (target_position_steps >= state_.pos_steps) {
+			stop_position_move();
+			return;
+		}
 	}
 
 	// Any interrupt flags -> stop motion

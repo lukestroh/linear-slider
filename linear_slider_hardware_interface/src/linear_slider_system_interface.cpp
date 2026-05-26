@@ -1,6 +1,7 @@
 #include "linear_slider_hardware_interface/linear_slider_system_interface.hpp"
 
 #include <chrono>
+#include <algorithm>
 #include <cstdlib>
 #include <memory>
 #include <cmath>
@@ -105,11 +106,6 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
 std::vector<hardware_interface::CommandInterface> LinearSliderSystemInterface::export_command_interfaces() {
     /* Tells the rest of ros2_control which control interfaces are accessible */
     std::vector<hardware_interface::CommandInterface> command_interfaces;
-    // for (std::size_t i = 0; i < info_.joints.size(); ++i) {
-    //     command_interfaces.emplace_back(hardware_interface::CommandInterface(
-    //         info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_velocities_[i]
-    //     ));
-    // }
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
         info_.joints[0].name, hardware_interface::HW_IF_POSITION, &linear_slider_.command.pos
     ));
@@ -157,63 +153,32 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_cleanup(const
 }
 
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(const rclcpp_lifecycle::State& /*previous_state*/) {
-    /* Activate the hardware by sending a calibration request if the system is in standby. */
+    /* Activate position control without blocking on homing/calibration.
+       The ClearCore firmware services position moves asynchronously. */
     RCLCPP_INFO(_LOGGER, "Activating hardware, please wait...");
-    // rclcpp::Clock().sleep_for(rclcpp::Duration(1, 0));
-    while (true) {
-        hardware_interface::return_type read_success = read(rclcpp::Clock().now(), rclcpp::Duration(0, 0));
 
-        if (read_success == hardware_interface::return_type::OK) {
-            // Don't do anything if system is normal
-            if (linear_slider_.state.system_status == slidersystem::SYSTEM_OK) {
-                linear_slider_.command.system_status = slidersystem::SYSTEM_OK;
-                break;
-            }
-            // If in standby, calibrate
-            else if (linear_slider_.state.system_status == slidersystem::SYSTEM_STANDBY) {
-
-                // make sure this message only gets sent once...
-                if (!calibration_cmd_sent) {
-                                
-                    RCLCPP_INFO(_LOGGER, "System status: %d. System is in standby.", linear_slider_.state.system_status);
-
-                    linear_slider_.command.system_status = slidersystem::SYSTEM_CALIBRATING;
-                    this->write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
-                    calibration_cmd_sent = true;
-                    RCLCPP_INFO(_LOGGER, "Calibration request sent.");
-                }
-            }
-            // If E-stop, don't do anything
-            else if (linear_slider_.state.system_status == slidersystem::E_STOP) {
-                RCLCPP_ERROR(_LOGGER, "Linear slider E-stop triggered.");
-                return hardware_interface::CallbackReturn::FAILURE;
-            }
-            // If the system is calibrating, don't do anything
-            else if (linear_slider_.state.system_status == slidersystem::SYSTEM_CALIBRATING) {
-                RCLCPP_INFO(_LOGGER, "System calibrating...");
-            }
-            // If at the switches, update position and return to normal operation
-            else if (linear_slider_.state.system_status == slidersystem::NEG_LIM) {
-                linear_slider_.state.pos = linear_slider_.pos_min; // TODO: Get limits from yaml file.
-                linear_slider_.state.system_status = slidersystem::NEG_LIM;
-                linear_slider_.command.system_status = slidersystem::SYSTEM_OK;
-                
-                linear_slider_.command.vel = linear_slider_.start_velocity;
-                RCLCPP_WARN(_LOGGER, "linear_slider_pos_min: %f", linear_slider_.pos_min);
-                this->write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
-                break;
-            }
-            else if (linear_slider_.state.system_status == slidersystem::POS_LIM) {
-                linear_slider_.state.pos = linear_slider_.pos_max;
-                linear_slider_.state.system_status = slidersystem::POS_LIM;
-                linear_slider_.command.system_status = slidersystem::SYSTEM_OK;
-                linear_slider_.command.vel = linear_slider_.start_velocity;
-
-                this->write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
-                // break;  // TODO: break if calibration added to both sides
-            }
-        }
+    if (read(rclcpp::Clock().now(), rclcpp::Duration(0, 0)) != hardware_interface::return_type::OK) {
+        return hardware_interface::CallbackReturn::FAILURE;
     }
+
+    if (linear_slider_.state.system_status == slidersystem::E_STOP) {
+        RCLCPP_ERROR(_LOGGER, "Linear slider E-stop triggered.");
+        return hardware_interface::CallbackReturn::FAILURE;
+    }
+
+    if (linear_slider_.state.system_status == slidersystem::NEG_LIM) {
+        linear_slider_.state.pos = linear_slider_.pos_min;
+    } else if (linear_slider_.state.system_status == slidersystem::POS_LIM) {
+        linear_slider_.state.pos = linear_slider_.pos_max;
+    }
+
+    linear_slider_.command.system_status = slidersystem::SYSTEM_OK;
+    linear_slider_.command.pos = std::clamp(
+        linear_slider_.state.pos,
+        linear_slider_.pos_min,
+        linear_slider_.pos_max
+    );
+    this->write(rclcpp::Clock().now(), rclcpp::Duration(0, 0));
 
     RCLCPP_INFO(_LOGGER, "Successfully activated!");
     return hardware_interface::CallbackReturn::SUCCESS;
@@ -222,9 +187,8 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_activate(cons
 hardware_interface::CallbackReturn LinearSliderSystemInterface::on_deactivate(const rclcpp_lifecycle::State& /*previous_state*/) {
     /* Put the slider into SYSTEM_STANDBY status */
     RCLCPP_INFO(_LOGGER, "Deactivating hardware, please wait...");
-    // Send hardware to standby mode, set velocity to 0.
+    // Send hardware to standby mode and stop the active position move in firmware.
     linear_slider_.command.system_status = slidersystem::SYSTEM_STANDBY;
-    linear_slider_.command.rpm = 0.0;
     this->write(rclcpp::Clock().now(), rclcpp::Duration(0,0));
 
     RCLCPP_INFO(_LOGGER, "Successfully deactivated.");
@@ -280,20 +244,22 @@ hardware_interface::return_type LinearSliderSystemInterface::read(const rclcpp::
 }
 
 hardware_interface::return_type LinearSliderSystemInterface::write(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
-    /* Write data to the linear slider. Converts linear velocities to RPM speeds */
+    /* Send a non-blocking absolute position target to the ClearCore.
+       Firmware starts/services the move asynchronously and reports position in read(). */
 
-    // convert linear_slider_.vel_cmd to linear_slider_.rpm_cmd. Convert this value to str, send via comms_
-    // RCLCPP_WARN(_LOGGER, "Write time: %f", time.nanoseconds() / 1e9);
-
-    linear_slider_.command.pos_steps = linear_slider_.meters_to_steps(linear_slider_.command.pos); // TODO: this should probably either be completely internal, or completely external, but not both.
+    if (linear_slider_.command.system_status == slidersystem::SYSTEM_OK) {
+        linear_slider_.command.pos = std::clamp(
+            linear_slider_.command.pos,
+            linear_slider_.pos_min,
+            linear_slider_.pos_max
+        );
+        linear_slider_.command.pos_steps = linear_slider_.meters_to_steps(linear_slider_.command.pos);
+    }
 
     std::string status_cmd = std::to_string(linear_slider_.command.system_status);
     std::string pos_cmd = std::to_string(linear_slider_.command.pos_steps);
 
     comms_.send_data((status_cmd + "," + pos_cmd).c_str());
-
-    // RCLCPP_WARN(_LOGGER, "Write cmd: %s", (status_cmd + "," + rpm_cmd).c_str());
-    // RCLCPP_WARN(_LOGGER, "Write period: %f", period.nanoseconds() / 1e9);
 
     return hardware_interface::return_type::OK;
 }

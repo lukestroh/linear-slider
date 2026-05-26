@@ -39,7 +39,7 @@ namespace linear_slider_system_interface
         struct Config {
             std::string device_name = "";
             std::string ip_addr = "";
-            std::string port = "";
+            int port = 0;
         };
 
         public:
@@ -89,7 +89,6 @@ namespace linear_slider_system_interface
 
             // System status
             slidersystem::SystemStatus system_status;
-            bool calibration_cmd_sent = false;
             rclcpp::Clock clock_ = rclcpp::Clock();
     };
 } // namespace linear_slider_system_interface

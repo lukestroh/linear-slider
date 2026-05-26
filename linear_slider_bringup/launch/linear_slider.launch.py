@@ -10,8 +10,6 @@ from launch_ros.event_handlers import OnStateTransition
 from launch_ros.parameter_descriptions import ParameterFile
 from launch_ros.substitutions import FindPackageShare
 
-from ament_index_python.packages import get_package_share_directory
-
 import rclpy.logging
 
 logger = rclpy.logging.get_logger("linear_slider_bringup.logger")
@@ -69,6 +67,11 @@ def generate_launch_description():
     )
     declared_args.append(
         DeclareLaunchArgument(
+            "use_rviz", default_value="true", choices=["true", "false"], description="Start RViz when MoveIt is disabled."
+        )
+    )
+    declared_args.append(
+        DeclareLaunchArgument(
             "prefix",
             default_value="linear_slider__",
             description="Prefix of the joint names, useful for multi-robot setup. Joint name parameters should be updated in URDF and YAML files.",
@@ -122,6 +125,7 @@ def generate_launch_description():
     linear_slider_controllers_package = LaunchConfiguration("linear_slider_controllers_package")
     use_mock_hardware = LaunchConfiguration("use_mock_hardware")
     use_moveit = LaunchConfiguration("use_moveit")
+    use_rviz = LaunchConfiguration("use_rviz")
     use_sim_time = LaunchConfiguration("use_sim_time")
 
     # Get URDF from xacro
@@ -173,7 +177,7 @@ def generate_launch_description():
         name="rviz2",
         output="log",
         arguments=["-d", rviz_config_file],
-        condition=UnlessCondition(use_moveit),
+        condition=IfCondition(PythonExpression(["'", use_moveit, "' == 'false' and '", use_rviz, "' == 'true'"])),
     )
 
     joint_state_broadcaster_spawner = Node(
@@ -250,7 +254,7 @@ def generate_launch_description():
 
     # MoveIt launch
     filepath_moveit_config_package = PathJoinSubstitution(
-        [get_package_share_directory("linear_slider_moveit_config"), "launch", "linear_slider_moveit.launch.py"] # TODO: For some reason this wasn't working with FindPackageShare. Why ?
+        [FindPackageShare(moveit_config_package), "launch", "linear_slider_moveit.launch.py"]
     )
     launch_linear_slider_moveit = IncludeLaunchDescription(
         AnyLaunchDescriptionSource(filepath_moveit_config_package),
