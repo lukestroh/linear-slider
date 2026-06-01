@@ -10,7 +10,7 @@
 
 class ClearCoreComms {
     public:
-        bool begin();
+        bool begin(const std::string& remote_ip, int remote_port, int local_port);
         char* read_data();
         void send_data(const char* data);
 
@@ -18,8 +18,8 @@ class ClearCoreComms {
         ~ClearCoreComms();
 
     private:
-        const int local_port = 44644;
-        const int remote_port = 8888;
+        int local_port = 44644;
+        int remote_port = 8888;
         int sock;
         struct sockaddr_in local_svr_addr;
         struct sockaddr_in client_addr;

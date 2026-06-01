@@ -1,5 +1,0 @@
-/Users/isaacmiller/Downloads/Apple-Picking-Robot/Linear-Slider/linear-slider/_build/ClearCoreController/Release/CMakeFiles/ClearCoreController_Release_Release_arm_gcc_compile.dir
-/Users/isaacmiller/Downloads/Apple-Picking-Robot/Linear-Slider/linear-slider/_build/ClearCoreController/Release/CMakeFiles/ClearCoreController_Release_Release_arm_gcc_compile_cpp.dir
-/Users/isaacmiller/Downloads/Apple-Picking-Robot/Linear-Slider/linear-slider/_build/ClearCoreController/Release/CMakeFiles/ClearCoreController_Release_image_a7o_xJsf.dir
-/Users/isaacmiller/Downloads/Apple-Picking-Robot/Linear-Slider/linear-slider/_build/ClearCoreController/Release/CMakeFiles/edit_cache.dir
-/Users/isaacmiller/Downloads/Apple-Picking-Robot/Linear-Slider/linear-slider/_build/ClearCoreController/Release/CMakeFiles/rebuild_cache.dir

@@ -42,7 +42,7 @@ limit_switch_state_broadcaster:
     ros__parameters:
         state_interfaces:
             - $(var prefix)lim_switch_neg/state
-              $(var prefix)lim_switch_pos/state
+            - $(var prefix)lim_switch_pos/state
 
 joint_state_broadcaster:
     ros__parameters:

@@ -42,7 +42,10 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_init(const ha
     // Comms -- TODO: remove config, only do comms/hardware?
     config_.device_name = info_.hardware_parameters["device_name"];
     config_.ip_addr = info_.hardware_parameters["device_ip"];
-    config_.port = atoi(info_.hardware_parameters["device_port"].c_str());
+    config_.remote_port = atoi(info_.hardware_parameters["device_port"].c_str());
+    if (info_.hardware_parameters.count("local_port") > 0) {
+        config_.local_port = atoi(info_.hardware_parameters["local_port"].c_str());
+    }
     if (info_.hardware_parameters.count("steps_per_rev") > 0) {
         linear_slider_.set_steps_per_rev(atof(info_.hardware_parameters["steps_per_rev"].c_str()));
     }
@@ -141,7 +144,7 @@ hardware_interface::CallbackReturn LinearSliderSystemInterface::on_configure(con
     /* Set up the comms */
     RCLCPP_INFO(_LOGGER, "Configuring system, please wait...");
     RCLCPP_INFO(_LOGGER, "Setting up communication...");
-    if (comms_.begin()) {return hardware_interface::CallbackReturn::SUCCESS;}
+    if (comms_.begin(config_.ip_addr, config_.remote_port, config_.local_port)) {return hardware_interface::CallbackReturn::SUCCESS;}
     else {return hardware_interface::CallbackReturn::FAILURE;}
 }
 

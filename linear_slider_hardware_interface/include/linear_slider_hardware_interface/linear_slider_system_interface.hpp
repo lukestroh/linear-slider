@@ -39,7 +39,8 @@ namespace linear_slider_system_interface
         struct Config {
             std::string device_name = "";
             std::string ip_addr = "";
-            int port = 0;
+            int remote_port = 8888;
+            int local_port = 44644;
         };
 
         public:

@@ -37,10 +37,11 @@ ament_target_dependencies(
   pluginlib
   # jsoncpp
 )
-target_link_libraries(
-  ${PROJECT_NAME}
-  jsoncpp
-)
+if(TARGET jsoncpp_lib)
+  target_link_libraries(${PROJECT_NAME} PRIVATE jsoncpp_lib)
+else()
+  target_link_libraries(${PROJECT_NAME} PRIVATE jsoncpp)
+endif()
 
 pluginlib_export_plugin_description_file(
   hardware_interface
@@ -70,6 +71,7 @@ ament_export_dependencies(
   rclcpp
   rclcpp_lifecycle
   pluginlib
+  jsoncpp
 )
 
 if(BUILD_TESTING)

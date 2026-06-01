@@ -11,6 +11,9 @@
 
   <depend>linear_slider_controllers</depend>
   <depend>linear_slider_description</depend>
+  <depend>ur_description</depend>
+  <depend>xacro</depend>
+  <depend>urdf</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

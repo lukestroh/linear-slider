@@ -1,5 +1,24 @@
 .git
 
+# Local OS/editor files
+.DS_Store
+**/.DS_Store
+.vscode/
+.idea/
+
+# ROS/colcon workspace outputs
+build/
+install/
+log/
+_build/
+out/
+
+# MPLAB/ClearCore generated support files at the workspace root
+/same53n19a_flash.ld
+/same53n19a_sram.ld
+/startup_same53n19a.c
+/system_same53n19a.c
+
 # Prerequisites
 *.d
 

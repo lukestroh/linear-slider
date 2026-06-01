@@ -20,6 +20,7 @@
   <depend>lifecycle_msgs</depend>
   <depend>rcutils</depend>
   <depend>realtime_tools</depend>
+  <depend>trajectory_msgs</depend>
   <depend>generate_parameter_library</depend>
   <depend>controller_manager</depend>
   <depend>controller_interface</depend>
